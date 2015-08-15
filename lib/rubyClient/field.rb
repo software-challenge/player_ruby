@@ -1,7 +1,3 @@
-# To change this license header, choose License Headers in Project Properties.
-# To change this template file, choose Tools | Templates
-# and open the template in the editor.
-
 require_relative 'player_color'
 require_relative 'field_type'
 
@@ -19,13 +15,13 @@ class Field
   end
   
   def ==(another_field)
-    self.owner == another_field.owner && 
+    return self.owner == another_field.owner && 
       self.type == another_field.type && 
       self.x == another_field.x && 
       self.y == another_field.y
   end
   
   def to_s
-    "Field: x = #{self.x}, y = #{self.y}, owner = #{self.owner}, type = #{self.type}"
+    return "Field: x = #{self.x}, y = #{self.y}, owner = #{self.owner}, type = #{self.type}"
   end
 end

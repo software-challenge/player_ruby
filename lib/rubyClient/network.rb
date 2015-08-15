@@ -1,7 +1,3 @@
-# To change this license header, choose License Headers in Project Properties.
-# To change this template file, choose Tools | Templates
-# and open the template in the editor.
-
 require 'socket'
 require_relative 'protocol'
 require_relative 'board'
@@ -29,11 +25,12 @@ class Network
   
     @protocol = Protocol.new(self, @board, @client)
     @reservationID = ''
-  @receiveBuffer = ''
+    @receiveBuffer = ''
   
     puts '> Network/Socket created.'
   end
-  
+
+  # connects the client with a given server
   def connect
     @socket = TCPSocket.open(@host, @port)
     @connected = true
@@ -52,25 +49,27 @@ class Network
       document.add(element)
       self.sendXML(document)
     end
-    @connected
+    return @connected
   end
   
+  # disconnects the client from a server
   def disconnect
 
     if @connected
-        sendString("</protocol>")
-        @connected = false
+      sendString("</protocol>")
+      @connected = false
       @socket.close
     end
     puts '> Disconnected.'
   end
 
+  # reads from the socket until "</room>" is read
   def readString
     puts 'reading'
     sockMsg = ''
-  #  if(!@connected) 
-  #    return
-  #  end
+    if(!@connected) 
+      return
+    end
   
     line =''
     char = ''
@@ -81,12 +80,9 @@ class Network
 
         line = ''
       end
-    sockMsg += char
+      sockMsg += char
     end
     puts 'ended reading'
-    #puts '.'
-    #sockMsg = @socket.read
-    #puts '..'
     if sockMsg != ''
     
       @receiveBuffer.concat(sockMsg)
@@ -98,25 +94,27 @@ class Network
       puts ''
       #puts @receiveBuffer
     
-      #// Process text
+      # Process text
       @protocol.processString('<msg>'+@receiveBuffer+'</msg>');
       self.emptyReceiveBuffer
     end
-    true
+    return true
   end
 
+  # empties the receive buffer
   def emptyReceiveBuffer
     @receiveBuffer = ''
   end
 
+  # processes an incomming message
   def processMessages
     if !@connected
       return false
     end
-
-    self.readString
+    return self.readString
   end
 
+  # sends a string to the socket
   def sendString(s)
     if(@connected)
       @socket.print(s);
@@ -126,6 +124,7 @@ class Network
     end
   end
 
+  # sends a xml file to the buffer
   def sendXML(xml)
     text  = ''
     xml.write(text)

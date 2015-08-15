@@ -1,7 +1,3 @@
-# To change this license header, choose License Headers in Project Properties.
-# To change this template file, choose Tools | Templates
-# and open the template in the editor.
-
 require_relative 'player_color'
 
 class Connection
@@ -22,9 +18,13 @@ class Connection
   def ==(another_connection)
     if(self.x1 == another_connection.x1 && self.y1 == another_connection.y1 && self.x2 == another_connection.x2 && self.y2 == another_connection.y2 ||
        self.x1 == another_connection.x2 && self.y1 == another_connection.y2 && self.x2 == another_connection.x1 && self.y2 == another_connection.y1) 
-      owner == c.owner
+      return owner == c.owner
     else
-      false
+      return false
     end
+  end
+  
+  def to_s
+    return "#{self.owner} : (#{self.x1}, #{self.y1}) - (#{self.x2}, #{self.y2})"
   end
 end

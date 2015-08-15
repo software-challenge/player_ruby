@@ -1,7 +1,3 @@
-# To change this license header, choose License Headers in Project Properties.
-# To change this template file, choose Tools | Templates
-# and open the template in the editor.
-
 require 'socket'
 require_relative 'board'
 require_relative 'move'
@@ -11,7 +7,6 @@ require_relative 'connection'
 require_relative 'simpleClient/client'
 require 'rexml/document'
 require 'rexml/streamlistener'
-require 'pry'
 
 class Protocol
   include REXML::StreamListener
@@ -20,16 +15,29 @@ class Protocol
   attr_reader :client
   @network
 
-def tag_end(name)
+  def initialize(network, board, client)
+    @network, @client = network, client  
+  end
+  
+  # starts string parsing
+  def processString(text)
+    list = self
+    #puts "Parse XML:\n#{text}\n----END XML"
+    REXML::Document.parse_stream(text, list)
+  end
+  
+  #called if an end tag is read
+  def tag_end(name)
     case name
-        when "board"
-            puts @gamestate.board.to_s
-        when "condition"
-            puts "Game ended"
-            @network.disconnect
+    when "board"
+      puts @gamestate.board.to_s
+    when "condition"
+      puts "Game ended"
+      @network.disconnect
     end
-    end
+  end
 
+  #called if a start tag is read
   def tag_start(name, attrs)
     case name
     when "room"
@@ -55,9 +63,9 @@ def tag_end(name)
         self.sendXml(document)
       end
       if attrs['class'] == "error"
-          puts "Game ended - ERROR"
-          puts attrs['message']
-          @network.disconnect
+        puts "Game ended - ERROR"
+        puts attrs['message']
+        @network.disconnect
       end
     when "state"
       puts 'new gamestate'
@@ -65,14 +73,14 @@ def tag_end(name)
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.startPlayerColor = attrs['startPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
       @gamestate.currentPlayerColor = attrs['currentPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
-puts "Turn: #{@gamestate.turn}"
+      puts "Turn: #{@gamestate.turn}"
     when "red" 
       puts 'new red player'
-      @gamestate.red = Player.new(attrs['color'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE)
+      @gamestate.addPlayer(Player.new(attrs['color'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE))
       @gamestate.red.points = attrs['points'].to_i
     when "blue"
       puts 'new blue player'
-      @gamestate.blue = Player.new(attrs['color'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE)
+      @gamestate.addPlayer(Player.new(attrs['color'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE))
       @gamestate.blue.points = attrs['points'].to_i
     when "board"
       puts 'new board'
@@ -92,19 +100,17 @@ puts "Turn: #{@gamestate.turn}"
         @network.disconnect
       end
 
-case attrs['owner']
-    when 'RED'
-    owner = PlayerColor::RED
-    when 'BLUE'
-    owner = PlayerColor::BLUE
-end
+      case attrs['owner']
+      when 'RED'
+        owner = PlayerColor::RED
+      when 'BLUE'
+        owner = PlayerColor::BLUE
+      end
       x = attrs['x'].to_i
       y = attrs['y'].to_i
 
       @gamestate.board.fields[x][y] = Field.new(type, x, y)
       @gamestate.board.fields[x][y].owner = owner
-      #when "connections"
-    #@gamestate.board.connections = Array.new
     when "connection"
       @gamestate.board.connections.push(Connection.new(attrs['x1'].to_i, attrs['y1'].to_i, attrs['x2'].to_i, attrs['y2'].to_i, attrs['owner']))
     when "lastMove"
@@ -114,18 +120,9 @@ end
     end
   end
 
+  # send a xml document
   def sendXml(document)
     @network.sendXML(document)  
   end
   
-  def processString(text)
-    list = self
-    #puts "Parse XML:\n#{text}\n----END XML"
-    REXML::Document.parse_stream(text, list)
-  end
-  
-  
-  def initialize(network, board, client)
-    @network, @client = network, client  
-  end
 end
