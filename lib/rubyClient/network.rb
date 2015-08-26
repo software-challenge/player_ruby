@@ -1,10 +1,12 @@
 require 'socket'
 require_relative 'protocol'
 require_relative 'board'
-require_relative 'simpleClient/client'
+require_relative 'client_interface'
 require 'rexml/document'
 require 'rexml/element'
 
+# @author Ralf-Tobias Diekert
+# This class handles the socket connection to the server
 class Network
   @socket
   @host
@@ -16,14 +18,16 @@ class Network
     
   @receiveBuffer
   @reservationID
-
+  
+  # @!attribute [r] connected
+  # @return [Boolean] true, if the client is connected to a server
   attr_reader :connected
     
   def initialize(host, port, board, client)
     @host, @port, @connected, @board, @client = 
       host, port, false, board, client
   
-    @protocol = Protocol.new(self, @board, @client)
+    @protocol = Protocol.new(self, @client)
     @reservationID = ''
     @receiveBuffer = ''
   
@@ -31,6 +35,8 @@ class Network
   end
 
   # connects the client with a given server
+  # 
+  # @return [Boolean] true, if successfully connected to the server
   def connect
     @socket = TCPSocket.open(@host, @port)
     @connected = true
@@ -107,6 +113,8 @@ class Network
   end
 
   # processes an incomming message
+  #
+  # @return [Boolean] true, if the processing of a incomming message was successfull
   def processMessages
     if !@connected
       return false
@@ -115,6 +123,8 @@ class Network
   end
 
   # sends a string to the socket
+  #
+  # @param s [String] the message, to be sent
   def sendString(s)
     if(@connected)
       @socket.print(s);
@@ -124,7 +134,9 @@ class Network
     end
   end
 
-  # sends a xml file to the buffer
+  # sends a xml Document to the buffer
+  #
+  # @param xml [REXML::Docuent] the Document, that will be sent
   def sendXML(xml)
     text  = ''
     xml.write(text)

@@ -1,15 +1,20 @@
 require_relative 'player_color'
 
+# @author Ralf-Tobias Diekert
+# A player, participating at a game
 class Player
+  # @!attribute [r] color
+  # @return [PlayerColor] the player's color
   attr_reader :color
+  # @!attribute [rw] points
+  # @return [Integer] the player's points
   attr_accessor :points
   
-  def initialize
-    self.points = 0
-  end
-  
+  # Initializer
+  # @param the new player's color
   def initialize(color)
     @color = color
+    self.points = 0
   end
   
   def ==(another_player)

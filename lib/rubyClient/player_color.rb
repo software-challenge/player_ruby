@@ -1,10 +1,15 @@
+# @author Ralf-Tobias Diekert
 #player color constants
 module PlayerColor
   NONE = 1
   RED = 2
   BLUE = 4
   
-  def self.opponent(color)
+  # Returns the opponents Color
+  #
+  # @param color [PlayerColor] The player's color, whose opponent needs to be found
+  # @return [PlayerColor] the opponent's color
+  def self.opponentColor(color)
     if color == PlayerColor::RED
       return PlayerColor::BLUE
     end

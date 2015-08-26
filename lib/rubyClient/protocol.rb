@@ -4,29 +4,45 @@ require_relative 'move'
 require_relative 'player'
 require_relative 'network'
 require_relative 'connection'
-require_relative 'simpleClient/client'
+require_relative 'client_interface'
 require 'rexml/document'
 require 'rexml/streamlistener'
 
+
+# @author Ralf-Tobias Diekert
+# This class handles the parsing of xml strings according to the network protocol of twixt
 class Protocol
   include REXML::StreamListener
+  
+  # @!attribute [r] gamestate
+  # @return [Gamestate] current gamestate
   attr_reader :gamestate
-  attr_reader :roomID
+  # @!attribute [rw] roomID
+  # @return [String] current room id
+  attr_accessor :roomID
+  # @!attribute [r] client
+  # @return [ClientInterface] current client
   attr_reader :client
   @network
 
-  def initialize(network, board, client)
+  def initialize(network, client)
+    @gamestate = GameState.new
     @network, @client = network, client  
+    self.client.gamestate = self.gamestate
   end
   
-  # starts string parsing
+  # starts xml-string parsing
+  # 
+  # @param text [String] the xml-string that will be parsed
   def processString(text)
     list = self
     #puts "Parse XML:\n#{text}\n----END XML"
     REXML::Document.parse_stream(text, list)
   end
   
-  #called if an end tag is read
+  # called if an end-tag is read
+  #
+  # @param name [String] the end-tag name, that was read
   def tag_end(name)
     case name
     when "board"
@@ -37,7 +53,12 @@ class Protocol
     end
   end
 
-  #called if a start tag is read
+  # called if a start tag is read
+  # Depending on the tag the gamestate is updated
+  # or the client will be asked for a move
+  #
+  # @param name [String] the start-tag, that was read
+  # @param attrs [Dictionary<String, String>] Attributes attached to the tag
   def tag_start(name, attrs)
     case name
     when "room"
@@ -69,7 +90,6 @@ class Protocol
       end
     when "state"
       puts 'new gamestate'
-      @gamestate = GameState.new
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.startPlayerColor = attrs['startPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
       @gamestate.currentPlayerColor = attrs['currentPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
@@ -87,7 +107,7 @@ class Protocol
       @gamestate.board = Board.new(true)
     when "field"
       type = FieldType::NORMAL
-      owner = PlayerColor::NONE
+      ownerColor = PlayerColor::NONE
       case attrs['type']
       when 'SWAMP'
         type = FieldType::SWAMP
@@ -102,15 +122,15 @@ class Protocol
 
       case attrs['owner']
       when 'RED'
-        owner = PlayerColor::RED
+        ownerColor = PlayerColor::RED
       when 'BLUE'
-        owner = PlayerColor::BLUE
+        ownerColor = PlayerColor::BLUE
       end
       x = attrs['x'].to_i
       y = attrs['y'].to_i
 
       @gamestate.board.fields[x][y] = Field.new(type, x, y)
-      @gamestate.board.fields[x][y].owner = owner
+      @gamestate.board.fields[x][y].ownerColor = ownerColor
     when "connection"
       @gamestate.board.connections.push(Connection.new(attrs['x1'].to_i, attrs['y1'].to_i, attrs['x2'].to_i, attrs['y2'].to_i, attrs['owner']))
     when "lastMove"
@@ -121,6 +141,8 @@ class Protocol
   end
 
   # send a xml document
+  #
+  # @param document [REXML::Document] the document, that will be send to the connected server
   def sendXml(document)
     @network.sendXML(document)  
   end

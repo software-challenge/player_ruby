@@ -1,3 +1,4 @@
+# @author Ralf-Tobias Diekert
 #Fieldtype constants
 module FieldType
   NORMAL = 1
