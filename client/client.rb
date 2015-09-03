@@ -1,4 +1,4 @@
-#require 'rubyClient'
+#require 'Rubyclient'
 require_relative '../lib/Rubyclient/game_state'
 require_relative '../lib/Rubyclient/move'
 
@@ -13,7 +13,7 @@ class Client < ClientInterface
   def getMove
     puts "spielstand: #{self.gamestate.pointsForPlayer(self.gamestate.currentPlayer)} - #{self.gamestate.pointsForPlayer(self.gamestate.otherPlayer)}"
     mov = self.randomMove
-    if false && gamestate.currentPlayerColor == PlayerColor::RED
+    if false && gamestate.currentPlayerColor == PlayerColor::RED #Rubyclient::PlayerColor::RED
       mov = self.fixedMove
     end
     if false
@@ -35,9 +35,9 @@ class Client < ClientInterface
 
   def fixedMove
     if self.gamestate.turn < 24
-      return Move.new((self.gamestate.turn/2) % 2 + 2,self.gamestate.turn)
+        return Move.new((self.gamestate.turn/2) % 2 + 2,self.gamestate.turn) #Rubyclient::Move.new((self.gamestate.turn/2) % 2 + 2,self.gamestate.turn)
     else
-      return Move.new(1,23)
+        return Move.new(1,23) #Rubyclient::Move.new(1,23)
     end
   end
 

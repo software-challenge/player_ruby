@@ -1,4 +1,4 @@
-#require 'rubyClient'
+#require 'Rubyclient'
 require_relative '../lib/Rubyclient/ruby_client'
 require 'optparse'
 require 'ostruct'
@@ -39,5 +39,5 @@ if host == 'localhost' then host = '127.0.0.1' end
 port = options.port
 
 client = Client.new
-rubyClient = rubyClient::RubyClient.new(host, port, client)
+rubyClient = RubyClient.new(host, port, client) #Rubyclient::Rubyclient.new(host, port, client)
 rubyClient.start()
