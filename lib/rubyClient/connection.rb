@@ -36,7 +36,7 @@ class Connection
   
   def ==(another_connection)
     if(self.x1 == another_connection.x1 && self.y1 == another_connection.y1 && self.x2 == another_connection.x2 && self.y2 == another_connection.y2 ||
-       self.x1 == another_connection.x2 && self.y1 == another_connection.y2 && self.x2 == another_connection.x1 && self.y2 == another_connection.y1) 
+          self.x1 == another_connection.x2 && self.y1 == another_connection.y2 && self.x2 == another_connection.x1 && self.y2 == another_connection.y1) 
       return ownerColor == c.ownerColor
     else
       return false

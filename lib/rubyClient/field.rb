@@ -23,10 +23,10 @@ class Field
   # @param x [Integer] x-coordinate
   # @param y [Integer] y-coordinate
   def initialize(type, x, y)
-   self.ownerColor = PlayerColor::NONE
-   self.type = type
-   @x = x
-   @y = y
+    self.ownerColor = PlayerColor::NONE
+    self.type = type
+    @x = x
+    @y = y
   end
   
   def ==(another_field)

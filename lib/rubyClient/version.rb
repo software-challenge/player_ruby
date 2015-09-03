@@ -1,3 +1,3 @@
-module RubyClient
-  VERSION = 1.0
+module Rubyclient
+  VERSION = "0.1.0"
 end
