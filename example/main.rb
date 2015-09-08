@@ -32,5 +32,5 @@ end
 opt_parser.parse!(ARGV)
 
 client = Client.new
-rubyClient = SoftwareChallengeClient.new(options.host, options.port, client)
-rubyClient.start()
+runner = Runner.new(options.host, options.port, client)
+runner.start()

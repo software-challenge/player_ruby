@@ -2,7 +2,7 @@ require_relative 'board'
 require_relative 'client_interface'
 require_relative 'network'
 
-class SoftwareChallengeClient
+class Runner
   attr_reader :network
 
   def initialize(host, port, client)

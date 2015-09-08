@@ -13,5 +13,5 @@ module SoftwareChallengeClient
   require "software_challenge_client/player"
   require "software_challenge_client/player_color"
   require "software_challenge_client/protocol"
-  require "software_challenge_client/software_challenge_client"
+  require "software_challenge_client/runner"
 end
