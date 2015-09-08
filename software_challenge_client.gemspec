@@ -1,15 +1,15 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'Rubyclient/version'
+require 'software_challenge_client/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "Rubyclient"
-  spec.version       = Rubyclient::VERSION
+  spec.name          = "software_challenge_client"
+  spec.version       = SoftwareChallengeClient::VERSION
   spec.authors       = ["Ralf-Tobias Diekert"]
   spec.email         = ["rtd@informatik.uni-kiel.de"]
 
-  spec.summary       = %q{Dies ist das Ruby SDK der Software-Challenge 2016.}
+  spec.summary       = %q{This gem provides functions to build a client for the coding competition Software-Challenge 2016.}
   spec.description   = %q{}
   spec.homepage      = "http://www.software-challenge.de"
 

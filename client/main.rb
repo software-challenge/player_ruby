@@ -1,8 +1,7 @@
-#require 'Rubyclient'
-require_relative '../lib/Rubyclient/ruby_client'
+require 'software_challenge_client'
 require 'optparse'
 require 'ostruct'
-  
+
 require_relative 'client'
 
 options = OpenStruct.new
@@ -15,11 +14,11 @@ opt_parser = OptionParser.new do |opt|
   opt.separator  ""
   opt.separator  "Options"
 
-  opt.on("-p","--port PORT", Integer,"connect to the server at PORT") do |p|
+  opt.on("-p","--port PORT", Integer,"connect to the server at PORT (default #{options.port})") do |p|
     options.port = p
   end
 
-  opt.on("-h","--host HOST","the host's IP address") do |h|
+  opt.on("-h","--host HOST","the host's IP address (default #{options.host})") do |h|
     options.host = h
   end
 
@@ -32,12 +31,6 @@ end
 
 opt_parser.parse!(ARGV)
 
-
-
-host = options.host
-if host == 'localhost' then host = '127.0.0.1' end
-port = options.port
-
 client = Client.new
-rubyClient = RubyClient.new(host, port, client) #Rubyclient::Rubyclient.new(host, port, client)
+rubyClient = SoftwareChallengeClient.new(options.host, options.port, client)
 rubyClient.start()

@@ -2,7 +2,7 @@ require_relative 'board'
 require_relative 'client_interface'
 require_relative 'network'
 
-class RubyClient
+class SoftwareChallengeClient
   attr_reader :network
 
   def initialize(host, port, client)
@@ -10,9 +10,9 @@ class RubyClient
     puts 'Ruby Client'
     puts "Host: #{host}"
     puts "Port: #{port}"
-    
+
     board = Board.new(true)
-    @network = Network.new(host, port, board, client)    
+    @network = Network.new(host, port, board, client)
   end
 
   def start
@@ -28,6 +28,6 @@ class RubyClient
     end
 
     puts 'Program end...'
-    self.network.disconnect  
+    self.network.disconnect
   end
 end
