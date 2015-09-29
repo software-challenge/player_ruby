@@ -1,3 +1,4 @@
+# encoding: UTF-8
 # @author Ralf-Tobias Diekert
 #player color constants
 module PlayerColor

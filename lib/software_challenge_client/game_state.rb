@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require_relative './util/constants'
 require_relative 'player'
 require_relative 'board'

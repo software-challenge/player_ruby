@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'software_challenge_client'
 
 class Client < ClientInterface

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require_relative 'debug_hint'
 
 # @author Ralf-Tobias Diekert

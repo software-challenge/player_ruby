@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require_relative './util/constants'
 require_relative 'game_state'
 require_relative 'player'

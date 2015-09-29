@@ -1,3 +1,4 @@
+# encoding: UTF-8
 #Game constants
 module Constants
   ROUND_LIMIT = 100

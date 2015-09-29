@@ -1,3 +1,4 @@
+# encoding: UTF-8
 # @author Ralf-Tobias Diekert
 # A debug hint, that can be added to a move
 class DebugHint

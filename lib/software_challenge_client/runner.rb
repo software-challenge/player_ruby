@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require_relative 'board'
 require_relative 'client_interface'
 require_relative 'network'

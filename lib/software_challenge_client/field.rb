@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require_relative 'player_color'
 require_relative 'field_type'
 

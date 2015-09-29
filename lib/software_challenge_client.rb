@@ -1,3 +1,4 @@
+# encoding: UTF-8
 module SoftwareChallengeClient
   require "software_challenge_client/version"
   require "software_challenge_client/board"

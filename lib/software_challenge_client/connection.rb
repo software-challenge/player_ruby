@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require_relative 'player_color'
 
 # @author Ralf-Tobias Diekert
