@@ -23,6 +23,16 @@ Or install it yourself as:
 
 See the example client in the example directory.
 
+You can execute the example client by entering
+
+```console
+ruby main.rb
+```
+
+in a shell (while being in the example directory). Note that the
+software_challenge_client gem needs to be installed for this to work and a
+server waiting for a manual client has to be running.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install
