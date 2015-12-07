@@ -10,7 +10,7 @@ class Condition
   # @!attribute [r] reason
   # @return [String] winning reason
   attr_reader :reason
-  
+
   # Initializes the winning Condition with a player and a reason
   # @param winer [Player] winning player
   # @param reason [String] winning reason
@@ -18,5 +18,5 @@ class Condition
     @winner = winner
     @reason = reason
   end
-  
+
 end

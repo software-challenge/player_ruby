@@ -17,9 +17,9 @@ class Field
   # @!attribute [r] y
   # @return [Integer] the field's y-coordinate
   attr_reader :y
-  
+
   # Initializer
-  # 
+  #
   # @param type [FieldType] field type
   # @param x [Integer] x-coordinate
   # @param y [Integer] y-coordinate
@@ -29,14 +29,14 @@ class Field
     @x = x
     @y = y
   end
-  
+
   def ==(another_field)
-    return self.ownerColor == another_field.ownerColor && 
-      self.type == another_field.type && 
-      self.x == another_field.x && 
+    return self.ownerColor == another_field.ownerColor &&
+      self.type == another_field.type &&
+      self.x == another_field.x &&
       self.y == another_field.y
   end
-  
+
   def to_s
     return "Field: x = #{self.x}, y = #{self.y}, owner = #{self.ownerColor}, type = #{self.type}"
   end

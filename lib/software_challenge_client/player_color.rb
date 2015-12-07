@@ -5,7 +5,7 @@ module PlayerColor
   NONE = 1
   RED = 2
   BLUE = 4
-  
+
   # Returns the opponents Color
   #
   # @param color [PlayerColor] The player's color, whose opponent needs to be found

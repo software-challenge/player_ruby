@@ -13,9 +13,9 @@ class Move
   # @!attribute [r] hints
   # @return [Array<DebugHint>] the move's hints
   attr_reader :hints
-  
+
   # Initializer
-  # 
+  #
   # @param x [Integer] x-coordinate
   # @param y [Integer] y-coordinate
   def initialize(x, y)
@@ -23,7 +23,7 @@ class Move
     @y = y
     @hints = Array.new
   end
-  
+
   # @overload addHint(hint)
   # adds a hint to the move
   # @param hint [DebugHint] the added hint
@@ -37,17 +37,17 @@ class Move
   def addHint(hint)
     @hints.push(hint);
   end
-  
+
   # adds a hint to the move
   def addHint(key, value)
     self.addHint(DebugHint.new(key, value))
   end
-  
+
   # adds a hint to the move
   def addHint(string)
     self.addHint(DebugHint.new(string))
   end
-  
+
   def ==(another_move)
     return self.x == another_move.x && self.y == another_move.y
   end

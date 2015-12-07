@@ -16,11 +16,11 @@ class Board
   # @!attribute [r] connections
   # @return [Array<Connection>] the board's connections
   attr_reader :connections
-  
+
   def initialize
     self.init
   end
-  
+
   # Initializes the board
   #
   # @param init [Boolean] if 'true', then the board will be initialized with swamps, otherwise the board will be completely empty
@@ -31,9 +31,9 @@ class Board
       self.makeClearBoard
     end
   end
-  
+
   # Initializes the board with swamps
-  def init 
+  def init
     @fields = Array.new(Constants::SIZE) {Array.new(Constants::SIZE)}
     @fields[0][0] = Field.new(FieldType::SWAMP, 0, 0)
     @fields[0][Constants::SIZE - 1] = Field.new(FieldType::SWAMP, 0, Constants::SIZE - 1)
@@ -48,14 +48,14 @@ class Board
       @fields[Constants::SIZE - 1][y] = Field.new(FieldType::BLUE, Constants::SIZE - 1, y);
     end
     for x in 1..(Constants::SIZE - 2)
-      for y in 1..(Constants::SIZE - 2) 
+      for y in 1..(Constants::SIZE - 2)
         @fields[x][y] = Field.new(FieldType::NORMAL, x, y);
       end
     end
     self.placeSwamps()
     @connections = Array.new;
   end
-  
+
   # Places swamps at random coordinates
   def placeSwamps
     # big swamp
@@ -88,25 +88,25 @@ class Board
     self.fields[x][y].type = FieldType::SWAMP
   end
 
-  
-  # creates a cleared board  
+
+  # creates a cleared board
   def makeClearBoard
     @fields = Array.new(Constants::SIZE, Array.new(Constants::SIZE))
     @connections = Array.new
   end
-  
+
   # gets the owner's color for the field at the coordinate (x, y)
-  # 
+  #
   # @param x [Integer] x-coordinate
   # @param y [Integer] y-coordinate
   # @return [PlayerColor] owner's color of field (x, y)
-  def getOwnerColor(x, y) 
+  def getOwnerColor(x, y)
     return self.fields[x][y].ownerColor
   end
-  
-  
+
+
   # sets the owner's color for the field at the coordinate (x, y)
-  # 
+  #
   # @param x [Integer] x-coordinate
   # @param y [Integer] y-coordinate
   # @param player [Player] new owner of field (x, y)
@@ -116,7 +116,7 @@ class Board
   end
 
   # creates wires at the coordinate (x, y), if it is possible
-  # 
+  #
   # @param x [Integer] x-coordinate
   # @param y [Integer] y-coordinate
   def createNewWires(x, y)
@@ -144,11 +144,11 @@ class Board
     if self.checkPossibleWire(x, y, x + 1, y + 2)
       self.createWire(x, y, x + 1, y + 2)
     end
-    
-  end 
+
+  end
 
   # creates a new wire
-  # 
+  #
   # @param x1 [Integer] x-coordinate starting point
   # @param y1 [Integer] y-coordinate starting point
   # @param x2 [Integer] x-coordinate ending point
@@ -158,7 +158,7 @@ class Board
   end
 
   # checks, if a wire can be placed at specified coordinates
-  # 
+  #
   # @param x1 [Integer] x-coordinate starting point
   # @param y1 [Integer] y-coordinate starting point
   # @param x2 [Integer] x-coordinate ending point
@@ -174,7 +174,7 @@ class Board
   end
 
   # checks, if a blocking wire exists
-  # 
+  #
   # @param x1 [Integer] x-coordinate starting point
   # @param y1 [Integer] y-coordinate starting point
   # @param x2 [Integer] x-coordinate ending point
@@ -187,7 +187,7 @@ class Board
       for y in smallerY..biggerY # checks all 6 Fields, from
         # where there could be
         # blocking connections
-        if !self.fields[x][y].ownerColor.nil? && (x != x1 || y != y1) && 
+        if !self.fields[x][y].ownerColor.nil? && (x != x1 || y != y1) &&
             (x != x2 || y != y2) # excludes the Fields with no owner and
           # the fields (x1, y2), (x2, y2)
           # themselves.
@@ -199,9 +199,9 @@ class Board
     end
     return false
   end
-  
+
   # gets connections for the coordinate (x, y)
-  # 
+  #
   # @param x [Integer] x-coordinate
   # @param y [Integer] y-coordinate
   # @return [Array] Array of connections from field (x, y)
@@ -209,7 +209,7 @@ class Board
     xyConnections = Array.new
     if !self.connections.nil?
       for c in self.connections
-        if c.x1 == x && c.y1 == y 
+        if c.x1 == x && c.y1 == y
           xyConnections.push(Connection.new(x, y, c.x2, c.y2, c.ownerColor))
         end
         if c.x2 == x && c.y2 == y
@@ -229,11 +229,11 @@ class Board
     end
     return false
   end
- 
+
   def orientation(px,py,qx,qy,rx,ry)
     val = (qy - py) * (rx - qx) -
       (qx - px) * (ry - qy)
- 
+
     if val == 0
       return 0
     end
@@ -242,44 +242,44 @@ class Board
     end
     return 2
   end
- 
+
   def doIntersect(p1x,p1y, q1x,q1y, p2x,p2y, q2x,q2y)
     o1 = orientation(p1x,p1y, q1x,q1y, p2x,p2y)
     o2 = orientation(p1x,p1y, q1x,q1y, q2x,q2y)
     o3 = orientation(p2x,p2y, q2x,q2y, p1x,p1y)
     o4 = orientation(p2x,p2y, q2x,q2y, q1x,q1y)
- 
+
     if o1 != o2 && o3 != o4
       return true
     end
- 
+
     if o1 == 0 && onSegment(p1x,p1y, p2x,p2y, q1x,q1y)
       return true
     end
- 
+
     if o2 == 0 && onSegment(p1x,p1y, q2x,q2y, q1x,q1y)
       return true
     end
- 
+
     if o3 == 0 && onSegment(p2x,p2x, p1x,p1y, q2x,q2y)
       return true
     end
-     
+
     if o4 == 0 && onSegment(p2x,p2y, q1x,q1y, q2x,q2y)
       return true
     end
- 
+
     return false
   end
 
   # checks for the wire (x1, y1) -> (x2, y2), if it is blocked by any connection going out from (x,y).
-  # 
+  #
   # @param x1 [Integer] x-coordinate starting point
   # @param y1 [Integer] y-coordinate starting point
   # @param x2 [Integer] x-coordinate ending point
   # @param y2 [Integer] y-coordinate ending point
   # @param x [Integer] x-coordinate comparison field
-  # @param y [Integer] y-coordinate comparison field 
+  # @param y [Integer] y-coordinate comparison field
   # @return [Boolean]  'true', if another wire would block the creation of a new wire at specified coordinates
   def isWireBlocked(x1, y1, x2, y2, x, y)
     for c in getConnections(x, y)
@@ -293,7 +293,7 @@ class Board
   def to_s
     return self.fields.map { |f| f.map {|i| (i.ownerColor==PlayerColor::RED ? 'R' : (i.ownerColor==PlayerColor::BLUE ? 'B' : (i.type==FieldType::SWAMP ? 'S' : (i.type==FieldType::RED ? 'r' : (i.type==FieldType::BLUE ? 'b' : ' '))))) }.join(",")}.join("\n")
   end
-  
+
   def ==(another_board)
     for x in 0..(Constants.SIZE - 1)
       for y in 0..(Constants.SIZE - 1)
@@ -310,7 +310,7 @@ class Board
         return false
       end
     end
-    
+
     return true;
   end
 end

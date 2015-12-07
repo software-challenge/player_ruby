@@ -10,16 +10,16 @@ class Player
   # @!attribute [rw] points
   # @return [Integer] the player's points
   attr_accessor :points
-  
+
   # Initializer
   # @param the new player's color
   def initialize(color)
     @color = color
     self.points = 0
   end
-  
+
   def ==(another_player)
     return self.color == another_player.color
   end
-  
+
 end

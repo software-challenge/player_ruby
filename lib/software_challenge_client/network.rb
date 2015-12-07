@@ -12,36 +12,36 @@ class Network
   @socket
   @host
   @port
-    
+
   @board
   @client
   @protocol
-    
+
   @receiveBuffer
   @reservationID
-  
+
   # @!attribute [r] connected
   # @return [Boolean] true, if the client is connected to a server
   attr_reader :connected
-    
+
   def initialize(host, port, board, client)
-    @host, @port, @connected, @board, @client = 
+    @host, @port, @connected, @board, @client =
       host, port, false, board, client
-  
+
     @protocol = Protocol.new(self, @client)
     @reservationID = ''
     @receiveBuffer = ''
-  
+
     puts '> Network/Socket created.'
   end
 
   # connects the client with a given server
-  # 
+  #
   # @return [Boolean] true, if successfully connected to the server
   def connect
     @socket = TCPSocket.open(@host, @port)
     @connected = true
-  
+
     self.sendString('<protocol>')
     if @reservationID != ''
       document = REXML::Docuent.new
@@ -49,7 +49,7 @@ class Network
       element.add_attribute('reservationCode', @reservationID)
       document.add(element)
       self.sendXML(document)
-    else 
+    else
       document = REXML::Document.new
       element = REXML::Element.new('join')
       element.add_attribute('gameType', 'swc_2016_twixt')
@@ -58,7 +58,7 @@ class Network
     end
     return @connected
   end
-  
+
   # disconnects the client from a server
   def disconnect
 
@@ -74,10 +74,10 @@ class Network
   def readString
     puts 'reading'
     sockMsg = ''
-    if(!@connected) 
+    if(!@connected)
       return
     end
-  
+
     line =''
     char = ''
     while line!="</room>"
@@ -91,7 +91,7 @@ class Network
     end
     puts 'ended reading'
     if sockMsg != ''
-    
+
       @receiveBuffer.concat(sockMsg)
 
       # Remove <protocol> tag
@@ -100,7 +100,7 @@ class Network
       puts 'Receive:'
       puts ''
       #puts @receiveBuffer
-    
+
       # Process text
       @protocol.processString('<msg>'+@receiveBuffer+'</msg>');
       self.emptyReceiveBuffer

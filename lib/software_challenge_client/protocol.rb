@@ -13,7 +13,7 @@ require 'rexml/streamlistener'
 # This class handles the parsing of xml strings according to the network protocol of twixt
 class Protocol
   include REXML::StreamListener
-  
+
   # @!attribute [r] gamestate
   # @return [Gamestate] current gamestate
   attr_reader :gamestate
@@ -27,19 +27,19 @@ class Protocol
 
   def initialize(network, client)
     @gamestate = GameState.new
-    @network, @client = network, client  
+    @network, @client = network, client
     self.client.gamestate = self.gamestate
   end
-  
+
   # starts xml-string parsing
-  # 
+  #
   # @param text [String] the xml-string that will be parsed
   def processString(text)
     list = self
     #puts "Parse XML:\n#{text}\n----END XML"
     REXML::Document.parse_stream(text, list)
   end
-  
+
   # called if an end-tag is read
   #
   # @param name [String] the end-tag name, that was read
@@ -94,7 +94,7 @@ class Protocol
       @gamestate.startPlayerColor = attrs['startPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
       @gamestate.currentPlayerColor = attrs['currentPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
       puts "Turn: #{@gamestate.turn}"
-    when "red" 
+    when "red"
       puts 'new red player'
       @gamestate.addPlayer(Player.new(attrs['color'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE))
       @gamestate.red.points = attrs['points'].to_i
@@ -144,7 +144,7 @@ class Protocol
   #
   # @param document [REXML::Document] the document, that will be send to the connected server
   def sendXml(document)
-    @network.sendXML(document)  
+    @network.sendXML(document)
   end
-  
+
 end
