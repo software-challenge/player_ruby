@@ -91,7 +91,7 @@ class Board
 
   # creates a cleared board
   def makeClearBoard
-    @fields = Array.new(Constants::SIZE, Array.new(Constants::SIZE))
+    @fields = Array.new(Constants::SIZE) {Array.new(Constants::SIZE)}
     @connections = Array.new
   end
 
