@@ -24,12 +24,12 @@ class Network
   # @return [Boolean] true, if the client is connected to a server
   attr_reader :connected
 
-  def initialize(host, port, board, client)
+  def initialize(host, port, board, client, reservation = nil)
     @host, @port, @connected, @board, @client =
       host, port, false, board, client
 
     @protocol = Protocol.new(self, @client)
-    @reservationID = ''
+    @reservationID = reservation || ''
     @receiveBuffer = ''
 
     puts '> Network/Socket created.'

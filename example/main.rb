@@ -23,12 +23,10 @@ opt_parser = OptionParser.new do |opt|
   opt.on("-h","--host HOST","the host's IP address (default #{options.host})") do |h|
     options.host = h
   end
-  
+
   opt.on("-r","--reservation RESERVATION","the host's RESERVATION (default #{options.reservation})") do |r|
     options.reservation = r
   end
-
- 
 
   opt.on_tail("-?", "--help", "Show this message") do
     puts opt
@@ -40,5 +38,5 @@ end
 opt_parser.parse!(ARGV)
 
 client = Client.new
-runner = Runner.new(options.host, options.port, client)
+runner = Runner.new(options.host, options.port, client, options.reservation)
 runner.start()

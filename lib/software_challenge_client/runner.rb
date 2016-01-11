@@ -6,14 +6,14 @@ require_relative 'network'
 class Runner
   attr_reader :network
 
-  def initialize(host, port, client)
+  def initialize(host, port, client, reservation = nil)
     puts 'Software Challenge 2015'
     puts 'Ruby Client'
     puts "Host: #{host}"
     puts "Port: #{port}"
 
     board = Board.new(true)
-    @network = Network.new(host, port, board, client)
+    @network = Network.new(host, port, board, client, reservation)
   end
 
   def start
