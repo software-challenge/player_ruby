@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # encoding: UTF-8
 require 'software_challenge_client'
 require 'optparse'
@@ -22,6 +23,12 @@ opt_parser = OptionParser.new do |opt|
   opt.on("-h","--host HOST","the host's IP address (default #{options.host})") do |h|
     options.host = h
   end
+  
+  opt.on("-r","--reservation RESERVATION","the host's RESERVATION (default #{options.reservation})") do |r|
+    options.reservation = r
+  end
+
+ 
 
   opt.on_tail("-?", "--help", "Show this message") do
     puts opt
