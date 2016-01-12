@@ -1,3 +1,7 @@
+= 0.1.5
+
+- Fixed bug in reservation code.
+
 = 0.1.4
 
 - Added support for reservation ID to let clients work on contest system.

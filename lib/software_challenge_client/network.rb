@@ -44,7 +44,7 @@ class Network
 
     self.sendString('<protocol>')
     if @reservationID != ''
-      document = REXML::Docuent.new
+      document = REXML::Document.new
       element = REXML::Element.new('joinPrepared')
       element.add_attribute('reservationCode', @reservationID)
       document.add(element)
