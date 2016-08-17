@@ -1,12 +1,8 @@
 # encoding: UTF-8
-require_relative 'player_color'
 require_relative 'field_type'
 
 # A field on the game board
 class Field
-  # @!attribute [rw] ownerColor
-  # @return [PlayerColor] the field's owner's color
-  attr_accessor :ownerColor
   # @!attribute [rw] type
   # @return [PlayerColor] the field's type
   attr_accessor :type

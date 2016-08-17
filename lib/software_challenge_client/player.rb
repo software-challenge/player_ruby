@@ -1,14 +1,22 @@
 # encoding: UTF-8
-require_relative 'player_color'
 
-# A player, participating at a game
+# A player, participating in a game
 class Player
   # @!attribute [r] color
   # @return [PlayerColor] the player's color
   attr_reader :color
+
   # @!attribute [rw] points
   # @return [Integer] the player's points
   attr_accessor :points
+
+  # @!attribute [rw] velocity
+  # @return [Integer] the player's current velocity
+  attr_accessor :velocity
+
+  # @!attribute [rw] coal
+  # @return [Integer] the player's current coal supply
+  attr_accessor :coal
 
   # Initializer
   # @param the new player's color

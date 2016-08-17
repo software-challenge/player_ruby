@@ -7,91 +7,15 @@ require_relative 'field'
 
 require 'securerandom'
 
-# A representation of a twixt game board
+# A representation of a mississippi queen game board
 class Board
   # @!attribute [r] fields
-  # @return [Array<Array<Field>>] the board's fields
+  # @return [Hash<Field>] A field will be stored at the hash of the coordinate-tuple of the field.
   attr_reader :fields
-  # @!attribute [r] connections
-  # @return [Array<Connection>] the board's connections
-  attr_reader :connections
-
-  def initialize
-    self.init
-  end
 
   # Initializes the board
-  #
-  # @param init [Boolean] if 'true', then the board will be initialized with swamps, otherwise the board will be completely empty
-  def initialize(init)
-    if init
-      self.init
-    else
-      self.makeClearBoard
-    end
-  end
-
-  # Initializes the board with swamps
-  def init
-    @fields = Array.new(Constants::SIZE) {Array.new(Constants::SIZE)}
-    @fields[0][0] = Field.new(FieldType::SWAMP, 0, 0)
-    @fields[0][Constants::SIZE - 1] = Field.new(FieldType::SWAMP, 0, Constants::SIZE - 1)
-    @fields[Constants::SIZE - 1][0] = Field.new(FieldType::SWAMP, Constants::SIZE - 1, 0)
-    @fields[Constants::SIZE - 1][Constants::SIZE - 1] = Field.new(FieldType::SWAMP, Constants::SIZE - 1, Constants::SIZE - 1)
-    for x in 1..(Constants::SIZE - 2)
-      @fields[x][0] = Field.new(FieldType::RED, x, 0);
-      @fields[x][Constants::SIZE - 1] = Field.new(FieldType::RED, x, Constants::SIZE - 1);
-    end
-    for y in 1..(Constants::SIZE - 2)
-      @fields[0][y] = Field.new(FieldType::BLUE, 0, y);
-      @fields[Constants::SIZE - 1][y] = Field.new(FieldType::BLUE, Constants::SIZE - 1, y);
-    end
-    for x in 1..(Constants::SIZE - 2)
-      for y in 1..(Constants::SIZE - 2)
-        @fields[x][y] = Field.new(FieldType::NORMAL, x, y);
-      end
-    end
-    self.placeSwamps()
-    @connections = Array.new;
-  end
-
-  # Places swamps at random coordinates
-  def placeSwamps
-    # big swamp
-    x = 1 + SecureRandom.random_number(Constants::SIZE - 4)
-    y = 1 + SecureRandom.random_number(Constants::SIZE - 4)
-    for i in x..(x + 2)
-      for j in y..(y + 2)
-        self.fields[i][j].type = FieldType::SWAMP
-      end
-    end
-    # first medium swamp
-    x = 1 + SecureRandom.random_number(Constants::SIZE - 3)
-    y = 1 + SecureRandom.random_number(Constants::SIZE - 3)
-    for i in x..(x + 1)
-      for j in y..(y + 1)
-        self.fields[i][j].type = FieldType::SWAMP
-      end
-    end
-    # second medium swamp
-    x = 1 + SecureRandom.random_number(Constants::SIZE - 3)
-    y = 1 + SecureRandom.random_number(Constants::SIZE - 3)
-    for i in x..(x + 1)
-      for j in y..(y + 1)
-        self.fields[i][j].type = FieldType::SWAMP
-      end
-    end
-    # little swamp
-    x = 1 + SecureRandom.random_number(Constants::SIZE - 2)
-    y = 1 + SecureRandom.random_number(Constants::SIZE - 2)
-    self.fields[x][y].type = FieldType::SWAMP
-  end
-
-
-  # creates a cleared board
-  def makeClearBoard
-    @fields = Array.new(Constants::SIZE) {Array.new(Constants::SIZE)}
-    @connections = Array.new
+  def initialize
+    @fields = {}
   end
 
   # gets the owner's color for the field at the coordinate (x, y)

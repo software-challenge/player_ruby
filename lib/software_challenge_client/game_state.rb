@@ -1,10 +1,9 @@
-# encoding: UTF-8
+# encoding: utf-8
 require_relative './util/constants'
 require_relative 'player'
 require_relative 'board'
 require_relative 'move'
 require_relative 'condition'
-require_relative 'player_color'
 require_relative 'field_type'
 
 # The state of a game
