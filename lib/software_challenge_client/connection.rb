@@ -1,7 +1,6 @@
 # encoding: UTF-8
 require_relative 'player_color'
 
-# @author Ralf-Tobias Diekert
 # A connection between two fields owned by a specific player
 class Connection
   # @!attribute [r] x1

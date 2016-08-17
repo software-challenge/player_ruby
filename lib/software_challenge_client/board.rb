@@ -7,7 +7,6 @@ require_relative 'field'
 
 require 'securerandom'
 
-# @author Ralf-Tobias Diekert
 # A representation of a twixt game board
 class Board
   # @!attribute [r] fields

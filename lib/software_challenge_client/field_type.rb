@@ -1,5 +1,4 @@
 # encoding: UTF-8
-# @author Ralf-Tobias Diekert
 #Fieldtype constants
 module FieldType
   NORMAL = 1

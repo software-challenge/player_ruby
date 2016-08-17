@@ -7,7 +7,6 @@ require_relative 'condition'
 require_relative 'player_color'
 require_relative 'field_type'
 
-# @author Ralf-Tobias Diekert
 # The state of a game
 class GameState
 

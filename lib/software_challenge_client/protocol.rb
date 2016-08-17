@@ -9,7 +9,6 @@ require_relative 'client_interface'
 require 'rexml/document'
 require 'rexml/streamlistener'
 
-# @author Ralf-Tobias Diekert
 # This class handles the parsing of xml strings according to the network protocol of twixt
 class Protocol
   include REXML::StreamListener

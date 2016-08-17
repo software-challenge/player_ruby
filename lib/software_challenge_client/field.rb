@@ -2,7 +2,6 @@
 require_relative 'player_color'
 require_relative 'field_type'
 
-# @author Ralf-Tobias Diekert
 # A field on the game board
 class Field
   # @!attribute [rw] ownerColor

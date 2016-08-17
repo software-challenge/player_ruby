@@ -6,7 +6,6 @@ require_relative 'client_interface'
 require 'rexml/document'
 require 'rexml/element'
 
-# @author Ralf-Tobias Diekert
 # This class handles the socket connection to the server
 class Network
   @socket

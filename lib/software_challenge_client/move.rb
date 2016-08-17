@@ -1,7 +1,6 @@
 # encoding: UTF-8
 require_relative 'debug_hint'
 
-# @author Ralf-Tobias Diekert
 # A move, that can be performed in twixt
 class Move
   # @!attribute [r] x

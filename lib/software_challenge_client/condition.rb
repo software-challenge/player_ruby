@@ -1,7 +1,6 @@
 # encoding: UTF-8
 require_relative 'player'
 
-# @author Ralf-Tobias Diekert
 # winning condition
 class Condition
   # @!attribute [r] winner
