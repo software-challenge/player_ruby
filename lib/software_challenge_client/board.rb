@@ -9,6 +9,7 @@ require 'securerandom'
 
 # A representation of a mississippi queen game board
 class Board
+
   # @!attribute [r] fields
   # @return [Hash<Field>] A field will be stored at the hash of the coordinate-tuple of the field.
   attr_reader :fields
@@ -214,7 +215,7 @@ class Board
   end
 
   def to_s
-    return self.fields.map { |f| f.map {|i| (i.ownerColor==PlayerColor::RED ? 'R' : (i.ownerColor==PlayerColor::BLUE ? 'B' : (i.type==FieldType::SWAMP ? 'S' : (i.type==FieldType::RED ? 'r' : (i.type==FieldType::BLUE ? 'b' : ' '))))) }.join(",")}.join("\n")
+    return self.fields.values.map { |f| f.type.key.to_s[0] }.join(' ')
   end
 
   def ==(another_board)

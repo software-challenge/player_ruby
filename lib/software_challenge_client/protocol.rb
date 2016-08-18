@@ -10,6 +10,7 @@ require 'rexml/streamlistener'
 
 # This class handles the parsing of xml strings according to the network protocol of twixt
 class Protocol
+  include Logging
   include REXML::StreamListener
 
   # @!attribute [r] gamestate
@@ -33,9 +34,8 @@ class Protocol
   #
   # @param text [String] the xml-string that will be parsed
   def processString(text)
-    list = self
-    #puts "Parse XML:\n#{text}\n----END XML"
-    REXML::Document.parse_stream(text, list)
+    logger.debug "Parse XML:\n#{text}\n----END XML"
+    REXML::Document.parse_stream(text, self)
   end
 
   # called if an end-tag is read
@@ -44,9 +44,9 @@ class Protocol
   def tag_end(name)
     case name
     when "board"
-      puts @gamestate.board.to_s
+      logger.debug @gamestate.board.to_s
     when "condition"
-      puts "Game ended"
+      logger.info "Game ended"
       @network.disconnect
     end
   end
@@ -61,9 +61,9 @@ class Protocol
     case name
     when "room"
       @roomID = attrs['roomId']
-      puts "roomId : "+@roomID
+      logger.info "roomId : "+@roomID
     when "data"
-      puts "data(class) : "+attrs['class']
+      logger.debug "data(class) : "+attrs['class']
       if attrs['class'] == "sc.framework.plugins.protocol.MoveRequest"
         @client.gamestate = self.gamestate
         move = @client.getMove
@@ -82,53 +82,33 @@ class Protocol
         self.sendXml(document)
       end
       if attrs['class'] == "error"
-        puts "Game ended - ERROR"
-        puts attrs['message']
+        logger.info "Game ended - ERROR: #{attrs['message']}"
         @network.disconnect
       end
     when "state"
-      puts 'new gamestate'
+      logger.debug 'new gamestate'
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.startPlayerColor = attrs['startPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
       @gamestate.currentPlayerColor = attrs['currentPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
-      puts "Turn: #{@gamestate.turn}"
+      logger.debug "Turn: #{@gamestate.turn}"
     when "red"
-      puts 'new red player'
+      logger.debug 'new red player'
       @gamestate.addPlayer(Player.new(attrs['color'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE))
       @gamestate.red.points = attrs['points'].to_i
     when "blue"
-      puts 'new blue player'
+      logger.debug 'new blue player'
       @gamestate.addPlayer(Player.new(attrs['color'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE))
       @gamestate.blue.points = attrs['points'].to_i
     when "board"
-      puts 'new board'
-      @gamestate.board = Board.new(true)
+      logger.debug 'new board'
+      @gamestate.board = Board.new
     when "field"
-      type = FieldType::NORMAL
-      ownerColor = PlayerColor::NONE
-      case attrs['type']
-      when 'SWAMP'
-        type = FieldType::SWAMP
-      when 'RED'
-        type = FieldType::RED
-      when 'BLUE'
-        type = FieldType::BLUE
-      when "winner"
-        puts "Game ended"
-        @network.disconnect
-      end
-
-      case attrs['owner']
-      when 'RED'
-        ownerColor = PlayerColor::RED
-      when 'BLUE'
-        ownerColor = PlayerColor::BLUE
-      end
+      type = FieldType.find_by_key(attrs['type'].to_sym)
+      raise "unexpected field type: #{attrs['type']}. Known types are #{FieldType.map{ |t| t.key.to_s }}" if type.nil?
       x = attrs['x'].to_i
       y = attrs['y'].to_i
 
-      @gamestate.board.fields[x][y] = Field.new(type, x, y)
-      @gamestate.board.fields[x][y].ownerColor = ownerColor
+      @gamestate.board.fields[[x,y]] = Field.new(type, x, y)
     when "connection"
       @gamestate.board.connections.push(Connection.new(attrs['x1'].to_i, attrs['y1'].to_i, attrs['x2'].to_i, attrs['y2'].to_i, attrs['owner']))
     when "lastMove"

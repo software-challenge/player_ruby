@@ -43,6 +43,12 @@ experiment.
 To install this gem onto your local machine, run `bundle exec rake
 install`.
 
+### Specs
+
+The gem is tested using RSpec. To run all tests, execute `rspec`. When
+developing, you may use Guard to execute tests when files change. To do this,
+execute `guard`. Tests will then be automatically run when you change a file.
+
 ### Releasing
 
 To release a new version, update the version number in

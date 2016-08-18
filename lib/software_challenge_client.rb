@@ -1,6 +1,7 @@
 # encoding: UTF-8
 module SoftwareChallengeClient
   require "software_challenge_client/version"
+  require "software_challenge_client/logging"
   require "software_challenge_client/board"
   require "software_challenge_client/client_interface"
   require "software_challenge_client/condition"
@@ -11,6 +12,7 @@ module SoftwareChallengeClient
   require "software_challenge_client/move"
   require "software_challenge_client/network"
   require "software_challenge_client/player"
+  require "software_challenge_client/player_color"
   require "software_challenge_client/protocol"
   require "software_challenge_client/runner"
 end

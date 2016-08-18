@@ -4,13 +4,15 @@ require_relative 'client_interface'
 require_relative 'network'
 
 class Runner
+  include Logging
+
   attr_reader :network
 
   def initialize(host, port, client, reservation = nil)
-    puts 'Software Challenge 2015'
-    puts 'Ruby Client'
-    puts "Host: #{host}"
-    puts "Port: #{port}"
+    logger.info 'Software Challenge 2017'
+    logger.info 'Ruby Client'
+    logger.info "Host: #{host}"
+    logger.info "Port: #{port}"
 
     board = Board.new(true)
     @network = Network.new(host, port, board, client, reservation)
@@ -19,7 +21,7 @@ class Runner
   def start
     self.network.connect
     if self.network.connected == false
-      puts 'Not connected'
+      logger.error 'Not connected'
       return
     end
 
@@ -28,7 +30,7 @@ class Runner
       sleep(0.01)
     end
 
-    puts 'Program end...'
+    logger.info 'Program end...'
     self.network.disconnect
   end
 end

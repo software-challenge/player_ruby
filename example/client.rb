@@ -2,19 +2,22 @@
 require 'software_challenge_client'
 
 class Client < ClientInterface
+
+  include Logging
+
   attr_accessor :gamestate
 
   def initialize
-    puts "Zufallsspieler erstellt."
+    logger.level = Logger::INFO
+    logger.info "Zufallsspieler erstellt."
   end
 
   # gets called, when it's your turn
   def getMove
-    puts "Spielstand: #{self.gamestate.pointsForPlayer(self.gamestate.currentPlayer)} - #{self.gamestate.pointsForPlayer(self.gamestate.otherPlayer)}"
+    logger.info "Spielstand: #{self.gamestate.pointsForPlayer(self.gamestate.currentPlayer)} - #{self.gamestate.pointsForPlayer(self.gamestate.otherPlayer)}"
     mov = self.randomMove
     unless mov.nil?
-      puts 'Zug gefunden: '
-      puts mov.to_s
+      logger.debug "Zug gefunden: #{mov}"
     end
     return mov
   end

@@ -1,13 +1,17 @@
 # encoding: UTF-8
 require 'socket'
-require_relative 'protocol'
-require_relative 'board'
-require_relative 'client_interface'
 require 'rexml/document'
 require 'rexml/element'
 
+require_relative 'protocol'
+require_relative 'board'
+require_relative 'client_interface'
+
 # This class handles the socket connection to the server
 class Network
+
+  include Logging
+
   @socket
   @host
   @port
@@ -30,8 +34,6 @@ class Network
     @protocol = Protocol.new(self, @client)
     @reservationID = reservation || ''
     @receiveBuffer = ''
-
-    puts '> Network/Socket created.'
   end
 
   # connects the client with a given server
@@ -39,6 +41,7 @@ class Network
   # @return [Boolean] true, if successfully connected to the server
   def connect
     @socket = TCPSocket.open(@host, @port)
+    logger.info 'Connection to server established.'
     @connected = true
 
     self.sendString('<protocol>')
@@ -51,7 +54,7 @@ class Network
     else
       document = REXML::Document.new
       element = REXML::Element.new('join')
-      element.add_attribute('gameType', 'swc_2016_twixt')
+      element.add_attribute('gameType', 'swc_2017_mississippi_queen')
       document.add(element)
       self.sendXML(document)
     end
@@ -66,12 +69,12 @@ class Network
       @connected = false
       @socket.close
     end
-    puts '> Disconnected.'
+    logger.info 'Connection to server closed.'
   end
 
   # reads from the socket until "</room>" is read
   def readString
-    puts 'reading'
+    logger.debug 'reading'
     sockMsg = ''
     if(!@connected)
       return
@@ -88,7 +91,7 @@ class Network
       end
       sockMsg += char
     end
-    puts 'ended reading'
+    logger.debug 'ended reading'
     if sockMsg != ''
 
       @receiveBuffer.concat(sockMsg)
@@ -96,9 +99,7 @@ class Network
       # Remove <protocol> tag
       @receiveBuffer = @receiveBuffer.gsub('<protocol>', '')
 
-      puts 'Receive:'
-      puts ''
-      #puts @receiveBuffer
+      logger.debug 'Received XML from server: #{@receiveBuffer}'
 
       # Process text
       @protocol.processString('<msg>'+@receiveBuffer+'</msg>');
@@ -136,7 +137,7 @@ class Network
 
   # sends a xml Document to the buffer
   #
-  # @param xml [REXML::Docuent] the Document, that will be sent
+  # @param xml [REXML::Document] the Document, that will be sent
   def sendXML(xml)
     text  = ''
     xml.write(text)

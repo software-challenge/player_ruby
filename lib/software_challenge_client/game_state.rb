@@ -37,7 +37,7 @@ class GameState
   def initialize
     self.currentPlayerColor = PlayerColor::RED
     self.startPlayerColor = PlayerColor::RED
-    self.board = Board.new(true)
+    self.board = Board.new
   end
 
   # adds a player to the gamestate

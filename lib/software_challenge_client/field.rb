@@ -13,26 +13,32 @@ class Field
   # @return [Integer] the field's y-coordinate
   attr_reader :y
 
+  # @!attribute [r] direction
+  # @return [Integer] the direction of the tile which the field belongs to
+  attr_reader :direction
+
+  # @!attribute [r] index
+  # @return [Integer] the index of the tile which the field belongs to
+  attr_reader :index
+
   # Initializer
   #
   # @param type [FieldType] field type
   # @param x [Integer] x-coordinate
   # @param y [Integer] y-coordinate
   def initialize(type, x, y)
-    self.ownerColor = PlayerColor::NONE
     self.type = type
     @x = x
     @y = y
   end
 
   def ==(another_field)
-    return self.ownerColor == another_field.ownerColor &&
-      self.type == another_field.type &&
+    return self.type == another_field.type &&
       self.x == another_field.x &&
       self.y == another_field.y
   end
 
   def to_s
-    return "Field: x = #{self.x}, y = #{self.y}, owner = #{self.ownerColor}, type = #{self.type}"
+    return "Field: x = #{self.x}, y = #{self.y}, type = #{self.type}"
   end
 end
