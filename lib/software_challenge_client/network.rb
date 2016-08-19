@@ -102,7 +102,7 @@ class Network
       logger.debug 'Received XML from server: #{@receiveBuffer}'
 
       # Process text
-      @protocol.processString('<msg>'+@receiveBuffer+'</msg>');
+      @protocol.process_string('<msg>'+@receiveBuffer+'</msg>');
       self.emptyReceiveBuffer
     end
     return true

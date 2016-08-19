@@ -1,0 +1,5 @@
+AllCops:
+  DefaultFormatter: fuubar
+  DisplayStyleGuide: true
+  DisplayCopNames: false
+  TargetRubyVersion: 2.0

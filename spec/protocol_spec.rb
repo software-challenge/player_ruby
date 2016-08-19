@@ -3,7 +3,6 @@
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
 RSpec.describe Protocol do
-
   let(:client) { instance_double('Client') }
   let(:network) { instance_double('Network') }
 
@@ -11,14 +10,13 @@ RSpec.describe Protocol do
 
   before { allow(client).to receive(:gamestate=) }
 
-  def serverMessage(xml)
-    subject.processString xml
+  def server_message(xml)
+    subject.process_string xml
   end
 
   context 'when getting a new game state' do
-
     it 'should update the game state' do
-      serverMessage <<-XML
+      server_message <<-XML
         <state turn="2" startPlayer="RED" currentPlayer="BLUE" />
       XML
       expect(subject.gamestate.turn).to eq(2)
@@ -28,18 +26,15 @@ RSpec.describe Protocol do
   end
 
   context 'when getting a winning condition from server' do
-
     it 'should close the connection' do
       expect(network).to receive(:disconnect)
-      serverMessage '<condition />'
+      server_message '<condition />'
     end
-
   end
 
   context 'when receiving a new board' do
-
     it 'should create the new board in the gamestate' do
-      serverMessage <<-XML
+      server_message <<-XML
         <board>
           <tiles>
             <tile index="0" direction="0">
@@ -71,12 +66,31 @@ RSpec.describe Protocol do
       XML
       board = subject.gamestate.board
       expect(board.fields.size).to eq(20)
-      expect(board.fields[[0,0]].type).to eq(FieldType::WATER)
-      expect(board.fields[[1,1]].type).to eq(FieldType::SANDBANK)
-      expect(board.fields[[2,1]].type).to eq(FieldType::PASSENGER3)
-      expect(board.fields[[2,1]].type).to eq(FieldType::PASSENGER3)
-      expect(board.fields.values).to all(have_attributes(index: 0, direction: 0))
+      expect(board.fields[[0, 0]].type).to eq(FieldType::WATER)
+      expect(board.fields[[1, 1]].type).to eq(FieldType::SANDBANK)
+      expect(board.fields[[2, 1]].type).to eq(FieldType::PASSENGER3)
+      expect(board.fields[[2, 1]].type).to eq(FieldType::PASSENGER3)
+      expect(board.fields.values).to all(
+        have_attributes(index: 0, direction: 0)
+      )
     end
+  end
 
+  it 'should convert a move to xml' do
+    move = Move.new
+    move.add_action(Acceleration.new(2))
+    move.add_action(Turn.new(1))
+    move.add_action(Step.new(3))
+    move.add_action(Push.new(0))
+    # NOTE that this is brittle because XML formatting (whitespace, attribute
+    # order) is arbitrary.
+    expect(subject.move_to_xml(move)).to eq <<-XML
+<data class="move">
+  <acceleration acc="2" order="0"/>
+  <turn direction="1" order="1"/>
+  <step distance="3" order="2"/>
+  <push direction="0" order="3"/>
+</data>
+    XML
   end
 end

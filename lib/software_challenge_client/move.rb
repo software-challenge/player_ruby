@@ -1,58 +1,43 @@
 # encoding: UTF-8
 require_relative 'debug_hint'
+require_relative 'action'
 
-# A move, that can be performed in twixt
+# A move that can be performed in Mississippi Queen. A move consists of multiple
+# action in a specific order.
 class Move
-  # @!attribute [r] x
-  # @return [Integer] x-coordinate
-  attr_reader :x
-  # @!attribute [r] y
-  # @return [Integer] y-coordinate
-  attr_reader :y
+  # @!attribute [r] actions
+  #
+  # @return [Array<Action>] List of actions which should be performed in this
+  # move in the order determined by the array order.
+  attr_reader :actions
+
   # @!attribute [r] hints
   # @return [Array<DebugHint>] the move's hints
   attr_reader :hints
 
   # Initializer
   #
-  # @param x [Integer] x-coordinate
-  # @param y [Integer] y-coordinate
-  def initialize(x, y)
-    @x = x
-    @y = y
-    @hints = Array.new
+  def initialize
+    @actions = []
+    @hints = []
   end
 
-  # @overload addHint(hint)
   # adds a hint to the move
   # @param hint [DebugHint] the added hint
-  # @overload addHint(key, value)
-  # adds a hint to the move
-  # @param key the added hint's key
-  # @param value the added hint's value
-  # @overload addHint(string)
-  # adds a hint to the move
-  # @param hint [String] the added hint's content
-  def addHint(hint)
-    @hints.push(hint);
+  def add_hint(hint)
+    @hints.push(hint)
   end
 
-  # adds a hint to the move
-  def addHint(key, value)
-    self.addHint(DebugHint.new(key, value))
-  end
-
-  # adds a hint to the move
-  def addHint(string)
-    self.addHint(DebugHint.new(string))
-  end
-
-  def ==(another_move)
-    return self.x == another_move.x && self.y == another_move.y
+  def ==(other)
+    actions.size == other.actions.size &&
+      actions.zip(other.actions).map { |a, b| a == b }.all?
   end
 
   def to_s
-    return "Move:(#{self.x},#{self.y})"
+    "Move: #{actions}"
   end
 
+  def add_action(action)
+    @actions << action
+  end
 end

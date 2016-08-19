@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Ralf-Tobias Diekert"]
   spec.email         = ["rtd@informatik.uni-kiel.de"]
 
-  spec.summary       = %q{This gem provides functions to build a client for the coding competition Software-Challenge 2016.}
-  spec.description   = %q{}
-  spec.homepage      = "http://www.software-challenge.de"
+  spec.summary       = 'This gem provides functions to build a client for the coding competition Software-Challenge 2017.'
+  spec.description   = ''
+  spec.homepage      = 'http://www.software-challenge.de'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"
@@ -19,12 +19,15 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "typesafe_enum"
+  spec.add_dependency "builder"
 
   spec.add_development_dependency "bundler", ">= 1.10"
   spec.add_development_dependency "rake", ">= 10.0"
   spec.add_development_dependency "yard", ">= 0.8"
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "fuubar"
+  spec.add_development_dependency "rubocop"
   spec.add_development_dependency "guard"
   spec.add_development_dependency "guard-rspec"
+  spec.add_development_dependency "guard-rubocop"
 end

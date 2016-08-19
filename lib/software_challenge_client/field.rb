@@ -26,10 +26,12 @@ class Field
   # @param type [FieldType] field type
   # @param x [Integer] x-coordinate
   # @param y [Integer] y-coordinate
-  def initialize(type, x, y)
+  def initialize(type, x, y, index, direction)
     self.type = type
     @x = x
     @y = y
+    @index = index
+    @direction = direction
   end
 
   def ==(another_field)
