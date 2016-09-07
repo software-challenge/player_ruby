@@ -4,7 +4,7 @@ require 'typesafe_enum'
 class FieldType < TypesafeEnum::Base
 
   new :WATER
-  new :ISLAND
+  new :BLOCKED
   new :PASSENGER1
   new :PASSENGER2
   new :PASSENGER3
@@ -12,7 +12,7 @@ class FieldType < TypesafeEnum::Base
   new :PASSENGER5
   new :PASSENGER6
   new :SANDBANK
-  new :LOGS
+  new :LOG
   new :GOAL
 
 end

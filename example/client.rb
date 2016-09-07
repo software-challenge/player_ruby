@@ -7,8 +7,8 @@ class Client < ClientInterface
 
   attr_accessor :gamestate
 
-  def initialize
-    logger.level = Logger::INFO
+  def initialize(logLevel)
+    logger.level = logLevel
     logger.info "Zufallsspieler erstellt."
   end
 
@@ -24,6 +24,9 @@ class Client < ClientInterface
 
   # choose a random move
   def randomMove
+    move = Move.new
+    move.add_action Advance.new(1)
+    return move
     possibleMoves = self.gamestate.getPossibleMoves
     if possibleMoves.length > 0
       return possibleMoves[SecureRandom.random_number(possibleMoves.length)]

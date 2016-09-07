@@ -1,9 +1,11 @@
 # encoding: UTF-8
-#player color constants
-module PlayerColor
-  NONE = 1
-  RED = 2
-  BLUE = 4
+# player color constants
+require 'typesafe_enum'
+class PlayerColor < TypesafeEnum::Base
+
+  new :NONE
+  new :RED
+  new :BLUE
 
   # Returns the opponents Color
   #

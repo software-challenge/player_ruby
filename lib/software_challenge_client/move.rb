@@ -40,4 +40,8 @@ class Move
   def add_action(action)
     @actions << action
   end
+
+  def add_action_with_order(action, index)
+    @actions[index] = action
+  end
 end

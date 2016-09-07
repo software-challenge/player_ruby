@@ -14,12 +14,12 @@ RSpec.describe Move do
     other = Move.new
     other.add_action(Acceleration.new(2))
     other.add_action(Turn.new(1))
-    other.add_action(Step.new(3))
+    other.add_action(Advance.new(3))
     other.add_action(Push.new(-1))
     other.add_hint(DebugHint.new('hint'))
     subject.add_action(Acceleration.new(2))
     subject.add_action(Turn.new(1))
-    subject.add_action(Step.new(3))
+    subject.add_action(Advance.new(3))
     subject.add_action(Push.new(-1))
     expect(subject).to eq(other)
   end

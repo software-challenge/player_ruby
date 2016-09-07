@@ -14,7 +14,7 @@ class Runner
     logger.info "Host: #{host}"
     logger.info "Port: #{port}"
 
-    board = Board.new(true)
+    board = Board.new()
     @network = Network.new(host, port, board, client, reservation)
   end
 

@@ -37,6 +37,6 @@ end
 
 opt_parser.parse!(ARGV)
 
-client = Client.new
+client = Client.new(Logger::DEBUG)
 runner = Runner.new(options.host, options.port, client, options.reservation)
 runner.start()

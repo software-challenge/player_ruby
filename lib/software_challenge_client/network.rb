@@ -99,10 +99,10 @@ class Network
       # Remove <protocol> tag
       @receiveBuffer = @receiveBuffer.gsub('<protocol>', '')
 
-      logger.debug 'Received XML from server: #{@receiveBuffer}'
+      logger.debug "Received XML from server: #{@receiveBuffer}"
 
       # Process text
-      @protocol.process_string('<msg>'+@receiveBuffer+'</msg>');
+      @protocol.process_string("<msg>#{@receiveBuffer}</msg>");
       self.emptyReceiveBuffer
     end
     return true
@@ -129,9 +129,7 @@ class Network
   def sendString(s)
     if(@connected)
       @socket.print(s);
-      puts 'Send:'
-      puts ''
-      puts(s);
+      logger.debug "Sending: #{s}"
     end
   end
 

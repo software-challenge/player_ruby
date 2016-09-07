@@ -3,9 +3,11 @@
 # More info at https://github.com/guard/guard#readme
 
 ## Uncomment and set this to only include directories you want to watch
-directories %w(lib lib/software_challenge_client spec).select do |d|
-  Dir.exist?(d) ? d : UI.warning("Directory #{d} does not exist")
-end
+directories %w(lib lib/software_challenge_client spec)
+# the following seems to cause problems in certain ruby versions:
+# directories %w(lib lib/software_challenge_client spec).select do |d|
+#   Dir.exist?(d) ? d : UI.warning("Directory #{d} does not exist")
+# end
 
 ## Note: if you are using the `directories` clause above and you are not
 ## watching the project directory ('.'), then you will want to move

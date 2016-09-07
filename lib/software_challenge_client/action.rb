@@ -44,7 +44,7 @@ class Turn < Action
   end
 end
 
-class Step < Action
+class Advance < Action
   attr_reader :distance
 
   def initialize(distance)
@@ -52,7 +52,7 @@ class Step < Action
   end
 
   def type
-    :step
+    :advance
   end
 
   def ==(other)
