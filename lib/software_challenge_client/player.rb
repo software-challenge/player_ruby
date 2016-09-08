@@ -26,8 +26,17 @@ class Player
   # @return [Direction] the player's current direction
   attr_accessor :direction
 
+  # @!attribute [rw] x
+  # @return [Direction] the player's current x-position
+  attr_accessor :x
+
+  # @!attribute [rw] x
+  # @return [Direction] the player's current y-position
+  attr_accessor :y
+
   # Initializer
-  # @param the new player's color
+  # @param color [PlayerColor] the new player's color
+  # @param name [String] the new player's name (for displaying)
   def initialize(color, name)
     @color = color
     @name = name
@@ -37,8 +46,7 @@ class Player
     @direction = Direction::RIGHT
   end
 
-  def ==(another_player)
-    return self.color == another_player.color
+  def ==(other)
+    color == other.color
   end
-
 end

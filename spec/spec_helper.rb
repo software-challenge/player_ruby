@@ -104,4 +104,9 @@ RSpec.configure do |config|
   # test failures related to randomization by passing the same `--seed` value
   # as the one that triggered the failure.
   Kernel.srand config.seed
+
+  # Include support code. Note that this will be included for every test case.
+  Dir[File.dirname(__FILE__) + '/support/**/*.rb'].each do |f|
+    require f
+  end
 end

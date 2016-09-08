@@ -18,6 +18,7 @@ RSpec.describe GameState do
     move.add_action Acceleration.new(1)
     subject.perform!(move, player)
     expect(oldState).to_not eq(subject)
+    expect(player.velocity).to eq(2)
   end
 
 end

@@ -32,11 +32,17 @@ class GameState
   # @!attribute [rw] condition
   # @return [Condition] the winner and winning reason
   attr_accessor :condition
+  # @!attribute [rw] free_acceleration
+  # @return [Boolean] True if the free acceleration for this turn is still
+  # available.
+  attr_accessor :free_acceleration
+  alias free_acceleration? free_acceleration
 
   def initialize
-    self.currentPlayerColor = PlayerColor::RED
-    self.startPlayerColor = PlayerColor::RED
-    self.board = Board.new
+    @currentPlayerColor = PlayerColor::RED
+    @startPlayerColor = PlayerColor::RED
+    @board = Board.new
+    @free_acceleration = true
   end
 
   # adds a player to the gamestate
@@ -128,10 +134,8 @@ class GameState
   # @param move [Move] the move, that will be performed
   # @param player [Player] the player, who makes the move
   def perform!(move, player)
-    unless move.nil?
-      move.actions.each do |action|
-        action.perform!(self, player)
-      end
+    move.actions.each do |action|
+      action.perform!(self, player)
     end
   end
 
@@ -220,6 +224,7 @@ class GameState
       blue == other.blue &&
       board == other.board &&
       lastMove == other.lastMove &&
+      free_acceleration == other.free_acceleration &&
       condition == other.condition
   end
 end

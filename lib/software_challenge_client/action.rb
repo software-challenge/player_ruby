@@ -10,6 +10,14 @@ class Action
   def ==(_other)
     raise 'must be overridden'
   end
+
+  def perform!(gamestate, current_player)
+    raise 'must be overridden'
+  end
+
+  def invalid(message)
+    raise InvalidMoveException.new(message, self)
+  end
 end
 
 class Acceleration < Action
@@ -19,28 +27,24 @@ class Acceleration < Action
     @acceleration = acceleration
   end
 
-  def perform!(gamestate, player)
-    newVelocity = player.velocity + acceleration
-    if newVelocity < 1
-      raise InvalidMoveException.new('Geschwindigkeit darf nicht unter 1 verringert werden')
+  def perform!(gamestate, current_player)
+    new_velocity = current_player.velocity + acceleration
+    if new_velocity < 1
+      invalid 'Geschwindigkeit darf nicht unter 1 verringert werden'
     end
-    if newVelocity > 6
-      raise InvalidMoveException.new('Geschwindigkeit darf nicht über 6 erhöht werden.')
+    if new_velocity > 6
+      invalid 'Geschwindigkeit darf nicht über 6 erhöht werden.'
     end
-    i = 0
-    while i < acceleration
+    acceleration.times do
       if gamestate.free_acceleration?
         gamestate.free_acceleration = false
+      elsif current_player.coal.zero?
+        invalid 'Nicht genug Kohle zum Beschleunigen.'
       else
-        if player.coal == 0
-          raise InvalidMoveException.new('Nicht genug Kohle zum Beschleunigen.')
-        else
-          player.coal -= 1
-        end
+        current_player.coal -= 1
       end
-      i += 1
     end
-
+    current_player.velocity = new_velocity
   end
 
   def type

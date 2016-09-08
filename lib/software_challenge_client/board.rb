@@ -30,4 +30,9 @@ class Board
     end
     true
   end
+
+  def add_field(field)
+    fields[field.x] = {} unless fields.key? field.x
+    fields[field.x][field.y] = field
+  end
 end

@@ -2,6 +2,7 @@
 module SoftwareChallengeClient
   require 'software_challenge_client/version'
   require 'software_challenge_client/logging'
+  require 'software_challenge_client/invalid_move_exception'
   require 'software_challenge_client/board'
   require 'software_challenge_client/client_interface'
   require 'software_challenge_client/condition'
