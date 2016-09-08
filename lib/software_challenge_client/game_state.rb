@@ -8,7 +8,6 @@ require_relative 'field_type'
 
 # The state of a game
 class GameState
-
   # @!attribute [rw] turn
   # @return [Integer] turn number
   attr_accessor :turn
@@ -43,23 +42,21 @@ class GameState
   # adds a player to the gamestate
   #
   # @param player [Player] the player, that will be added
-  def addPlayer(player)
+  def add_player(player)
     if player.color == PlayerColor::RED
       @red = player
-    else if player.color == PlayerColor::BLUE
-        @blue = player
-      end
+    elsif player.color == PlayerColor::BLUE
+      @blue = player
     end
   end
 
   # gets the current player
   #
   # @return [Player] the current player
-  def currentPlayer
-    if self.currentPlayerColor == PlayerColor::RED
-      return self.red
-    else
-      return self.blue
+  def current_player
+    if currentPlayerColor == PlayerColor::RED
+    then red
+    else blue
     end
   end
 
@@ -67,10 +64,10 @@ class GameState
   #
   # @return [Player] the other (not the current) player
   def otherPlayer
-    if self.currentPlayerColor == PlayerColor::RED
-      return self.blue
+    if currentPlayerColor == PlayerColor::RED
+      return blue
     else
-      return self.red
+      return red
     end
   end
 
@@ -78,70 +75,62 @@ class GameState
   #
   # @return [PlayerColor] the other (not the current) player's color
   def otherPlayerColor
-    return PlayerColor.opponentColor(self.currentPlayerColor)
+    PlayerColor.opponentColor(current_player_color)
   end
 
   # gets the start player
   #
   # @return [Player] the startPlayer
   def startPlayer
-    if self.startPlayer == PlayerColor::RED
-      return self.red
+    if startPlayer == PlayerColor::RED
+      return red
     else
-      return self.blue
+      return blue
     end
   end
 
   # switches current player
   def switchCurrentPlayer
-    if currentPlayer.color == PlayerColor::RED
-      @currentPlayer = self.blue
-    else
-      @currentPlayer = self.red
-    end
+    @currentPlayer = if currentPlayer.color == PlayerColor::RED
+                       blue
+                     else
+                       red
+                     end
   end
 
   # gets the current round
   #
   # @return [Integer] the current round
   def round
-    return self.turn / 2
+    turn / 2
   end
 
   # gets all possible moves
   #
   # @return [Array<Move>] a list of all possible moves
   def getPossibleMoves
-    enemyFieldType = currentPlayer.color == PlayerColor::RED ? FieldType::BLUE : FieldType::RED
-    moves = Array.new
-    for x in 0..(Constants::SIZE-1)
-      for y in 0..(Constants::SIZE-1)
-        if (self.board.fields[x][y].ownerColor == PlayerColor::NONE &&
-              self.board.fields[x][y].type != FieldType::SWAMP &&
-              self.board.fields[x][y].type != enemyFieldType)
+    enemyFieldType = current_player.color == PlayerColor::RED ? FieldType::BLUE : FieldType::RED
+    moves = []
+    for x in 0..(Constants::SIZE - 1)
+      for y in 0..(Constants::SIZE - 1)
+        if board.fields[x][y].ownerColor == PlayerColor::NONE &&
+           board.fields[x][y].type != FieldType::SWAMP &&
+           board.fields[x][y].type != enemyFieldType
           moves.push(Move.new(x, y))
         end
       end
     end
-    return moves
+    moves
   end
 
   # performs a move on the gamestate
   #
   # @param move [Move] the move, that will be performed
   # @param player [Player] the player, who makes the move
-  def perform(move, player)
-    if !move.nil?
-      if move.x < Constants::SIZE && move.y < Constants::SIZE &&
-          move.x >= 0 && move.y >= 0
-        if self.getPossibleMoves.include?(move)
-          self.board.put(move.x, move.y, player)
-          player.points = self.pointsForPlayer(player)
-        else
-          raise "Der Zug ist nicht möglich, denn der Platz ist bereits besetzt oder nicht besetzbar."
-        end
-      else
-        raise "Startkoordinaten sind nicht innerhalb des Spielfeldes."
+  def perform!(move, player)
+    unless move.nil?
+      move.actions.each do |action|
+        action.perform!(self, player)
       end
     end
   end
@@ -151,7 +140,7 @@ class GameState
   # @param player [Player] the player, whos statistics will be returned
   # @return [Integer] the points of the player
   def playerStats(player)
-    return self.playerStats(player.color)
+    playerStats(player.color)
   end
 
   # gets a player's points by the player's color
@@ -160,9 +149,9 @@ class GameState
   # @return [Integer] the points of the player
   def playerStats(playerColor)
     if playerColor == PlayerColor::RED
-      return self.gameStats[0];
+      return gameStats[0]
     else
-      return self.gameStats[1]
+      return gameStats[1]
     end
   end
 
@@ -172,17 +161,17 @@ class GameState
   def gameStats
     stats = Array.new(2, Array.new(1))
 
-    stats[0][0] = self.red.points
-    stats[1][0] = self.blue.points
+    stats[0][0] = red.points
+    stats[1][0] = blue.points
 
-    return stats
+    stats
   end
 
   # get the players' names
   #
   # @return [Array<String>] the names for both players
   def playerNames
-    return [red.name, blue.name]
+    [red.name, blue.name]
   end
 
   # sets the game-ended condition
@@ -190,39 +179,47 @@ class GameState
   # @param winner [Player] the winner of the game
   # @param reason [String] the winning reason
   def endGame(winner, reason)
-    if condition.nil?
-      @condition = Condition.new(winner, reason)
-    end
+    @condition = Condition.new(winner, reason) if condition.nil?
   end
 
   # has the game ended?
   #
   # @return [Boolean] true, if the game has allready ended
   def gameEnded?
-    return !self.condition.nil?
+    !condition.nil?
   end
 
   # gets the game's winner
   #
   # @return [Player] the game's winner
   def winner
-    return condition.nil? ? nil : self.condition.winner
+    condition.nil? ? nil : condition.winner
   end
 
   # gets the winning reason
   #
   # @return [String] the winning reason
   def winningReason
-    return condition.nil? ? nil : self.condition.reason
+    condition.nil? ? nil : condition.reason
   end
 
   # calculates a player's points
   #
-  # @param player [Player] the player, whos point will be calculated
+  #  @param player [Player] the player, whos point will be calculated
   # @return [Integer] the points of the player
-  def pointsForPlayer(player)
+  def pointsForPlayer(_player)
     # TODO
-    return 0
+    0
   end
 
+  def ==(other)
+    turn == other.turn &&
+      startPlayerColor == other.startPlayerColor &&
+      currentPlayerColor == other.currentPlayerColor &&
+      red == other.red &&
+      blue == other.blue &&
+      board == other.board &&
+      lastMove == other.lastMove &&
+      condition == other.condition
+  end
 end

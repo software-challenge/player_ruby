@@ -7,11 +7,17 @@ RSpec.describe GameState do
   let(:player) { Player.new(PlayerColor::RED, '') }
   subject { GameState.new }
 
+  it 'should be equal when cloned' do
+    oldState = subject.clone
+    expect(oldState).to eq(subject)
+  end
+
   it 'should perform moves' do
     oldState = subject.clone
     move = Move.new
-    subject.perform(move, player)
-    expect(oldState).to not_eq(subject)
+    move.add_action Acceleration.new(1)
+    subject.perform!(move, player)
+    expect(oldState).to_not eq(subject)
   end
 
 end

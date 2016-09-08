@@ -1,4 +1,4 @@
-# encoding: UTF-8
+# encoding: utf-8
 
 # An action is a part of a move.
 class Action
@@ -17,6 +17,30 @@ class Acceleration < Action
 
   def initialize(acceleration)
     @acceleration = acceleration
+  end
+
+  def perform!(gamestate, player)
+    newVelocity = player.velocity + acceleration
+    if newVelocity < 1
+      raise InvalidMoveException.new('Geschwindigkeit darf nicht unter 1 verringert werden')
+    end
+    if newVelocity > 6
+      raise InvalidMoveException.new('Geschwindigkeit darf nicht über 6 erhöht werden.')
+    end
+    i = 0
+    while i < acceleration
+      if gamestate.free_acceleration?
+        gamestate.free_acceleration = false
+      else
+        if player.coal == 0
+          raise InvalidMoveException.new('Nicht genug Kohle zum Beschleunigen.')
+        else
+          player.coal -= 1
+        end
+      end
+      i += 1
+    end
+
   end
 
   def type

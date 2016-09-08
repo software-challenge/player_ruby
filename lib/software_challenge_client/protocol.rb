@@ -87,10 +87,10 @@ class Protocol
       logger.debug "Turn: #{@gamestate.turn}"
     when 'red'
       logger.debug 'new red player'
-      @gamestate.addPlayer(parsePlayer(PlayerColor::RED, attrs))
+      @gamestate.add_player(parsePlayer(PlayerColor::RED, attrs))
     when 'blue'
       logger.debug 'new blue player'
-      @gamestate.addPlayer(parsePlayer(PlayerColor::BLUE, attrs))
+      @gamestate.add_player(parsePlayer(PlayerColor::BLUE, attrs))
     when 'board'
       logger.debug 'new board'
       @gamestate.board = Board.new

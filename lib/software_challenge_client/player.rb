@@ -31,7 +31,10 @@ class Player
   def initialize(color, name)
     @color = color
     @name = name
-    self.points = 0
+    @points = 0
+    @velocity = 1
+    @coal = 6
+    @direction = Direction::RIGHT
   end
 
   def ==(another_player)
