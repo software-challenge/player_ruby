@@ -11,7 +11,7 @@ class Action
     raise 'must be overridden'
   end
 
-  def perform!(gamestate, current_player)
+  def perform!(_gamestate, _current_player)
     raise 'must be overridden'
   end
 
@@ -77,6 +77,44 @@ class Advance < Action
 
   def initialize(distance)
     @distance = distance
+  end
+
+  def perform!(gamestate, current_player)
+    if distance.zero?
+      raise InvalidMoveException, 'Bewegung um 0 ist unzulässig.'
+    end
+    if distance < 0 && current_player.field.type == FieldType::SANDBANK
+      raise InvalidMoveException, 'Negative Bewegung ist nur auf Sandbank erlaubt.'
+    end
+    fields = (1..distance).to_a.map do |i|
+      gamestate.board.get_in_direction(
+        current_player.x,
+        current_player.y,
+        current_player.direction,
+        i
+      )
+    end
+    # test if all fields are passable
+    if fields.any?(&:blocked?)
+      raise InvalidMoveException.new('Der Weg ist blockiert.', self)
+    end
+    movement = current_player.velocity
+    fields.each do |field|
+      case field.type
+      when FieldType::WATER, FieldType::GOAL
+        movement -= 1
+      when FieldType::SANDBANK
+        movement = 0
+      when FieldType::LOGS
+        movement -= 2
+      end
+      if field.x == gamestate.other_player.x && field.y == gamestate.other_player.y
+        # pushing costs one more movement
+        movement -= 1
+      end
+    end
+    # test if movement is enough
+    # test if opponent is not on fields over which is moved
   end
 
   def type

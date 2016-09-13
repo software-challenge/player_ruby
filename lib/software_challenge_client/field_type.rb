@@ -2,7 +2,6 @@
 
 require 'typesafe_enum'
 class FieldType < TypesafeEnum::Base
-
   new :WATER
   new :BLOCKED
   new :PASSENGER1
@@ -14,5 +13,4 @@ class FieldType < TypesafeEnum::Base
   new :SANDBANK
   new :LOG
   new :GOAL
-
 end

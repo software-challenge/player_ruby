@@ -82,8 +82,8 @@ class Protocol
       logger.debug 'new gamestate'
       @gamestate = GameState.new
       @gamestate.turn = attrs['turn'].to_i
-      @gamestate.startPlayerColor = attrs['startPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
-      @gamestate.currentPlayerColor = attrs['currentPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
+      @gamestate.start_player_color = attrs['startPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
+      @gamestate.current_player_color = attrs['currentPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
       logger.debug "Turn: #{@gamestate.turn}"
     when 'red'
       logger.debug 'new red player'

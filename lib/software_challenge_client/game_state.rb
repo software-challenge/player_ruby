@@ -11,12 +11,12 @@ class GameState
   # @!attribute [rw] turn
   # @return [Integer] turn number
   attr_accessor :turn
-  # @!attribute [rw] startPlayerColor
+  # @!attribute [rw] start_player_color
   # @return [PlayerColor] the start-player's color
-  attr_accessor :startPlayerColor
-  # @!attribute [rw] currentPlayerColor
+  attr_accessor :start_player_color
+  # @!attribute [rw] current_player_color
   # @return [PlayerColor] the current player's color
-  attr_accessor :currentPlayerColor
+  attr_accessor :current_player_color
   # @!attribute [r] red
   # @return [Player] the red player
   attr_reader :red
@@ -39,8 +39,8 @@ class GameState
   alias free_acceleration? free_acceleration
 
   def initialize
-    @currentPlayerColor = PlayerColor::RED
-    @startPlayerColor = PlayerColor::RED
+    @current_player_color = PlayerColor::RED
+    @start_player_color = PlayerColor::RED
     @board = Board.new
     @free_acceleration = true
   end
@@ -60,7 +60,7 @@ class GameState
   #
   # @return [Player] the current player
   def current_player
-    if currentPlayerColor == PlayerColor::RED
+    if current_player_color == PlayerColor::RED
     then red
     else blue
     end
@@ -69,8 +69,8 @@ class GameState
   # gets the other (not the current) player
   #
   # @return [Player] the other (not the current) player
-  def otherPlayer
-    if currentPlayerColor == PlayerColor::RED
+  def other_player
+    if current_player_color == PlayerColor::RED
       return blue
     else
       return red
@@ -80,8 +80,8 @@ class GameState
   # gets the other (not the current) player's color
   #
   # @return [PlayerColor] the other (not the current) player's color
-  def otherPlayerColor
-    PlayerColor.opponentColor(current_player_color)
+  def other_player_color
+    PlayerColor.opponent_color(current_player_color)
   end
 
   # gets the start player
@@ -218,8 +218,8 @@ class GameState
 
   def ==(other)
     turn == other.turn &&
-      startPlayerColor == other.startPlayerColor &&
-      currentPlayerColor == other.currentPlayerColor &&
+      start_player_color == other.start_player_color &&
+      current_player_color == other.current_player_color &&
       red == other.red &&
       blue == other.blue &&
       board == other.board &&

@@ -48,6 +48,16 @@ class Field
       self.y == another_field.y
   end
 
+  def blocked?
+    [FieldType::BLOCKED,
+     FieldType::PASSENGER1,
+     FieldType::PASSENGER2,
+     FieldType::PASSENGER3,
+     FieldType::PASSENGER4,
+     FieldType::PASSENGER5,
+     FieldType::PASSENGER6].include? type
+  end
+
   def to_s
     return "Field: x = #{self.x}, y = #{self.y}, type = #{self.type}"
   end

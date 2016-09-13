@@ -22,8 +22,8 @@ RSpec.describe Protocol do
         <blue displayName="Spieler 2" color="BLUE" points="42" x="-1" y="-1" direction="UP_RIGHT" speed="1" coal="6" tile="0" passenger="0"/>
       XML
       expect(subject.gamestate.turn).to eq(2)
-      expect(subject.gamestate.startPlayerColor).to eq(PlayerColor::RED)
-      expect(subject.gamestate.currentPlayerColor).to eq(PlayerColor::BLUE)
+      expect(subject.gamestate.start_player_color).to eq(PlayerColor::RED)
+      expect(subject.gamestate.current_player_color).to eq(PlayerColor::BLUE)
       expect(subject.gamestate.red.points).to eq(13)
       expect(subject.gamestate.red.name).to eq('Spieler 1')
       expect(subject.gamestate.red.direction).to eq(Direction::RIGHT)

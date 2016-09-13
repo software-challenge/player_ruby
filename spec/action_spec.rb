@@ -34,7 +34,7 @@ RSpec.describe Advance do
   it 'should not put the player on a blocked field' do
     text = <<-BOARD
       .W.W.W.W...
-      ..W.W.W.W..
+      ..W.B.W.W..
       ...W.W.W.W.
       ..r.B.W.W..
       .W.W.W.W...
@@ -45,6 +45,34 @@ RSpec.describe Advance do
     expect {
       Advance.new(1).perform!(gamestate, gamestate.red)
     }.to raise_error(InvalidMoveException)
+    expect {
+      Advance.new(2).perform!(gamestate, gamestate.red)
+    }.to raise_error(InvalidMoveException)
+    gamestate.red.direction = Direction::UP_RIGHT
+    expect {
+      Advance.new(1).perform!(gamestate, gamestate.red)
+    }.to_not raise_error(InvalidMoveException)
+    expect {
+      Advance.new(2).perform!(gamestate, gamestate.red)
+    }.to raise_error(InvalidMoveException)
+  end
+
+  it 'should not move more than the players velocity' do
+    text = <<-BOARD
+      .W.W.W.W...
+      ..b.W.W.W..
+      ...W.W.W.W.
+      ..r.W.W.W..
+      .W.W.W.W...
+    BOARD
+    state_from_string!(-2, -2, text, gamestate)
+    gamestate.red.direction = Direction::RIGHT
+    gamestate.red.velocity = 2
+
+    expect {
+      Advance.new(3).perform!(gamestate, gamestate.red)
+    }.to raise_error(InvalidMoveException)
+
   end
 
 end
