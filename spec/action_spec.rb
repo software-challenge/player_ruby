@@ -72,7 +72,50 @@ RSpec.describe Advance do
     expect {
       Advance.new(3).perform!(gamestate, gamestate.red)
     }.to raise_error(InvalidMoveException)
-
   end
 
+  it 'should not move over a field occupied by opponent' do
+    text = <<-BOARD
+      .W.W.W.W...
+      ..W.W.W.W..
+      ...W.W.W.W.
+      ..r.W.b.W..
+      .W.W.W.W...
+    BOARD
+    state_from_string!(-2, -2, text, gamestate)
+    gamestate.red.direction = Direction::RIGHT
+    gamestate.red.velocity = 4
+
+    expect {
+      Advance.new(3).perform!(gamestate, gamestate.red)
+    }.to raise_error(InvalidMoveException)
+    expect {
+      Advance.new(2).perform!(gamestate, gamestate.red)
+    }.to_not raise_error(InvalidMoveException)
+  end
+
+  it 'should move onto a field occupied by opponent' do
+    text = <<-BOARD
+      .W.W.W.W...
+      ..W.W.W.W..
+      ...W.W.W.W.
+      ..r.W.b.W..
+      .W.W.W.W...
+    BOARD
+    state_from_string!(-2, -2, text, gamestate)
+    gamestate.red.direction = Direction::RIGHT
+    gamestate.red.velocity = 3
+
+    expect {
+      Advance.new(2).perform!(gamestate, gamestate.red)
+    }.to_not raise_error(InvalidMoveException)
+
+    # moving onto player costs one more movement, having velocity equal to the
+    # number of fields moved should not be enough
+    gamestate.red.velocity = 2
+
+    expect {
+      Advance.new(2).perform!(gamestate, gamestate.red)
+    }.to raise_error(InvalidMoveException)
+  end
 end

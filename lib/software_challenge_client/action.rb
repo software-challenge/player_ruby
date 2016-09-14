@@ -86,35 +86,34 @@ class Advance < Action
     if distance < 0 && current_player.field.type == FieldType::SANDBANK
       raise InvalidMoveException, 'Negative Bewegung ist nur auf Sandbank erlaubt.'
     end
-    fields = (1..distance).to_a.map do |i|
-      gamestate.board.get_in_direction(
-        current_player.x,
-        current_player.y,
-        current_player.direction,
-        i
-      )
-    end
+    fields = gamestate.board.get_all_in_direction(current_player.x, current_player.y, current_player.direction, distance)
     # test if all fields are passable
     if fields.any?(&:blocked?)
       raise InvalidMoveException.new('Der Weg ist blockiert.', self)
     end
-    movement = current_player.velocity
-    fields.each do |field|
-      case field.type
-      when FieldType::WATER, FieldType::GOAL
-        movement -= 1
-      when FieldType::SANDBANK
-        movement = 0
-      when FieldType::LOGS
-        movement -= 2
-      end
-      if field.x == gamestate.other_player.x && field.y == gamestate.other_player.y
-        # pushing costs one more movement
-        movement -= 1
-      end
+    # Test if movement is enough. Note that this does not mean that the player
+    # has enough movement points for the *whole* move.
+    if required_movement(gamestate, current_player) > current_player.velocity
+      raise InvalidMoveException.new('Nicht genug Bewegungspunkte.', self)
     end
-    # test if movement is enough
     # test if opponent is not on fields over which is moved
+    if fields[0...-1].any?(:'gamestate.occupied_by_other_player?')
+      raise InvalidMoveException.new('Man darf nicht über den Gegner fahren.', self)
+    end
+  end
+
+  # returns the required movement points to perform this action
+  def required_movement(gamestate, current_player)
+    gamestate.board.get_all_in_direction(current_player.x, current_player.y, current_player.direction, distance).map do |field|
+      # pushing costs one more movement
+      on_opponent = field.x == gamestate.other_player.x && field.y == gamestate.other_player.y
+      case field.type
+      when FieldType::WATER, FieldType::GOAL, FieldType::SANDBANK
+        on_opponent ? 2 : 1
+      when FieldType::LOGS
+        on_opponent ? 3 : 2
+      end
+    end.reduce(:+)
   end
 
   def type

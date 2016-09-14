@@ -216,6 +216,10 @@ class GameState
     0
   end
 
+  def occupied_by_other_player?(field)
+    field.x == other_player.x && field.y == other_player.y
+  end
+
   def ==(other)
     turn == other.turn &&
       start_player_color == other.start_player_color &&

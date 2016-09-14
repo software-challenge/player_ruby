@@ -36,6 +36,8 @@ class Board
     fields[field.x][field.y] = field
   end
 
+  # @return [Integer, Integer] The coordinates of the neighbor of the field
+  # specified by given coordinated in specified direction
   def get_neighbor(x, y, direction)
     directions = {
                    even_row: {
@@ -61,6 +63,8 @@ class Board
     return x + dir[0], y + dir[1]
   end
 
+  # @return [Field] The field in given direction with given distance from the
+  # field with given coordinates.
   def get_in_direction(from_x, from_y, direction, distance = 1)
     x = from_x
     y = from_y
@@ -68,5 +72,15 @@ class Board
       x, y = get_neighbor(x, y, direction)
     end
     return fields[x][y]
+  end
+
+  # @return [Array<Field>] A list of fields in given direction up to given
+  # distance from the field with given coordinates. The start field is excluded.
+  def get_all_in_direction(from_x, from_y, direction, distance = 1)
+    (1..distance).to_a.map do |i|
+      get_in_direction(
+        from_x, from_y, direction, i
+      )
+    end
   end
 end
