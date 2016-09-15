@@ -6,8 +6,8 @@ require 'software_challenge_client/version'
 Gem::Specification.new do |spec|
   spec.name          = "software_challenge_client"
   spec.version       = SoftwareChallengeClient::VERSION
-  spec.authors       = ["Ralf-Tobias Diekert"]
-  spec.email         = ["rtd@informatik.uni-kiel.de"]
+  spec.authors       = File.readlines('AUTHORS').select { |l| l[' <'] }.map { |l| l.match(/^(.*) *</)[1] }
+  spec.email         = File.readlines('AUTHORS').select { |l| l[' <'] }.map { |l| l.match(/<(.*)>/)[1] }
 
   spec.summary       = 'This gem provides functions to build a client for the coding competition Software-Challenge 2017.'
   spec.description   = ''
