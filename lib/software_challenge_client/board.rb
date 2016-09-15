@@ -71,7 +71,11 @@ class Board
     distance.times do
       x, y = get_neighbor(x, y, direction)
     end
-    return fields[x][y]
+    if !fields[x].nil? && !fields[x][y].nil?
+      return fields[x][y]
+    else
+      raise FieldUnavailableException.new(x, y)
+    end
   end
 
   # @return [Array<Field>] A list of fields in given direction up to given

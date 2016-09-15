@@ -109,9 +109,13 @@ class Advance < Action
     if distance < 0 && gamestate.board.fields[current_player.x][current_player.y].type != FieldType::SANDBANK
       invalid 'Negative Bewegung ist nur auf Sandbank erlaubt.'
     end
-    fields = gamestate.board.get_all_in_direction(
-      current_player.x, current_player.y, current_player.direction, distance
-    )
+    begin
+      fields = gamestate.board.get_all_in_direction(
+        current_player.x, current_player.y, current_player.direction, distance
+      )
+    rescue FieldUnavailableException => e
+      invalid "Feld (#{e.x}, #{e.y}) ist nicht vorhanden"
+    end
     # test if all fields are passable
     if fields.any?(&:blocked?)
       invalid 'Der Weg ist blockiert.'
@@ -125,7 +129,10 @@ class Advance < Action
     if fields[0...-1].any? { |f| gamestate.occupied_by_other_player? f }
       invalid 'Man darf nicht über den Gegner fahren.'
     end
+    target_field = fields.last
     current_player.movement -= req_movement
+    current_player.x = target_field.x
+    current_player.y = target_field.y
   end
 
   # returns the required movement points to perform this action

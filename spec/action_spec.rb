@@ -180,6 +180,38 @@ RSpec.describe Advance do
       Advance.new(1).perform!(gamestate, gamestate.red)
     }.to not_raise_error.and change{ gamestate.red.movement }.by(-2)
   end
+
+  it 'changes the players current coordinates' do
+    text = <<-BOARD
+      .W.W.W.W...
+      ..W.b.W.W..
+      ...W.W.W.W.
+      ..W.r.W.W..
+      .W.W.W.W...
+    BOARD
+    state_from_string!(-2, -2, text, gamestate)
+    gamestate.red.direction = Direction::RIGHT
+    gamestate.red.movement = 1
+    expect {
+      Advance.new(1).perform!(gamestate, gamestate.red)
+    }.to change { gamestate.red.x }.by(1)
+  end
+
+  it 'should not move on not existing fields' do
+    text = <<-BOARD
+      .W.W.W.W...
+      ..W.b.W.W..
+      ...W.W.W.W.
+      ..W.r.W.W..
+      .W.W.W.W...
+    BOARD
+    state_from_string!(-2, -2, text, gamestate)
+    gamestate.red.direction = Direction::DOWN_RIGHT
+    gamestate.red.movement = 2
+    expect {
+      Advance.new(2).perform!(gamestate, gamestate.red)
+    }.to raise_error(InvalidMoveException)
+  end
 end
 
 RSpec.describe Turn do
