@@ -3,3 +3,4 @@ AllCops:
   DisplayStyleGuide: true
   DisplayCopNames: false
   TargetRubyVersion: 2.0
+require: rubocop-rspec

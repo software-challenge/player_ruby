@@ -38,11 +38,25 @@ class GameState
   attr_accessor :free_acceleration
   alias free_acceleration? free_acceleration
 
+  # @!attribute [rw] free_turn
+  # @return [Boolean] True if the free turning for this turn is still
+  # available.
+  attr_accessor :free_turn
+  alias free_turn? free_turn
+
+  # @!attribute [rw] additional_free_turn_after_push
+  # @return [Boolean] True if the free turning for this turn is still
+  # available.
+  attr_accessor :additional_free_turn_after_push
+  alias additional_free_turn_after_push? additional_free_turn_after_push
+
   def initialize
     @current_player_color = PlayerColor::RED
     @start_player_color = PlayerColor::RED
     @board = Board.new
     @free_acceleration = true
+    @free_turn = true
+    @additional_free_turn_after_push = false
   end
 
   # adds a player to the gamestate
@@ -144,14 +158,14 @@ class GameState
   # @param player [Player] the player, whos statistics will be returned
   # @return [Integer] the points of the player
   def playerStats(player)
-    playerStats(player.color)
+    playerStatsByColor(player.color)
   end
 
   # gets a player's points by the player's color
   #
   # @param playerColor [PlayerColor] the player's color, whos statistics will be returned
   # @return [Integer] the points of the player
-  def playerStats(playerColor)
+  def playerStatsByColor(playerColor)
     if playerColor == PlayerColor::RED
       return gameStats[0]
     else

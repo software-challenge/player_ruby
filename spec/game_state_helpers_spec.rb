@@ -22,6 +22,7 @@ RSpec.describe GameStateHelpers do
     expect(gamestate.red.y).to eq(1)
     expect(gamestate.blue.x).to eq(-1)
     expect(gamestate.blue.y).to eq(-1)
+    expect(gamestate.other_player).to eq(gamestate.blue)
   end
 
   it 'should allow no players on board' do

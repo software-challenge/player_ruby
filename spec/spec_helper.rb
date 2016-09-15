@@ -21,6 +21,8 @@
 require 'bundler/setup'
 Bundler.setup
 
+require 'pry'
+
 require 'software_challenge_client'
 
 # Silence logging. If you want to see logging output for a spec, put

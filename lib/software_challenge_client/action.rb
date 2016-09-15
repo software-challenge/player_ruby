@@ -63,6 +63,35 @@ class Turn < Action
     @direction = direction
   end
 
+  def perform!(gamestate, current_player)
+    invalid 'Drehung um 0 ist ungültig' if direction.zero?
+    if gamestate
+       .board
+       .fields[current_player.x][current_player.y]
+       .type == FieldType::SANDBANK
+      invalid 'Drehung auf Sandbank nicht erlaubt'
+    end
+    needed_coal = direction.abs
+    needed_coal -= 1 if gamestate.free_turn?
+    if needed_coal > 0 && gamestate.additional_free_turn_after_push?
+      needed_coal -= 1
+      gamestate.additional_free_turn_after_push = false
+    end
+    if needed_coal > current_player.coal
+      invalid "Nicht genug Kohle für Drehung um #{direction}. "
+              "Habe #{current_player.coal}, brauche #{needed_coal}."
+    end
+
+    # order of directions is equal to counterclockwise turning
+    new_direction = Direction.find_by_ord(
+      (current_player.direction.ord + direction) % 6
+    )
+
+    current_player.direction = new_direction
+    current_player.coal -= [0, needed_coal].max
+    gamestate.free_turn = false
+  end
+
   def type
     :turn
   end
@@ -80,25 +109,25 @@ class Advance < Action
   end
 
   def perform!(gamestate, current_player)
-    if distance.zero?
-      raise InvalidMoveException, 'Bewegung um 0 ist unzulässig.'
+    invalid 'Bewegung um 0 ist unzulässig.' if distance.zero?
+    if distance < 0 && gamestate.board.fields[current_player.x][current_player.y].type != FieldType::SANDBANK
+      invalid 'Negative Bewegung ist nur auf Sandbank erlaubt.'
     end
-    if distance < 0 && current_player.field.type == FieldType::SANDBANK
-      raise InvalidMoveException, 'Negative Bewegung ist nur auf Sandbank erlaubt.'
-    end
-    fields = gamestate.board.get_all_in_direction(current_player.x, current_player.y, current_player.direction, distance)
+    fields = gamestate.board.get_all_in_direction(
+      current_player.x, current_player.y, current_player.direction, distance
+    )
     # test if all fields are passable
     if fields.any?(&:blocked?)
-      raise InvalidMoveException.new('Der Weg ist blockiert.', self)
+      invalid 'Der Weg ist blockiert.'
     end
     # Test if movement is enough. Note that this does not mean that the player
     # has enough movement points for the *whole* move.
     if required_movement(gamestate, current_player) > current_player.velocity
-      raise InvalidMoveException.new('Nicht genug Bewegungspunkte.', self)
+      invalid 'Nicht genug Bewegungspunkte.'
     end
     # test if opponent is not on fields over which is moved
-    if fields[0...-1].any?(:'gamestate.occupied_by_other_player?')
-      raise InvalidMoveException.new('Man darf nicht über den Gegner fahren.', self)
+    if fields[0...-1].any? { |f| gamestate.occupied_by_other_player? f }
+      invalid 'Man darf nicht über den Gegner fahren.'
     end
   end
 
