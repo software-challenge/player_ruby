@@ -34,16 +34,17 @@ module GameStateHelpers
       else
         type = nil
         case c
-        when 'W', 'r', 'b'
-          # 'r' and 'b' may be used to mark players positions
+        when 'W', 'r', 'b', '8'
+          # 'r' and 'b' may be used to mark players positions,
+          # '8' when both players are on the same field
           type = FieldType::WATER
-          if c == 'r'
+          if c == 'r' || c == '8'
             red = Player.new(PlayerColor::RED, '')
 
             red.x = x
             red.y = y
           end
-          if c == 'b'
+          if c == 'b' || c == '8'
             blue = Player.new(PlayerColor::BLUE, '')
             blue.x = x
             blue.y = y

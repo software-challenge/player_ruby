@@ -78,16 +78,12 @@ class Turn < Action
       gamestate.additional_free_turn_after_push = false
     end
     if needed_coal > current_player.coal
-      invalid "Nicht genug Kohle für Drehung um #{direction}. "
+      invalid "Nicht genug Kohle für Drehung um #{direction}. "\
               "Habe #{current_player.coal}, brauche #{needed_coal}."
     end
 
-    # order of directions is equal to counterclockwise turning
-    new_direction = Direction.find_by_ord(
-      (current_player.direction.ord + direction) % 6
-    )
-
-    current_player.direction = new_direction
+    current_player.direction =
+      Direction.get_turn_direction(current_player.direction, direction)
     current_player.coal -= [0, needed_coal].max
     gamestate.free_turn = false
   end
@@ -120,15 +116,16 @@ class Advance < Action
     if fields.any?(&:blocked?)
       invalid 'Der Weg ist blockiert.'
     end
-    # Test if movement is enough. Note that this does not mean that the player
-    # has enough movement points for the *whole* move.
-    if required_movement(gamestate, current_player) > current_player.velocity
+    # Test if movement is enough.
+    req_movement = required_movement(gamestate, current_player)
+    if req_movement > current_player.movement
       invalid 'Nicht genug Bewegungspunkte.'
     end
     # test if opponent is not on fields over which is moved
     if fields[0...-1].any? { |f| gamestate.occupied_by_other_player? f }
       invalid 'Man darf nicht über den Gegner fahren.'
     end
+    current_player.movement -= req_movement
   end
 
   # returns the required movement points to perform this action
@@ -139,7 +136,7 @@ class Advance < Action
       case field.type
       when FieldType::WATER, FieldType::GOAL, FieldType::SANDBANK
         on_opponent ? 2 : 1
-      when FieldType::LOGS
+      when FieldType::LOG
         on_opponent ? 3 : 2
       end
     end.reduce(:+)
@@ -159,6 +156,42 @@ class Push < Action
 
   def initialize(direction)
     @direction = direction
+  end
+
+  def perform!(gamestate, current_player)
+    if gamestate.other_player.x != current_player.x ||
+       gamestate.other_player.y != current_player.y
+      invalid 'Abdrängen ist nur auf dem Feld des Gegners möglich.'
+    end
+    other_player_field =
+      gamestate.board.fields[gamestate.other_player.x][gamestate.other_player.y]
+    if other_player_field.type == FieldType::SANDBANK
+      invalid 'Abdrängen von einer Sandbank ist nicht erlaubt.'
+    end
+    if direction == Direction.get_turn_direction(current_player.direction, 3)
+      invalid 'Man darf nicht hinter sich abdrängen.'
+    end
+
+    target_x, target_y =
+      gamestate.board.get_neighbor(
+        gamestate.other_player.x,
+        gamestate.other_player.y,
+        direction
+      )
+
+    required_movement = 1
+    if gamestate.board.fields[target_x][target_y].type == FieldType::LOG
+      required_movement += 1
+    end
+    if required_movement > current_player.movement
+      invalid 'Nicht genug Bewegungspunkte zum abdrängen '\
+              "(brauche #{required_movement})"
+    end
+
+    current_player.movement -= required_movement
+
+    gamestate.other_player.x = target_x
+    gamestate.other_player.y = target_y
   end
 
   def type

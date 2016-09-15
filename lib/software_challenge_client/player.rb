@@ -30,9 +30,13 @@ class Player
   # @return [Direction] the player's current x-position
   attr_accessor :x
 
-  # @!attribute [rw] x
+  # @!attribute [rw] y
   # @return [Direction] the player's current y-position
   attr_accessor :y
+
+  # @!attribute [rw] movement
+  # @return [Direction] the player's current movement points
+  attr_accessor :movement
 
   # Initializer
   # @param color [PlayerColor] the new player's color
@@ -42,6 +46,7 @@ class Player
     @name = name
     @points = 0
     @velocity = 1
+    @movement = 1
     @coal = 6
     @direction = Direction::RIGHT
   end
