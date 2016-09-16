@@ -84,6 +84,7 @@ class Protocol
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.start_player_color = attrs['startPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
       @gamestate.current_player_color = attrs['currentPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
+      @gamestate.additional_free_turn_after_push = attrs['freeTurn'] == 'true'
       logger.debug "Turn: #{@gamestate.turn}"
     when 'red'
       logger.debug 'new red player'

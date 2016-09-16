@@ -245,4 +245,8 @@ class GameState
       free_acceleration == other.free_acceleration &&
       condition == other.condition
   end
+
+  def deep_clone
+    Marshal.load(Marshal.dump(self))
+  end
 end

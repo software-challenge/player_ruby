@@ -21,10 +21,14 @@ class Client < ClientInterface
 
   # choose a random move
   def random_move
-    move = Move.new
-    move.add_action Advance.new(1)
-    return move
-    possibleMoves = gamestate.get_possible_moves
+    gamestate_copy = gamestate.deep_clone
+    # try all moves in all directions
+    Direction.each do |direction|
+      move = Move.new
+      # turn in that direction
+      move.add_action(Turn.new())
+    end
+    possibleMoves = gamestate.get_possible_moves(2)
     unless possibleMoves.empty?
       possibleMoves[SecureRandom.random_number(possibleMoves.length)]
     end

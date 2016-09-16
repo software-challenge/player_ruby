@@ -50,6 +50,13 @@ RSpec.describe Protocol do
       move.add_action(Push.new(Direction::RIGHT))
       expect(subject.gamestate.lastMove).to eq(move)
     end
+
+    it 'should set the additional free turn for the player' do
+      server_message <<-XML
+        <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE" freeTurn="true">
+      XML
+      expect(subject.gamestate.additional_free_turn_after_push).to eq(true)
+    end
   end
 
   context 'when getting a winning condition from server' do
@@ -64,11 +71,11 @@ RSpec.describe Protocol do
       server_message <<-XML
         <board>
           <tiles>
-            <tile index="0" direction="0">
+            <tile index="2" direction="1">
               <fields>
-                <field type="WATER" x="-2" y="2"/>
-                <field type="WATER" x="-2" y="-2"/>
-                <field type="WATER" x="-1" y="2"/>
+                <field type="WATER" x="-2" y="2" points="1" />
+                <field type="WATER" x="-2" y="-2" points="2" />
+                <field type="WATER" x="-1" y="2" points="3 "/>
                 <field type="WATER" x="-1" y="1"/>
                 <field type="WATER" x="-1" y="0"/>
                 <field type="WATER" x="-1" y="-1"/>
@@ -96,8 +103,11 @@ RSpec.describe Protocol do
       expect(board.fields[[0, 0]].type).to eq(FieldType::WATER)
       expect(board.fields[[1, 1]].type).to eq(FieldType::SANDBANK)
       expect(board.fields[[2, 1]].type).to eq(FieldType::PASSENGER3)
+      expect(board.fields[[-2, 2]].points).to eq(1)
+      expect(board.fields[[-2, -2]].points).to eq(2)
+      expect(board.fields[[-1, 2]].points).to eq(3)
       expect(board.fields.values).to all(
-        have_attributes(index: 0, direction: 0)
+        have_attributes(index: 2, direction: 1)
       )
     end
   end
