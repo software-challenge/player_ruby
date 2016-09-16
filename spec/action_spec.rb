@@ -47,6 +47,13 @@ RSpec.describe Acceleration do
       Acceleration.new(1).perform!(gamestate, player)
     }.to change { player.coal }.by(-1)
   end
+
+  it 'increases velocity and movement points' do
+    expect {
+      Acceleration.new(2).perform!(gamestate, player)
+    }.to change(player, :velocity).by(2)
+     .and change(player, :movement).by(2)
+  end
 end
 
 RSpec.describe Advance do
@@ -211,6 +218,44 @@ RSpec.describe Advance do
     expect {
       Advance.new(2).perform!(gamestate, gamestate.red)
     }.to raise_error(InvalidMoveException)
+  end
+
+  it 'should not move over sandbanks' do
+    text = <<-BOARD
+      .W.W.W.W...
+      ..W.b.S.W..
+      ...W.W.W.W.
+      ..W.r.W.W..
+      .W.W.W.W...
+    BOARD
+    state_from_string!(-2, -2, text, gamestate)
+    gamestate.red.direction = Direction::UP_RIGHT
+    gamestate.red.movement = 3
+    expect {
+      Advance.new(3).perform!(gamestate, gamestate.red)
+    }.to raise_error(InvalidMoveException)
+    expect {
+      Advance.new(2).perform!(gamestate, gamestate.red)
+    }.not_to raise_error
+
+  end
+
+  it 'should stop the player on a sandbank' do
+    text = <<-BOARD
+      .W.W.W.W...
+      ..W.r.W.S..
+      ...W.W.W.W.
+      ..W.b.W.W..
+      .W.W.W.W...
+    BOARD
+    state_from_string!(-2, -2, text, gamestate)
+    gamestate.red.direction = Direction::RIGHT
+    gamestate.red.movement = 4
+    gamestate.red.velocity = 4
+    expect {
+      Advance.new(2).perform!(gamestate, gamestate.red)
+    }.to change(gamestate.red, :velocity).to(1)
+     .and change(gamestate.red, :movement).to(0)
   end
 end
 

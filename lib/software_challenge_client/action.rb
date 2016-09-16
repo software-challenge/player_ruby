@@ -45,6 +45,9 @@ class Acceleration < Action
       end
     end
     current_player.velocity = new_velocity
+    # This works only when acceleration is the first action in a move. The move
+    # class has to check that.
+    current_player.movement = new_velocity
   end
 
   def type
@@ -129,10 +132,22 @@ class Advance < Action
     if fields[0...-1].any? { |f| gamestate.occupied_by_other_player? f }
       invalid 'Man darf nicht über den Gegner fahren.'
     end
+    # test if moving over sandbank
+    if fields[0...-1].any? { |f| f.type == FieldType::SANDBANK }
+      invalid 'Die Bewegung darf nur auf einer Sandbank enden, '\
+              'nicht über sie hinaus gehen.'
+    end
     target_field = fields.last
-    current_player.movement -= req_movement
     current_player.x = target_field.x
     current_player.y = target_field.y
+
+    if target_field.type == FieldType::SANDBANK
+      current_player.movement = 0
+      current_player.velocity = 1
+    else
+      current_player.movement -= req_movement
+    end
+
   end
 
   # returns the required movement points to perform this action

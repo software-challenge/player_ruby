@@ -39,7 +39,7 @@ RSpec.describe GameStateHelpers do
     }.not_to raise_error
   end
 
-  it 'should put both players on field marked with "8"', focus: true do
+  it 'should put both players on field marked with "8"' do
     text = <<-BOARD
       .W.W.W.W...
       ..W.W.W.W..
