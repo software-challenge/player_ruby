@@ -141,6 +141,8 @@ class Protocol
     end
     player.points = attributes['points'].to_i
     player.direction = Direction.find_by_key(attributes['direction'].to_sym)
+    player.x = attributes['x'].to_i
+    player.y = attributes['y'].to_i
     player
   end
 
@@ -164,26 +166,24 @@ class Protocol
   def move_to_xml(move)
     builder = Builder::XmlMarkup.new(indent: 2)
     builder.data(class: 'move') do |data|
-      data.actions do |actions|
-        move.actions.each_with_index do |action, index|
-          # Converting every action type here instead of requiring the Action
-          # class interface to supply a method which returns the action hash
-          # because XML-generation should be decoupled from internal data
-          # structures.
-          attribute = case action.type
-                      when :acceleration
-                        { acc: action.acceleration }
-                      when :push, :turn
-                        { direction: action.direction }
-                      when :advance
-                        { distance: action.distance }
-                      when default
-                        raise "unknown action type: #{action.type.inspect}. "\
-                              "Can't convert to XML!"
-                      end
-          attribute[:order] = index
-          actions.tag!(action.type, attribute)
-        end
+      move.actions.each_with_index do |action, index|
+        # Converting every action type here instead of requiring the Action
+        # class interface to supply a method which returns the action hash
+        # because XML-generation should be decoupled from internal data
+        # structures.
+        attribute = case action.type
+                    when :acceleration
+                      { acc: action.acceleration }
+                    when :push, :turn
+                      { direction: action.direction }
+                    when :advance
+                      { distance: action.distance }
+                    when default
+                      raise "unknown action type: #{action.type.inspect}. "\
+                            "Can't convert to XML!"
+                    end
+        attribute[:order] = index
+        data.tag!(action.type, attribute)
       end
     end
     move.hints.each do |hint|

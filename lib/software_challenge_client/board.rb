@@ -10,7 +10,7 @@ class Board
 
   # @!attribute [r] fields
   # @return [Hash<Field>] A field will be stored at the hash of the
-  # coordinate-tuple of the field.
+  # coordinate-tuple (2-element-array) of the field.
   attr_reader :fields
 
   # Initializes the board
@@ -32,8 +32,7 @@ class Board
   end
 
   def add_field(field)
-    fields[field.x] = {} unless fields.key? field.x
-    fields[field.x][field.y] = field
+    fields[[field.x, field.y]] = field
   end
 
   # @return [Integer, Integer] The coordinates of the neighbor of the field
@@ -41,25 +40,25 @@ class Board
   def get_neighbor(x, y, direction)
     directions = {
                    even_row: {
-                     Direction::RIGHT => [+1,  0],
-                     Direction::UP_RIGHT =>[+1, -1],
-                     Direction::UP_LEFT =>[0, -1],
-                     Direction::LEFT =>[-1,  0],
-                     Direction::DOWN_LEFT =>[0, +1],
-                     Direction::DOWN_RIGHT =>[+1, +1]
+                     Direction::RIGHT.key=> [+1,  0],
+                     Direction::UP_RIGHT.key=>[+1, -1],
+                     Direction::UP_LEFT.key=>[0, -1],
+                     Direction::LEFT.key=>[-1,  0],
+                     Direction::DOWN_LEFT.key=>[0, +1],
+                     Direction::DOWN_RIGHT.key=>[+1, +1]
                    },
                    odd_row: {
-                     Direction::RIGHT => [+1,  0],
-                     Direction::UP_RIGHT => [ 0, -1],
-                     Direction::UP_LEFT => [-1, -1],
-                     Direction::LEFT => [-1, 0],
-                     Direction::DOWN_LEFT => [-1, +1],
-                     Direction::DOWN_RIGHT => [ 0, +1]
+                     Direction::RIGHT.key=> [+1,  0],
+                     Direction::UP_RIGHT.key=> [ 0, -1],
+                     Direction::UP_LEFT.key=> [-1, -1],
+                     Direction::LEFT.key=> [-1, 0],
+                     Direction::DOWN_LEFT.key=> [-1, +1],
+                     Direction::DOWN_RIGHT.key=> [ 0, +1]
                    }
                  }
 
     parity = y.odd? ? :odd_row : :even_row
-    dir = directions[parity][direction]
+    dir = directions[parity][direction.key]
     return x + dir[0], y + dir[1]
   end
 
@@ -71,8 +70,8 @@ class Board
     distance.times do
       x, y = get_neighbor(x, y, direction)
     end
-    if !fields[x].nil? && !fields[x][y].nil?
-      return fields[x][y]
+    if !field(x, y).nil?
+      return field(x, y)
     else
       raise FieldUnavailableException.new(x, y)
     end
@@ -86,5 +85,9 @@ class Board
         from_x, from_y, direction, i
       )
     end
+  end
+
+  def field(x, y)
+    return fields[[x,y]]
   end
 end

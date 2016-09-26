@@ -16,9 +16,9 @@ RSpec.describe GameStateHelpers do
       .W.W.W.W...
     BOARD
     state_from_string!(-2, -2, text, gamestate)
-    expect(gamestate.board.fields[-1][-1].type).to eq(FieldType::WATER)
-    expect(gamestate.board.fields[0][-1].type).to eq(FieldType::BLOCKED)
-    expect(gamestate.board.fields[-1][0].type).to eq(FieldType::PASSENGER2)
+    expect(gamestate.board.field(-1, -1).type).to eq(FieldType::WATER)
+    expect(gamestate.board.field(0, -1).type).to eq(FieldType::BLOCKED)
+    expect(gamestate.board.field(-1, 0).type).to eq(FieldType::PASSENGER2)
     expect(gamestate.red.x).to eq(-1)
     expect(gamestate.red.y).to eq(1)
     expect(gamestate.blue.x).to eq(-1)

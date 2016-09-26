@@ -82,8 +82,7 @@ class Network
 
     line =''
     char = ''
-    while line!="</room>"
-      char = @socket.getc
+    while line != "</room>" && !(char = @socket.getc).nil?
       line+=char
       if char=='\n' || char==' '
 

@@ -26,7 +26,7 @@ RSpec.describe Board do
     it 'should return the field in this direction' do
       expect(
         board.get_in_direction(0, 0, Direction::RIGHT, 2)
-      ).to eq(board.fields[2][0])
+      ).to eq(board.field(2, 0))
     end
   end
 
@@ -42,7 +42,7 @@ RSpec.describe Board do
     it 'should return the field in this direction' do
       expect(
         board.get_all_in_direction(0, 0, Direction::RIGHT, 2)
-      ).to eq([board.fields[1][0], board.fields[2][0]])
+      ).to eq([board.field(1, 0), board.field(2, 0)])
     end
   end
 end

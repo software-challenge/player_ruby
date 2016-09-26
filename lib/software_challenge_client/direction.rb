@@ -16,9 +16,9 @@ class Direction < TypesafeEnum::Base
 
   # returns the Turn action to get from from_direction to to_direction
   def self.from_to(from_direction, to_direction)
-    distance = to_direction.ord - from_direction.ord
-    if (distance.abs > 3)
-      distance = (to_direction.ord % 4 - from_direction.ord) * -1
+    distance = (to_direction.ord - from_direction.ord + 6) % 6
+    if distance > 3
+      distance = distance - 6
     end
     Turn.new(distance)
   end

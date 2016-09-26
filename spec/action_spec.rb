@@ -422,7 +422,7 @@ RSpec.describe Push do
     state_from_string!(-2, -2, text, gamestate)
     gamestate.current_player.direction = Direction::DOWN_RIGHT
     gamestate.current_player.movement = 2
-    gamestate.board.fields[0][-1] = Field.new(FieldType::SANDBANK, 0, -1, 0, 0, 0)
+    gamestate.board.add_field(Field.new(FieldType::SANDBANK, 0, -1, 0, 0, 0))
 
     expect {
       Push.new(Direction::RIGHT).perform!(gamestate, gamestate.current_player)

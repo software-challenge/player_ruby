@@ -50,12 +50,12 @@ class Field
 
   def blocked?
     [FieldType::BLOCKED,
+     FieldType::PASSENGER0,
      FieldType::PASSENGER1,
      FieldType::PASSENGER2,
      FieldType::PASSENGER3,
      FieldType::PASSENGER4,
-     FieldType::PASSENGER5,
-     FieldType::PASSENGER6].include? type
+     FieldType::PASSENGER5].include? type
   end
 
   def to_s

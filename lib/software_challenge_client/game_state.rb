@@ -125,24 +125,6 @@ class GameState
     turn / 2
   end
 
-  # gets all possible moves
-  #
-  # @return [Array<Move>] a list of all possible moves
-  def getPossibleMoves
-    enemyFieldType = current_player.color == PlayerColor::RED ? FieldType::BLUE : FieldType::RED
-    moves = []
-    for x in 0..(Constants::SIZE - 1)
-      for y in 0..(Constants::SIZE - 1)
-        if board.fields[x][y].ownerColor == PlayerColor::NONE &&
-           board.fields[x][y].type != FieldType::SWAMP &&
-           board.fields[x][y].type != enemyFieldType
-          moves.push(Move.new(x, y))
-        end
-      end
-    end
-    moves
-  end
-
   # performs a move on the gamestate
   #
   # @param move [Move] the move, that will be performed
@@ -225,7 +207,7 @@ class GameState
   #
   #  @param player [Player] the player, whos point will be calculated
   # @return [Integer] the points of the player
-  def pointsForPlayer(_player)
+  def points_for_player(_player)
     # TODO
     0
   end

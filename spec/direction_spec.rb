@@ -15,5 +15,14 @@ RSpec.describe Direction do
       ).to eq(1)
     end
 
+    it 'turns in direction with less turns' do
+      expect(
+        Direction.from_to(Direction::RIGHT, Direction::DOWN_LEFT).direction
+      ).to eq(-2)
+      expect(
+        Direction.from_to(Direction::RIGHT, Direction::UP_LEFT).direction
+      ).to eq(2)
+    end
+
   end
 end

@@ -70,7 +70,7 @@ class Turn < Action
     invalid 'Drehung um 0 ist ungültig' if direction.zero?
     if gamestate
        .board
-       .fields[current_player.x][current_player.y]
+       .field(current_player.x, current_player.y)
        .type == FieldType::SANDBANK
       invalid 'Drehung auf Sandbank nicht erlaubt'
     end
@@ -109,7 +109,7 @@ class Advance < Action
 
   def perform!(gamestate, current_player)
     invalid 'Bewegung um 0 ist unzulässig.' if distance.zero?
-    if distance < 0 && gamestate.board.fields[current_player.x][current_player.y].type != FieldType::SANDBANK
+    if distance < 0 && gamestate.board.field(current_player.x, current_player.y).type != FieldType::SANDBANK
       invalid 'Negative Bewegung ist nur auf Sandbank erlaubt.'
     end
     begin
@@ -186,7 +186,7 @@ class Push < Action
       invalid 'Abdrängen ist nur auf dem Feld des Gegners möglich.'
     end
     other_player_field =
-      gamestate.board.fields[gamestate.other_player.x][gamestate.other_player.y]
+      gamestate.board.field(gamestate.other_player.x, gamestate.other_player.y)
     if other_player_field.type == FieldType::SANDBANK
       invalid 'Abdrängen von einer Sandbank ist nicht erlaubt.'
     end
@@ -202,7 +202,7 @@ class Push < Action
       )
 
     required_movement = 1
-    if gamestate.board.fields[target_x][target_y].type == FieldType::LOG
+    if gamestate.board.field(target_x, target_y).type == FieldType::LOG
       required_movement += 1
     end
     if required_movement > current_player.movement

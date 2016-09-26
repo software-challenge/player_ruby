@@ -21,17 +21,30 @@ class Client < ClientInterface
 
   # choose a random move
   def random_move
-    gamestate_copy = gamestate.deep_clone
     # try all moves in all directions
+    possibleMoves = []
     Direction.each do |direction|
       move = Move.new
       # turn in that direction
-      move.add_action(Turn.new())
+      possible_turn = Direction.from_to(gamestate.current_player.direction, direction)
+      if possible_turn.direction != 0
+        move.add_action(possible_turn)
+      end
+      move.add_action(Advance.new(1))
+      gamestate_copy = gamestate.deep_clone
+      begin
+        logger.debug("Teste Zug #{move} auf gueltigkeit")
+        move.perform!(gamestate_copy, gamestate_copy.current_player)
+        logger.debug("Zug #{move} gueltig!.")
+        possibleMoves << move
+      rescue InvalidMoveException => e
+        logger.debug("Zug #{move} ist ungueltig: #{e}")
+      end
     end
-    possibleMoves = gamestate.get_possible_moves(2)
     unless possibleMoves.empty?
-      possibleMoves[SecureRandom.random_number(possibleMoves.length)]
+      possibleMoves.sample
+    else
+      nil
     end
-    nil
   end
 end

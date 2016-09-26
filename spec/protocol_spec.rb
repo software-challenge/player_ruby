@@ -27,20 +27,22 @@ RSpec.describe Protocol do
       expect(subject.gamestate.red.points).to eq(13)
       expect(subject.gamestate.red.name).to eq('Spieler 1')
       expect(subject.gamestate.red.direction).to eq(Direction::RIGHT)
+      expect(subject.gamestate.red.x).to eq(-1)
+      expect(subject.gamestate.red.y).to eq(1)
       expect(subject.gamestate.blue.points).to eq(42)
       expect(subject.gamestate.blue.direction).to eq(Direction::UP_RIGHT)
+      expect(subject.gamestate.blue.x).to eq(-1)
+      expect(subject.gamestate.blue.y).to eq(-1)
     end
 
     it 'should update the last move, if it exists in the gamestate' do
       server_message <<-XML
         <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE" freeTurn="false">
         <lastMove>
-          <actions>
-            <push order="3" direction="RIGHT"/>
-            <acceleration order="0" acc="1"/>
-            <turn order="2" direction="-1"/>
-            <advance order="1" distance="2"/>
-          </actions>
+          <push order="3" direction="RIGHT"/>
+          <acceleration order="0" acc="1"/>
+          <turn order="2" direction="-1"/>
+          <advance order="1" distance="2"/>
         </lastMove>
       XML
       move = Move.new
@@ -122,12 +124,10 @@ RSpec.describe Protocol do
     # order) is arbitrary.
     expect(subject.move_to_xml(move)).to eq <<-XML
 <data class="move">
-  <actions>
-    <acceleration acc="2" order="0"/>
-    <turn direction="1" order="1"/>
-    <advance distance="3" order="2"/>
-    <push direction="0" order="3"/>
-  </actions>
+  <acceleration acc="2" order="0"/>
+  <turn direction="1" order="1"/>
+  <advance distance="3" order="2"/>
+  <push direction="0" order="3"/>
 </data>
     XML
   end
