@@ -6,7 +6,7 @@ require_relative 'move'
 require_relative 'condition'
 require_relative 'field_type'
 
-# The state of a game
+# The state of a game, as received from the server.
 class GameState
   # @!attribute [rw] turn
   # @return [Integer] turn number
@@ -33,8 +33,8 @@ class GameState
   # @return [Condition] the winner and winning reason
   attr_accessor :condition
   # @!attribute [rw] free_acceleration
-  # @return [Boolean] True if the free acceleration for this turn is still
-  # available.
+  # @return [Boolean] true if the free acceleration for this turn is still
+  #                   available.
   attr_accessor :free_acceleration
   alias free_acceleration? free_acceleration
 
@@ -49,6 +49,9 @@ class GameState
   # available.
   attr_accessor :additional_free_turn_after_push
   alias additional_free_turn_after_push? additional_free_turn_after_push
+
+  POINTS_PER_TILE = 5
+  POINTS_PER_PASSENGER = 5
 
   def initialize
     @current_player_color = PlayerColor::RED
@@ -98,26 +101,6 @@ class GameState
     PlayerColor.opponent_color(current_player_color)
   end
 
-  # gets the start player
-  #
-  # @return [Player] the startPlayer
-  def startPlayer
-    if startPlayer == PlayerColor::RED
-      return red
-    else
-      return blue
-    end
-  end
-
-  # switches current player
-  def switchCurrentPlayer
-    @currentPlayer = if currentPlayer.color == PlayerColor::RED
-                       blue
-                     else
-                       red
-                     end
-  end
-
   # gets the current round
   #
   # @return [Integer] the current round
@@ -135,57 +118,10 @@ class GameState
     end
   end
 
-  # gets a player's points
-  #
-  # @param player [Player] the player, whos statistics will be returned
-  # @return [Integer] the points of the player
-  def playerStats(player)
-    playerStatsByColor(player.color)
-  end
-
-  # gets a player's points by the player's color
-  #
-  # @param playerColor [PlayerColor] the player's color, whos statistics will be returned
-  # @return [Integer] the points of the player
-  def playerStatsByColor(playerColor)
-    if playerColor == PlayerColor::RED
-      return gameStats[0]
-    else
-      return gameStats[1]
-    end
-  end
-
-  # gets the players' statistics
-  #
-  # @return [Array<Integer>] the points for both players
-  def gameStats
-    stats = Array.new(2, Array.new(1))
-
-    stats[0][0] = red.points
-    stats[1][0] = blue.points
-
-    stats
-  end
-
-  # get the players' names
-  #
-  # @return [Array<String>] the names for both players
-  def playerNames
-    [red.name, blue.name]
-  end
-
-  # sets the game-ended condition
-  #
-  # @param winner [Player] the winner of the game
-  # @param reason [String] the winning reason
-  def endGame(winner, reason)
-    @condition = Condition.new(winner, reason) if condition.nil?
-  end
-
   # has the game ended?
   #
   # @return [Boolean] true, if the game has allready ended
-  def gameEnded?
+  def game_ended?
     !condition.nil?
   end
 
@@ -199,23 +135,28 @@ class GameState
   # gets the winning reason
   #
   # @return [String] the winning reason
-  def winningReason
+  def winning_reason
     condition.nil? ? nil : condition.reason
   end
 
-  # calculates a player's points
+  # calculates a player's points based on the current gamestate
   #
-  #  @param player [Player] the player, whos point will be calculated
+  # @param player [Player] the player, whos point will be calculated
   # @return [Integer] the points of the player
-  def points_for_player(_player)
-    # TODO
-    0
+  def points_for_player(player)
+    player_field = board.field(player.x, player.y)
+    POINTS_PER_TILE * player_field.index +
+      POINTS_PER_PASSENGER * player.passengers +
+      player_field.points
   end
 
+  # @return [Boolean] true if the given field is occupied by the other (not
+  #                   current) player.
   def occupied_by_other_player?(field)
     field.x == other_player.x && field.y == other_player.y
   end
 
+  # Compared with other state.
   def ==(other)
     turn == other.turn &&
       start_player_color == other.start_player_color &&
@@ -228,6 +169,8 @@ class GameState
       condition == other.condition
   end
 
+  # Create a deep copy of the gamestate. Can be used to perform moves on without
+  # changing the original gamestate.
   def deep_clone
     Marshal.load(Marshal.dump(self))
   end

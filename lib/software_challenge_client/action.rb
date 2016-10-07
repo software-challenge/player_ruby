@@ -1,6 +1,8 @@
 # encoding: utf-8
 
-# An action is a part of a move.
+# An action is a part of a move. A move can have multiple actions. The specific
+# actions are inherited from this Action class which should be considered
+# abstract/interface.
 class Action
   # @return [ActionType] Type of the action.
   def type
@@ -15,11 +17,18 @@ class Action
     raise 'must be overridden'
   end
 
+  # Helper to make raising InvalidMoveExceptions easier. It is defined in the
+  # Action class instead of the Move class because performing individual actions
+  # normally trigger invalid moves, not the move itself.
+  #
+  # @param message [String] Message why the move is invalid.
+  # @return Nothing. Raises an exception.
   def invalid(message)
     raise InvalidMoveException.new(message, self)
   end
 end
 
+# Accelerate by {#acceleration}. To decelerate, use a negative value.
 class Acceleration < Action
   attr_reader :acceleration
 
@@ -27,10 +36,14 @@ class Acceleration < Action
     @acceleration = acceleration
   end
 
+  # Perform the action.
+  #
+  # @param gamestate [GameState] The game state on which the action will be performed. Performing may change the game state.
+  # @param current_player [Player] The player for which the action will be performed.
   def perform!(gamestate, current_player)
     new_velocity = current_player.velocity + acceleration
     if new_velocity < 1
-      invalid 'Geschwindigkeit darf nicht unter 1 verringert werden'
+      invalid 'Geschwindigkeit darf nicht unter 1 verringert werden.'
     end
     if new_velocity > 6
       invalid 'Geschwindigkeit darf nicht über 6 erhöht werden.'
@@ -43,6 +56,9 @@ class Acceleration < Action
       else
         current_player.coal -= 1
       end
+    end
+    if gamestate.board.field(current_player.x, current_player.y).type == FieldType::SANDBANK
+      invalid 'Auf einer Sandbank kann nicht beschleunigt werden.'
     end
     current_player.velocity = new_velocity
     # This works only when acceleration is the first action in a move. The move
@@ -59,13 +75,17 @@ class Acceleration < Action
   end
 end
 
+# Turn by {#direction}.
 class Turn < Action
+  # Number of steps to turn. Negative values for turning clockwise, positive for
+  # counterclockwise.
   attr_reader :direction
 
   def initialize(direction)
     @direction = direction
   end
 
+  # (see Acceleration#perform!)
   def perform!(gamestate, current_player)
     invalid 'Drehung um 0 ist ungültig' if direction.zero?
     if gamestate
@@ -100,6 +120,8 @@ class Turn < Action
   end
 end
 
+# Go forward in the current direction by {#distance}. When on a sandbank, a
+# value of -1 to go backwards is also legal.
 class Advance < Action
   attr_reader :distance
 
@@ -107,6 +129,7 @@ class Advance < Action
     @distance = distance
   end
 
+  # (see Acceleration#perform!)
   def perform!(gamestate, current_player)
     invalid 'Bewegung um 0 ist unzulässig.' if distance.zero?
     if distance < 0 && gamestate.board.field(current_player.x, current_player.y).type != FieldType::SANDBANK
@@ -148,6 +171,31 @@ class Advance < Action
       current_player.movement -= req_movement
     end
 
+    # test for passenger
+    if current_player.velocity == 1
+      required_field_for_direction = {
+        Direction::RIGHT.key=> FieldType::PASSENGER3.key,
+        Direction::UP_RIGHT.key=> FieldType::PASSENGER4.key,
+        Direction::UP_LEFT.key=> FieldType::PASSENGER5.key,
+        Direction::LEFT.key=> FieldType::PASSENGER0.key,
+        Direction::DOWN_LEFT.key=> FieldType::PASSENGER2.key,
+        Direction::DOWN_RIGHT.key=> FieldType::PASSENGER1.key
+      }
+      Direction.each do |direction|
+        begin
+          neighbor = gamestate.board.get_in_direction(current_player.x, current_player.y, direction)
+          if neighbor.type.key == required_field_for_direction[direction.key]
+            if current_player.passengers < 2
+              current_player.passengers += 1
+              neighbor.type = FieldType::BLOCKED
+            end
+          end
+        rescue FieldUnavailableException
+          # neighbor did not exist, that is okay
+        end
+      end
+    end
+
   end
 
   # returns the required movement points to perform this action
@@ -173,13 +221,17 @@ class Advance < Action
   end
 end
 
+# Push the opponent in {#direction}
 class Push < Action
+  # @return [Direction] the direction where to push.
   attr_reader :direction
 
+  # @param direction [Direction]
   def initialize(direction)
     @direction = direction
   end
 
+  # (see Acceleration#perform!)
   def perform!(gamestate, current_player)
     if gamestate.other_player.x != current_player.x ||
        gamestate.other_player.y != current_player.y

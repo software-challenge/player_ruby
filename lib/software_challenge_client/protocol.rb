@@ -143,6 +143,9 @@ class Protocol
     player.direction = Direction.find_by_key(attributes['direction'].to_sym)
     player.x = attributes['x'].to_i
     player.y = attributes['y'].to_i
+    player.passengers = attributes['passenger'].to_i
+    player.velocity = attributes['speed'].to_i
+    player.movement = player.velocity
     player
   end
 

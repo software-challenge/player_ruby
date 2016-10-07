@@ -33,6 +33,37 @@ in a shell (while being in the example directory). Note that the
 software_challenge_client gem needs to be installed for this to work and a
 server waiting for a manual client has to be running.
 
+## Documentation
+
+Code documentation can be generated using YARD in the project root (source code
+needs to be checked out and `bundle` has to be executed,
+see [Installation](#installation)):
+
+```console
+yard
+```
+
+After generation, the docs can be found in the `doc` directory. Start at
+`index.html`.
+
+Documentation for the latest source can also be found
+on
+[rubydoc.info](http://www.rubydoc.info/github/CAU-Kiel-Tech-Inf/socha_ruby_client).
+
+When updating the docs, you may use
+
+```console
+yard server --reload
+```
+
+or inside a docker container
+
+```console
+yard server --reload --bind 0.0.0.0
+```
+
+to get a live preview of them at [http://localhost:8808](http://localhost:8808).
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install
@@ -43,11 +74,19 @@ experiment.
 To install this gem onto your local machine, run `bundle exec rake
 install`.
 
+To develop inside a docker container, use the included `Dockerfile` and
+`develop.sh`.
+
 ### Specs
 
 The gem is tested using RSpec. To run all tests, execute `rspec`. When
 developing, you may use Guard to execute tests when files change. To do this,
 execute `guard`. Tests will then be automatically run when you change a file.
+
+### Linting
+
+Linting by rubocop is included in the guard config. It is run when all specs
+pass.
 
 ### Releasing
 

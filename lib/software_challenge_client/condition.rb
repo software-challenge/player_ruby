@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require_relative 'player'
 
-# winning condition
+# Represents the winning condition received from the server when the game ended.
 class Condition
   # @!attribute [r] winner
   # @return [Player] winning player
@@ -17,5 +17,4 @@ class Condition
     @winner = winner
     @reason = reason
   end
-
 end

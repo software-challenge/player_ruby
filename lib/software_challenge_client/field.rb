@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require_relative 'field_type'
 
-# A field on the game board
+# A field on the game board.
 class Field
   # @!attribute [rw] type
   # @return [PlayerColor] the field's type
@@ -48,6 +48,7 @@ class Field
       self.y == another_field.y
   end
 
+  # @return [Boolean] true if the field may never be moved onto.
   def blocked?
     [FieldType::BLOCKED,
      FieldType::PASSENGER0,

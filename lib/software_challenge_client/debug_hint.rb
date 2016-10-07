@@ -5,7 +5,7 @@ class DebugHint
   # @return [String] a hint
   attr_reader :content
 
-  # @param content of the hint, will be converted to a string
+  # @param content [Object] of the hint, will be converted to a string
   def initialize(content)
     @content = content.to_s
   end

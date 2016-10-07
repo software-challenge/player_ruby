@@ -60,11 +60,7 @@ RSpec.describe Move do
 
   context 'accelerating' do
 
-    let(:gamestate) do
-      state = GameState.new
-      state.add_player(Player.new(PlayerColor::RED, ''))
-      state
-    end
+    let(:gamestate) { state_with_player_field(Player.new(PlayerColor::RED, '')) }
 
     it 'should increase movement and velocity' do
       move.add_action(Acceleration.new(1))

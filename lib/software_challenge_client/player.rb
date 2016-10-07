@@ -38,6 +38,10 @@ class Player
   # @return [Direction] the player's current movement points
   attr_accessor :movement
 
+  # @!attribute [rw] passengers
+  # @return [Integer] how many passengers the player's has picked up
+  attr_accessor :passengers
+
   # Initializer
   # @param color [PlayerColor] the new player's color
   # @param name [String] the new player's name (for displaying)
@@ -48,6 +52,7 @@ class Player
     @velocity = 1
     @movement = 1
     @coal = 6
+    @passengers = 0
     @direction = Direction::RIGHT
   end
 

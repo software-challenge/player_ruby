@@ -1,17 +1,17 @@
+require 'logger'
+
 # This module provides a shared logger to all classes into which it is mixed.
 # See http://stackoverflow.com/a/6768164/390808
 #
 # Usage:
 #
-# class MyClass
-#   include Logging
+#   class MyClass
+#     include Logging
 #
-#   def a_method(x)
-#     logger.debug "you provided #{x}"
+#     def a_method(x)
+#       logger.debug "you provided #{x}"
+#     end
 #   end
-# end
-require 'logger'
-
 module Logging
   def logger
     Logging.logger

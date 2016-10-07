@@ -6,10 +6,12 @@
 # allowed.
 RSpec::Matchers.define_negated_matcher :not_raise_error, :raise_error
 
+include GameStateHelpers
+
 RSpec.describe Acceleration do
 
-  let(:player) { Player.new(PlayerColor::RED, '') }
-  let(:gamestate) { GameState.new }
+  let!(:player) { Player.new(PlayerColor::RED, '') }
+  let(:gamestate) { state_with_player_field(player) }
 
   context 'when a player has velocity 6' do
     before { player.velocity = 6 }
@@ -25,6 +27,18 @@ RSpec.describe Acceleration do
     it 'should be invalid to decelerate' do
       expect {
         Acceleration.new(-1).perform!(gamestate, player)
+      }.to raise_error(InvalidMoveException)
+    end
+  end
+
+  context 'when on sandbank' do
+    before do
+      gamestate.board.field(player.x, player.y).type = FieldType::SANDBANK
+    end
+
+    it 'is not possible to accelerate' do
+      expect {
+        Acceleration.new(1).perform!(gamestate, player)
       }.to raise_error(InvalidMoveException)
     end
   end
@@ -59,7 +73,9 @@ end
 RSpec.describe Advance do
   include GameStateHelpers
 
-  let(:gamestate) { GameState.new }
+  let!(:player) { Player.new(PlayerColor::RED, '') }
+  let(:gamestate) { state_with_player_field(player) }
+
 
   it 'should not put the player on a blocked field' do
     text = <<-BOARD
@@ -257,6 +273,23 @@ RSpec.describe Advance do
     }.to change(gamestate.red, :velocity).to(1)
      .and change(gamestate.red, :movement).to(0)
   end
+
+  it 'should increase players passenger count when landing on a passenger field' do
+    text = <<-BOARD
+      .W.5.W.W...
+      ..r.W.W.W..
+      ...W.W.W.W.
+      ..W.b.W.W..
+      .W.W.W.W...
+    BOARD
+    state_from_string!(-2, -2, text, gamestate)
+    gamestate.red.direction = Direction::RIGHT
+    gamestate.red.movement = 1
+    gamestate.red.velocity = 1
+    expect {
+      Advance.new(1).perform!(gamestate, gamestate.red)
+    }.to change(gamestate.red, :passengers).to(1)
+  end
 end
 
 RSpec.describe Turn do
@@ -321,9 +354,9 @@ RSpec.describe Turn do
 end
 
 RSpec.describe Push do
-  include GameStateHelpers
 
-  let(:gamestate) { GameState.new }
+  let!(:player) { Player.new(PlayerColor::RED, '') }
+  let(:gamestate) { state_with_player_field(player) }
 
   it 'should only be possible when on other player' do
     text = <<-BOARD

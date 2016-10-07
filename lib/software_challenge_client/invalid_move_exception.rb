@@ -1,4 +1,7 @@
 # encoding: UTF-8
+
+# Exception indicating a move which was performed is not valid for the given
+# state.
 class InvalidMoveException < StandardError
   def initialize(msg, move_or_action)
     # This exception will be thrown by a move or by an individual action,

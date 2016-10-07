@@ -83,4 +83,16 @@ module GameStateHelpers
     gamestate.add_player(blue) unless blue.nil?
   end
 
+  # returns a gamestate where the current player has a field
+  def state_with_player_field(player)
+    gamestate = GameState.new
+    player.x = 1
+    player.y = 1
+    field = Field.new(FieldType::WATER, 1, 1, 0, 0, 0)
+    gamestate.add_player(player)
+    gamestate.board.add_field(field)
+    gamestate.current_player_color = player.color
+    gamestate
+  end
+
 end

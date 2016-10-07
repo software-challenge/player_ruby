@@ -18,8 +18,8 @@ RSpec.describe Protocol do
     it 'should update the game state' do
       server_message <<-XML
         <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE" freeTurn="false">
-        <red displayName="Spieler 1" color="RED" points="13" x="-1" y="1" direction="RIGHT" speed="1" coal="6" tile="0" passenger="0"/>
-        <blue displayName="Spieler 2" color="BLUE" points="42" x="-1" y="-1" direction="UP_RIGHT" speed="1" coal="6" tile="0" passenger="0"/>
+        <red displayName="Spieler 1" color="RED" points="13" x="-1" y="1" direction="RIGHT" speed="1" coal="6" tile="0" passenger="1"/>
+        <blue displayName="Spieler 2" color="BLUE" points="42" x="-1" y="-1" direction="UP_RIGHT" speed="2" coal="6" tile="0" passenger="0"/>
       XML
       expect(subject.gamestate.turn).to eq(2)
       expect(subject.gamestate.start_player_color).to eq(PlayerColor::RED)
@@ -29,10 +29,16 @@ RSpec.describe Protocol do
       expect(subject.gamestate.red.direction).to eq(Direction::RIGHT)
       expect(subject.gamestate.red.x).to eq(-1)
       expect(subject.gamestate.red.y).to eq(1)
+      expect(subject.gamestate.red.passengers).to eq(1)
+      expect(subject.gamestate.red.velocity).to eq(1)
+      expect(subject.gamestate.red.movement).to eq(1)
       expect(subject.gamestate.blue.points).to eq(42)
       expect(subject.gamestate.blue.direction).to eq(Direction::UP_RIGHT)
       expect(subject.gamestate.blue.x).to eq(-1)
       expect(subject.gamestate.blue.y).to eq(-1)
+      expect(subject.gamestate.blue.passengers).to eq(0)
+      expect(subject.gamestate.blue.velocity).to eq(2)
+      expect(subject.gamestate.blue.movement).to eq(2)
     end
 
     it 'should update the last move, if it exists in the gamestate' do

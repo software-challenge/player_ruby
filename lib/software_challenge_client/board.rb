@@ -9,6 +9,7 @@ require_relative 'field'
 class Board
 
   # @!attribute [r] fields
+  # @note Better use {#field} to access fields.
   # @return [Hash<Field>] A field will be stored at the hash of the
   # coordinate-tuple (2-element-array) of the field.
   attr_reader :fields
@@ -25,7 +26,7 @@ class Board
   def ==(other)
     fields.each_with_index do |row, x|
       row.each_with_index do |field, y|
-        return false if field != other.fields[x][y]
+        return false if field != other.field(x, y)
       end
     end
     true
@@ -36,7 +37,8 @@ class Board
   end
 
   # @return [Integer, Integer] The coordinates of the neighbor of the field
-  # specified by given coordinated in specified direction
+  #                            specified by given coordinates in specified
+  #                            direction.
   def get_neighbor(x, y, direction)
     directions = {
                    even_row: {
@@ -63,7 +65,7 @@ class Board
   end
 
   # @return [Field] The field in given direction with given distance from the
-  # field with given coordinates.
+  #                 field with given coordinates.
   def get_in_direction(from_x, from_y, direction, distance = 1)
     x = from_x
     y = from_y
@@ -78,7 +80,8 @@ class Board
   end
 
   # @return [Array<Field>] A list of fields in given direction up to given
-  # distance from the field with given coordinates. The start field is excluded.
+  #                        distance from the field with given coordinates.
+  #                        The start field is excluded.
   def get_all_in_direction(from_x, from_y, direction, distance = 1)
     (1..distance).to_a.map do |i|
       get_in_direction(
@@ -87,7 +90,12 @@ class Board
     end
   end
 
+  # Access fields of the board.
+  #
+  # @param x [Integer] The x-coordinate of the field.
+  # @param y [Integer] The y-coordinate of the field.
+  # @return [Field] the field at the given coordinates.
   def field(x, y)
-    return fields[[x,y]]
+    fields[[x,y]]
   end
 end

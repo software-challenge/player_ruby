@@ -25,4 +25,18 @@ RSpec.describe Direction do
     end
 
   end
+
+  it "is equal even when cloned" do
+    first = Direction::RIGHT
+    second = first.clone
+    expect(first.object_id).not_to eq(second.object_id)
+    expect(first).to eq(second)
+  end
+
+  it "has equal hashes when the key is equal" do
+    first = Direction::RIGHT
+    second = first.clone
+    expect(first.object_id).not_to eq(second.object_id)
+    expect(first.hash).to eq(second.hash)
+  end
 end

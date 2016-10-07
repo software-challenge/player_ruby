@@ -3,12 +3,12 @@ require_relative 'debug_hint'
 require_relative 'action'
 
 # A move that can be performed in Mississippi Queen. A move consists of multiple
-# action in a specific order.
+# actions in a specific order.
 class Move
   # @!attribute [r] actions
   #
   # @return [Array<Action>] List of actions which should be performed in this
-  # move in the order determined by the array order.
+  #                         move in the order determined by the array order.
   attr_reader :actions
 
   # @!attribute [r] hints
