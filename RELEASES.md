@@ -1,3 +1,7 @@
+= 0.2.0
+
+- First working version for Mississippi Queen
+
 = 0.1.5
 
 - Fixed bug in reservation code.
