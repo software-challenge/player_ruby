@@ -71,7 +71,8 @@ class Protocol
       logger.debug "data(class) : #{attrs['class']}"
       if attrs['class'] == 'sc.framework.plugins.protocol.MoveRequest'
         @client.gamestate = gamestate
-        move = @client.getMove
+        #move = @client.getMove
+        move = @client.move_requested
         sendString(move_to_xml(move))
       end
       if attrs['class'] == 'error'
