@@ -1,3 +1,9 @@
+= 0.3.0
+
+- Fixed bug where wrong (old) method getMove was called, the new name is
+  move_requested
+- Improved end game handling
+
 = 0.2.0
 
 - First working version for Mississippi Queen

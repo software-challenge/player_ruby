@@ -50,9 +50,11 @@ class Protocol
     case name
     when 'board'
       logger.debug @gamestate.board.to_s
-    when 'condition'
-      logger.info 'Game ended'
-      @network.disconnect
+    when 'data'
+      if @context[:data_class] == 'result'
+        logger.info 'Got game result'
+        @network.disconnect
+      end
     end
   end
 
@@ -69,9 +71,10 @@ class Protocol
       logger.info 'roomId : ' + @roomId
     when 'data'
       logger.debug "data(class) : #{attrs['class']}"
+      @context[:data_class] = attrs['class']
       if attrs['class'] == 'sc.framework.plugins.protocol.MoveRequest'
         @client.gamestate = gamestate
-        move = @client.getMove
+        move = @client.move_requested
         sendString(move_to_xml(move))
       end
       if attrs['class'] == 'error'
@@ -122,6 +125,9 @@ class Protocol
       @gamestate.lastMove.add_action_with_order(Push.new(Direction.find_by_key(attrs['direction'].to_sym)), attrs['order'].to_i)
     when 'condition'
       @gamestate.condition = Condition.new(attrs['winner'], attrs['reason'])
+    when 'left'
+      logger.debug 'got left event, terminating'
+      @network.disconnect
     end
   end
 

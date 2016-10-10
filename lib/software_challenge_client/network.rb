@@ -82,7 +82,7 @@ class Network
 
     line =''
     char = ''
-    while line != "</room>" && !(char = @socket.getc).nil?
+    while (line != "</room>" && line != "</protocol>") && !(char = @socket.getc).nil?
       line+=char
       if char=='\n' || char==' '
 
@@ -97,11 +97,12 @@ class Network
 
       # Remove <protocol> tag
       @receiveBuffer = @receiveBuffer.gsub('<protocol>', '')
+      @receiveBuffer = @receiveBuffer.gsub('</protocol>', '')
 
       logger.debug "Received XML from server: #{@receiveBuffer}"
 
       # Process text
-      @protocol.process_string("<msg>#{@receiveBuffer}</msg>");
+      @protocol.process_string(@receiveBuffer);
       self.emptyReceiveBuffer
     end
     return true
