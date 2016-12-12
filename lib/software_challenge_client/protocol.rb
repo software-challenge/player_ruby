@@ -150,6 +150,7 @@ class Protocol
     player.x = attributes['x'].to_i
     player.y = attributes['y'].to_i
     player.passengers = attributes['passenger'].to_i
+    player.coal = attributes['coal'].to_i
     player.velocity = attributes['speed'].to_i
     player.movement = player.velocity
     player

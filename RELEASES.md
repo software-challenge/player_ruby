@@ -1,3 +1,7 @@
+= 0.3.1
+
+- Fixed bug: Coal was not read from server-XML (thanks to wollw!)
+
 = 0.3.0
 
 - Fixed bug where wrong (old) method getMove was called, the new name is
