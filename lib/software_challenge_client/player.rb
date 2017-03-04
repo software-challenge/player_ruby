@@ -3,7 +3,7 @@
 # A player, participating in a game
 class Player
   # @!attribute [r] name
-  # @return [PlayerColor] the player's name
+  # @return [String] the player's name
   attr_reader :name
 
   # @!attribute [r] color
@@ -27,11 +27,11 @@ class Player
   attr_accessor :direction
 
   # @!attribute [rw] x
-  # @return [Direction] the player's current x-position
+  # @return [Integer] the player's current x-position
   attr_accessor :x
 
   # @!attribute [rw] y
-  # @return [Direction] the player's current y-position
+  # @return [Integer] the player's current y-position
   attr_accessor :y
 
   # @!attribute [rw] movement
