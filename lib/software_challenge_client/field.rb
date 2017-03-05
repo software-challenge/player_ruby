@@ -4,7 +4,7 @@ require_relative 'field_type'
 # A field on the game board.
 class Field
   # @!attribute [rw] type
-  # @return [PlayerColor] the field's type
+  # @return [FieldType] the field's type
   attr_accessor :type
   # @!attribute [r] x
   # @return [Integer] the field's x-coordinate
