@@ -1,3 +1,7 @@
+= 0.3.2
+
+- Corrected some return types in the documentation (thanks to wollw!).
+
 = 0.3.1
 
 - Fixed bug: Coal was not read from server-XML (thanks to wollw!)
