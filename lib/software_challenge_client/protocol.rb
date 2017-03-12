@@ -184,7 +184,9 @@ class Protocol
         attribute = case action.type
                     when :acceleration
                       { acc: action.acceleration }
-                    when :push, :turn
+                    when :push
+                      { direction: action.direction.key }
+                    when :turn
                       { direction: action.direction }
                     when :advance
                       { distance: action.distance }
