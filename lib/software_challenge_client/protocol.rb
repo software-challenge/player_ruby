@@ -187,7 +187,7 @@ class Protocol
                     when :push
                       { direction: action.direction.key }
                     when :turn
-                      { direction: action.direction }
+                      { direction: action.turn_steps }
                     when :advance
                       { distance: action.distance }
                     when default
