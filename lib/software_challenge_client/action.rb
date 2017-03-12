@@ -75,19 +75,19 @@ class Acceleration < Action
   end
 end
 
-# Turn by {#direction}.
+# Turn by {#turn_steps}.
 class Turn < Action
   # Number of steps to turn. Negative values for turning clockwise, positive for
   # counterclockwise.
-  attr_reader :direction
+  attr_reader :turn_steps
 
-  def initialize(direction)
-    @direction = direction
+  def initialize(turn_steps)
+    @turn_steps = turn_steps
   end
 
   # (see Acceleration#perform!)
   def perform!(gamestate, current_player)
-    invalid 'Drehung um 0 ist ungültig' if direction.zero?
+    invalid 'Drehung um 0 ist ungültig' if turn_steps.zero?
     if gamestate
        .board
        .field(current_player.x, current_player.y)
@@ -101,12 +101,12 @@ class Turn < Action
       gamestate.additional_free_turn_after_push = false
     end
     if needed_coal > current_player.coal
-      invalid "Nicht genug Kohle für Drehung um #{direction}. "\
+      invalid "Nicht genug Kohle für Drehung um #{turn_steps}. "\
               "Habe #{current_player.coal}, brauche #{needed_coal}."
     end
 
     current_player.direction =
-      Direction.get_turn_direction(current_player.direction, direction)
+      Direction.get_turn_direction(current_player.direction, turn_steps)
     current_player.coal -= [0, needed_coal].max
     gamestate.free_turn = false
   end
@@ -116,7 +116,7 @@ class Turn < Action
   end
 
   def ==(other)
-    other.type == type && other.direction == direction
+    other.type == type && other.turn_steps == turn_steps
   end
 end
 
