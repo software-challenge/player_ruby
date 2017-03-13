@@ -50,11 +50,9 @@ class Protocol
     case name
     when 'board'
       logger.debug @gamestate.board.to_s
-    when 'data'
-      if @context[:data_class] == 'result'
-        logger.info 'Got game result'
-        @network.disconnect
-      end
+    when 'result'
+      logger.info 'Got game result'
+      @network.disconnect
     end
   end
 
@@ -91,10 +89,18 @@ class Protocol
       logger.debug "Turn: #{@gamestate.turn}"
     when 'red'
       logger.debug 'new red player'
-      @gamestate.add_player(parsePlayer(PlayerColor::RED, attrs))
+      player = parsePlayer(attrs)
+      if player.color != PlayerColor::RED
+        throw new IllegalArgumentException("expected #{PlayerColor::RED} Player but got #{player.color}")
+      end
+      @gamestate.add_player(player)
     when 'blue'
       logger.debug 'new blue player'
-      @gamestate.add_player(parsePlayer(PlayerColor::BLUE, attrs))
+      player = parsePlayer(attrs)
+      if player.color != PlayerColor::BLUE
+        throw new IllegalArgumentException("expected #{PlayerColor::BLUE} Player but got #{player.color}")
+      end
+      @gamestate.add_player(player)
     when 'board'
       logger.debug 'new board'
       @gamestate.board = Board.new
@@ -123,8 +129,8 @@ class Protocol
       @gamestate.lastMove.add_action_with_order(Turn.new(attrs['direction'].to_i), attrs['order'].to_i)
     when 'push'
       @gamestate.lastMove.add_action_with_order(Push.new(Direction.find_by_key(attrs['direction'].to_sym)), attrs['order'].to_i)
-    when 'condition'
-      @gamestate.condition = Condition.new(attrs['winner'], attrs['reason'])
+    when 'winner'
+      @gamestate.condition = Condition.new(parsePlayer(attrs))
     when 'left'
       logger.debug 'got left event, terminating'
       @network.disconnect
@@ -133,18 +139,13 @@ class Protocol
 
   # Converts XML attributes for a Player to a new Player object
   #
-  # @param expectedColor [PlayerColor] Color the player should have. Method will
-  # throw an exception when expectedColor and color in attributes don't match.
   # @param attributes [Hash] Attributes for the new Player.
   # @return [Player] The created Player object.
-  def parsePlayer(expectedColor, attributes)
+  def parsePlayer(attributes)
     player = Player.new(
       PlayerColor.find_by_key(attributes['color'].to_sym),
       attributes['displayName']
     )
-    if player.color != expectedColor
-      throw new IllegalArgumentException("expected #{expectedColor} Player but got #{attributes['color']}")
-    end
     player.points = attributes['points'].to_i
     player.direction = Direction.find_by_key(attributes['direction'].to_sym)
     player.x = attributes['x'].to_i

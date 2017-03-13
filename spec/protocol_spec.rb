@@ -70,7 +70,40 @@ RSpec.describe Protocol do
   context 'when getting a winning condition from server' do
     it 'should close the connection' do
       expect(network).to receive(:disconnect)
-      server_message '<condition />'
+      server_message '<result />'
+    end
+    it 'should set the winning player' do
+      expect(network).to receive(:disconnect)
+      server_message <<-XML
+        <result>
+<definition>
+      <fragment name="Siegpunkte">
+        <aggregation>SUM</aggregation>
+        <relevantForRanking>false</relevantForRanking>
+      </fragment>
+      <fragment name="Punkte">
+        <aggregation>SUM</aggregation>
+        <relevantForRanking>true</relevantForRanking>
+      </fragment>
+      <fragment name="Passagiere">
+        <aggregation>SUM</aggregation>
+        <relevantForRanking>true</relevantForRanking>
+      </fragment>
+    </definition>
+<score cause="REGULAR">
+      <part>2</part>
+      <part>20</part>
+      <part>1</part>
+    </score>
+<score cause="RULE_VIOLATION" reason="Nicht genug Kohle f&#xFC;r Drehung.">
+      <part>0</part>
+      <part>19</part>
+      <part>0</part>
+    </score>
+<winner displayName="Winning Player" x="4" y="10" direction="LEFT" tile="3" passenger="1" points="20" class="player" coal="2" speed="3" color="RED"/>
+        </result>
+      XML
+      expect(subject.gamestate.condition.winner.name).to eq("Winning Player")
     end
   end
 
