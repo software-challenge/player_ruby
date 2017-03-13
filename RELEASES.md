@@ -1,3 +1,8 @@
+= 0.3.4
+
+- Renamed Turn#direction to Turn#turn_steps to make clearer that a number should be given, not a Direction instance.
+- Corrected generation of XML for Push-actions
+
 = 0.3.3
 
 - Corrected checking/updating of coal for decelerations.
