@@ -1,3 +1,7 @@
+= 0.3.3
+
+- Corrected checking/updating of coal for decelerations.
+
 = 0.3.2
 
 - Corrected some return types in the documentation (thanks to wollw!).
