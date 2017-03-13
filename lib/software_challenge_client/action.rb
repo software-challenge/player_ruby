@@ -48,7 +48,7 @@ class Acceleration < Action
     if new_velocity > 6
       invalid 'Geschwindigkeit darf nicht über 6 erhöht werden.'
     end
-    acceleration.times do
+    acceleration.abs.times do
       if gamestate.free_acceleration?
         gamestate.free_acceleration = false
       elsif current_player.coal.zero?

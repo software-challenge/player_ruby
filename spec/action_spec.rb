@@ -20,6 +20,12 @@ RSpec.describe Acceleration do
         Acceleration.new(1).perform!(gamestate, player)
       }.to raise_error(InvalidMoveException)
     end
+    it 'should cost coal to decelerate by more than one' do
+      expect {
+        Acceleration.new(-2).perform!(gamestate, player)
+      }.to change(player, :velocity).by(-2)
+             .and change(player, :coal).by(-1)
+    end
   end
 
   context 'when a player has velocity 1' do
