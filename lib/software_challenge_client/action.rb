@@ -94,7 +94,7 @@ class Turn < Action
        .type == FieldType::SANDBANK
       invalid 'Drehung auf Sandbank nicht erlaubt'
     end
-    needed_coal = direction.abs
+    needed_coal = turn_steps.abs
     needed_coal -= 1 if gamestate.free_turn?
     if needed_coal > 0 && gamestate.additional_free_turn_after_push?
       needed_coal -= 1

@@ -8,19 +8,19 @@ RSpec.describe Direction do
 
     it 'returns turn to the left' do
       expect(
-        Direction.from_to(Direction::RIGHT, Direction::DOWN_RIGHT).direction
+        Direction.from_to(Direction::RIGHT, Direction::DOWN_RIGHT).turn_steps
       ).to eq(-1)
       expect(
-        Direction.from_to(Direction::RIGHT, Direction::UP_RIGHT).direction
+        Direction.from_to(Direction::RIGHT, Direction::UP_RIGHT).turn_steps
       ).to eq(1)
     end
 
     it 'turns in direction with less turns' do
       expect(
-        Direction.from_to(Direction::RIGHT, Direction::DOWN_LEFT).direction
+        Direction.from_to(Direction::RIGHT, Direction::DOWN_LEFT).turn_steps
       ).to eq(-2)
       expect(
-        Direction.from_to(Direction::RIGHT, Direction::UP_LEFT).direction
+        Direction.from_to(Direction::RIGHT, Direction::UP_LEFT).turn_steps
       ).to eq(2)
     end
 
