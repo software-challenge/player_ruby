@@ -125,7 +125,7 @@ RSpec.describe Protocol do
     move.add_action(Acceleration.new(2))
     move.add_action(Turn.new(1))
     move.add_action(Advance.new(3))
-    move.add_action(Push.new(0))
+    move.add_action(Push.new(Direction::RIGHT))
     # NOTE that this is brittle because XML formatting (whitespace, attribute
     # order) is arbitrary.
     expect(subject.move_to_xml(move)).to eq <<-XML
@@ -133,7 +133,7 @@ RSpec.describe Protocol do
   <acceleration acc="2" order="0"/>
   <turn direction="1" order="1"/>
   <advance distance="3" order="2"/>
-  <push direction="0" order="3"/>
+  <push direction="RIGHT" order="3"/>
 </data>
     XML
   end
