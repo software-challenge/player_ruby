@@ -34,7 +34,7 @@ class Client < ClientInterface
         end
         # turn in that direction
         possible_turn = Direction.from_to(gamestate.current_player.direction, direction)
-        if possible_turn.direction != 0
+        if possible_turn.turn_steps != 0
           move.add_action(possible_turn)
         end
         move.add_action(Advance.new(speed))
