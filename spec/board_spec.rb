@@ -5,44 +5,15 @@
 RSpec.describe Board do
   subject(:board) { Board.new }
 
-  context 'method get_neighbor' do
-    it 'should give new coordinates for all directions' do
-      Direction.each do |d|
-        new_x, new_y = board.get_neighbor(0, 0, d)
-        expect([new_x, new_y]).to_not eq([0, 0])
-      end
-    end
-  end
-
-  context 'method get_in_direction' do
-    before do
-      (-3..3).each do |x|
-        (-3..3).each do |y|
-          board.add_field(Field.new(FieldType::WATER, x, y, 0, 0, 0))
-        end
-      end
+  context 'method field' do
+    it 'should return new invalid fields for indices out of range' do
+      expect(board.field(0).type).to eq(FieldType::INVALID)
     end
 
-    it 'should return the field in this direction' do
-      expect(
-        board.get_in_direction(0, 0, Direction::RIGHT, 2)
-      ).to eq(board.field(2, 0))
-    end
-  end
-
-  context 'method get_all_in_direction' do
-    before do
-      (-3..3).each do |x|
-        (-3..3).each do |y|
-          board.add_field(Field.new(FieldType::WATER, x, y, 0, 0, 0))
-        end
-      end
-    end
-
-    it 'should return the field in this direction' do
-      expect(
-        board.get_all_in_direction(0, 0, Direction::RIGHT, 2)
-      ).to eq([board.field(1, 0), board.field(2, 0)])
+    it 'should return the field at the index' do
+      field = Field.new(FieldType::HARE, 23)
+      board.add_field(field)
+      expect(board.field(23)).to eq(field)
     end
   end
 end
