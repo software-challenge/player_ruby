@@ -1,98 +1,52 @@
 module GameStateHelpers
 
-  def state_from_string!(start_x, start_y, string, gamestate)
+  class BoardFormatError < StandardError; end
+
+  def state_from_string!(string, gamestate)
     board = Board.new
     red = nil
     blue = nil
-    x = start_x
-    y = start_y
-    line_start = true
-    last_was_field = false
-    # NOTE that this will likely not work for UTF8 characters
-    string.each_char do |c|
-      case c
-      when ' '
-        # ignore whitespace
-      when '.'
-        if line_start && y.even?
-          # offset
-          line_start = false
-          last_was_field = false
-        elsif last_was_field
-          # fieldseparator
-          last_was_field = false
-        else
-          # unoccupied field
-          last_was_field = true
-          x += 1
+    string.split(/\s+/).each_with_index do |field, index|
+      raise BoardFormatError.new("too many identifiers for field ##{index}: '#{field}'") if field.length > 2
+      if field.length == 2
+        if field.include? 'r'
+          red = Player.new(PlayerColor::RED, '')
+          red.index = index
+        elsif field.include? 'b'
+          blue = Player.new(PlayerColor::BLUE, '')
+          blue.index = index
         end
-      when "\n"
-        line_start = true
-        last_was_field = false
-        x = start_x
-        y += 1
-      else
-        type = nil
-        case c
-        when 'W', 'r', 'b', '8'
-          # 'r' and 'b' may be used to mark players positions,
-          # '8' when both players are on the same field
-          type = FieldType::WATER
-          if c == 'r' || c == '8'
-            red = Player.new(PlayerColor::RED, '')
-
-            red.x = x
-            red.y = y
-          end
-          if c == 'b' || c == '8'
-            blue = Player.new(PlayerColor::BLUE, '')
-            blue.x = x
-            blue.y = y
-          end
-        when 'B'
-          type = FieldType::BLOCKED
-        when 'S'
-          type = FieldType::SANDBANK
-        when 'L'
-          type = FieldType::LOG
-        when 'G'
-          type = FieldType::GOAL
-        when '0'
-          type = FieldType::PASSENGER0
-        when '1'
-          type = FieldType::PASSENGER1
-        when '2'
-          type = FieldType::PASSENGER2
-        when '3'
-          type = FieldType::PASSENGER3
-        when '4'
-          type = FieldType::PASSENGER4
-        when '5'
-          type = FieldType::PASSENGER5
-        else
-          raise "unexpected field type '#{c}' at (#{x}, #{y})"
-        end
-        board.add_field(Field.new(type, x, y, 0, Direction::RIGHT, 0))
-        line_start = false
-        last_was_field = true
-        x += 1
+        field.gsub!(/[rb]/, '')
+        raise BoardFormatError.new("no type for field ##{index}: '#{field}'") if field.length == 0
+        raise BoardFormatError.new("multiple types for field ##{index}: '#{field}'") if field.length == 2
       end
+      type = nil
+      case field[0]
+      when '1'
+        type = FieldType::POSITION_1
+      when '2'
+        type = FieldType::POSITION_2
+      when 'I'
+        type = FieldType::HEDGEHOG
+      when 'S'
+        type = FieldType::SALAD
+      when 'C'
+        type = FieldType::CARROT
+      when 'H'
+        type = FieldType::HARE
+      when 'X'
+        type = FieldType::INVALID
+      when 'G'
+        type = FieldType::GOAL
+      when '0'
+        type = FieldType::START
+      else
+        raise BoardFormatError.new("unexpected field type '#{c}' at ##{index}")
+      end
+      board.add_field(Field.new(type, index))
     end
     gamestate.board = board
     gamestate.add_player(red) unless red.nil?
     gamestate.add_player(blue) unless blue.nil?
   end
-
-  # returns a gamestate where the current player has a field
-  def state_with_player_field(player)
-    gamestate = GameState.new
-    player.x = 1
-    player.y = 1
-    field = Field.new(FieldType::WATER, 1, 1, 0, 0, 0)
-    gamestate.add_player(player)
-    gamestate.board.add_field(field)
-    gamestate.current_player_color = player.color
-    gamestate
-  end
-
 end
