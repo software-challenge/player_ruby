@@ -25,10 +25,22 @@ RSpec.describe GameStateHelpers do
       state_from_string!('CC H bS I 2 1 G', gamestate)
     }.to raise_error GameStateHelpers::BoardFormatError, /multiple types/
     expect {
-      state_from_string!('rCb H bS I 2 1 G', gamestate)
+      state_from_string!('CDDb H bS I 2 1 G', gamestate)
     }.to raise_error GameStateHelpers::BoardFormatError, /too many identifiers/
+    expect {
+      state_from_string!('rCb H bS I 2 1 G', gamestate)
+    }.to raise_error GameStateHelpers::BoardFormatError, /both players only allowed on start and goal/
     expect {
       state_from_string!('rb H bS I 2 1 G', gamestate)
     }.to raise_error GameStateHelpers::BoardFormatError, /no type/
+  end
+
+  it 'should accept both players on start and goal field' do
+    expect {
+      state_from_string!('br0 H S I 2 1 G', gamestate)
+    }.not_to raise_error
+    expect {
+      state_from_string!('0 H S I 2 1 brG', gamestate)
+    }.not_to raise_error
   end
 end

@@ -1,4 +1,5 @@
 # encoding: UTF-8
+require_relative 'card_type'
 
 # Ein Spieler
 class Player
@@ -15,8 +16,21 @@ class Player
   attr_accessor :points
 
   # @!attribute [rw] index
-  # @return [Integer] die aktuelle Position des Spielers auf dem Spielbrett, entspricht index des Feldes, von 0 bis 64
+  # @return [Integer] die aktuelle Position des Spielers auf dem Spielbrett,
+  #   entspricht index des Feldes, von 0 bis 64
   attr_accessor :index
+
+  # @!attribute [rw] carrots
+  # @return [Integer] die aktuelle Anzahl Karotten des Spielers
+  attr_accessor :carrots
+
+  # @!attribute [rw] salads
+  # @return [Integer] die aktuelle Anzahl Salate des Spielers
+  attr_accessor :salads
+
+  # @!attribute [rw] cards
+  # @return [Array[CardType]] die noch nicht gespielten Karten
+  attr_accessor :cards
 
   # Konstruktor
   # @param color [PlayerColor] Farbe
@@ -26,6 +40,9 @@ class Player
     @name = name
     @points = 0
     @index = 0
+    @carrots = 68
+    @salads = 2
+    @cards = CardType.to_a
   end
 
   def ==(other)

@@ -7,10 +7,10 @@ require_relative 'field'
 
 # Ein Spielbrett bestehend aus 65 Feldern.
 class Board
-
   # @!attribute [r] fields
   # @note Besser über die {#field} Methode auf Felder zugreifen.
-  # @return [Array<Field>] Ein Feld wird an der Position entsprechend seines Index im Array gespeichert.
+  # @return [Array<Field>] Ein Feld wird an der Position entsprechend seines
+  #   Index im Array gespeichert.
   attr_reader :fields
 
   # Initializes the board
@@ -36,7 +36,9 @@ class Board
   # Zugriff auf die Felder des Spielfeldes
   #
   # @param index [Integer] Der Index des Feldes
-  # @return [Field] Das Feld mit dem gegebenen Index. Falls das Feld nicht exisitert (weil der Index ausserhalb von 0..64 liegt), wird ein neues Feld vom Typ INVALID zurückgegeben.
+  # @return [Field] Das Feld mit dem gegebenen Index. Falls das Feld nicht
+  #   exisitert (weil der Index ausserhalb von 0..64 liegt), wird ein neues
+  #   Feld vom Typ INVALID zurückgegeben.
   def field(index)
     fields.fetch(index, Field.new(FieldType::INVALID, index))
   end

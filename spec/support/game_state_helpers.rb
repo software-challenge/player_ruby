@@ -7,12 +7,14 @@ module GameStateHelpers
     red = nil
     blue = nil
     string.split(/\s+/).each_with_index do |field, index|
-      raise BoardFormatError.new("too many identifiers for field ##{index}: '#{field}'") if field.length > 2
-      if field.length == 2
+      raise BoardFormatError.new("too many identifiers for field ##{index}: '#{field}'") if field.length > 3
+      if field.length > 1
+        raise BadFormatError.new("both players are only allowed on start and goal") if field.length == 3 && !['0', 'G'].include?(field.gsub(/[rb]/,''))
         if field.include? 'r'
           red = Player.new(PlayerColor::RED, '')
           red.index = index
-        elsif field.include? 'b'
+        end
+        if field.include? 'b'
           blue = Player.new(PlayerColor::BLUE, '')
           blue.index = index
         end

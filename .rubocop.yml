@@ -2,5 +2,6 @@ AllCops:
   DefaultFormatter: fuubar
   DisplayStyleGuide: true
   DisplayCopNames: false
-  TargetRubyVersion: 2.0
 #require: rubocop-rspec
+Style/AsciiComments:
+  Enabled: false # we use german comments to document relevant methods for the pupils
