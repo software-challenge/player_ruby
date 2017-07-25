@@ -7,9 +7,15 @@ module GameStateHelpers
     red = nil
     blue = nil
     string.split(/\s+/).each_with_index do |field, index|
-      raise BoardFormatError.new("too many identifiers for field ##{index}: '#{field}'") if field.length > 3
+      if field.length > 3
+        raise BoardFormatError,
+              "too many identifiers for field ##{index}: '#{field}'"
+      end
       if field.length > 1
-        raise BadFormatError.new("both players are only allowed on start and goal") if field.length == 3 && !['0', 'G'].include?(field.gsub(/[rb]/,''))
+        if field.length == 3 && !%w(0 G).include?(field.gsub(/[rb]/, ''))
+          raise BoardFormatError,
+                'both players are only allowed on start and goal'
+        end
         if field.include? 'r'
           red = Player.new(PlayerColor::RED, '')
           red.index = index
@@ -19,8 +25,13 @@ module GameStateHelpers
           blue.index = index
         end
         field.gsub!(/[rb]/, '')
-        raise BoardFormatError.new("no type for field ##{index}: '#{field}'") if field.length == 0
-        raise BoardFormatError.new("multiple types for field ##{index}: '#{field}'") if field.length == 2
+        if field.empty?
+          raise BoardFormatError, "no type for field ##{index}: '#{field}'"
+        end
+        if field.length == 2
+          raise BoardFormatError,
+                "multiple types for field ##{index}: '#{field}'"
+        end
       end
       type = nil
       case field[0]
@@ -43,7 +54,7 @@ module GameStateHelpers
       when '0'
         type = FieldType::START
       else
-        raise BoardFormatError.new("unexpected field type '#{c}' at ##{index}")
+        raise BoardFormatError, "unexpected field type '#{c}' at ##{index}"
       end
       board.add_field(Field.new(type, index))
     end

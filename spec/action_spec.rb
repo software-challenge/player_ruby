@@ -46,4 +46,15 @@ RSpec.describe Advance do
       }.to raise_error(InvalidMoveException, /Feld.+nicht vorhanden/)
     end
   end
+
+  context 'when a player is on a hare field' do
+    before { state_from_string!('0 C C rH C C C C C C C C C G', gamestate) }
+
+    it 'should be valid to play a card' do
+      pending 'todo'
+      expect {
+        Card.new(CardType::TAKE_OR_DROP_CARROTS, 0, 10).perform!(gamestate)
+      }.not_to raise_error
+    end
+  end
 end

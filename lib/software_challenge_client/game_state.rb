@@ -32,34 +32,16 @@ class GameState
   # @!attribute [rw] condition
   # @return [Condition] the winner and winning reason
   attr_accessor :condition
-  # @!attribute [rw] free_acceleration
-  # @return [Boolean] true if the free acceleration for this turn is still
-  #                   available.
-  attr_accessor :free_acceleration
-  alias free_acceleration? free_acceleration
-
-  # @!attribute [rw] free_turn
-  # @return [Boolean] True if the free turning for this turn is still
-  # available.
-  attr_accessor :free_turn
-  alias free_turn? free_turn
-
-  # @!attribute [rw] additional_free_turn_after_push
-  # @return [Boolean] True if the free turning for this turn is still
-  # available.
-  attr_accessor :additional_free_turn_after_push
-  alias additional_free_turn_after_push? additional_free_turn_after_push
-
-  POINTS_PER_TILE = 5
-  POINTS_PER_PASSENGER = 5
+  # @!attribute [rw] has_to_play_card
+  # @return [Boolean] true if the current player has to play a card
+  attr_accessor :has_to_play_card
+  alias has_to_play_card? has_to_play_card
 
   def initialize
     @current_player_color = PlayerColor::RED
     @start_player_color = PlayerColor::RED
     @board = Board.new
-    @free_acceleration = true
-    @free_turn = true
-    @additional_free_turn_after_push = false
+    @has_to_play_card = false
   end
 
   # adds a player to the gamestate
@@ -87,11 +69,8 @@ class GameState
   #
   # @return [Player] the other (not the current) player
   def other_player
-    if current_player_color == PlayerColor::RED
-      return blue
-    else
-      return red
-    end
+    return blue if current_player_color == PlayerColor::RED
+    return red if current_player_color == PlayerColor::BLUE
   end
 
   # gets the other (not the current) player's color
@@ -144,16 +123,13 @@ class GameState
   # @param player [Player] the player, whos point will be calculated
   # @return [Integer] the points of the player
   def points_for_player(player)
-    player_field = board.field(player.x, player.y)
-    POINTS_PER_TILE * player_field.index +
-      POINTS_PER_PASSENGER * player.passengers +
-      player_field.points
+    raise 'TODO'
   end
 
   # @return [Boolean] true if the given field is occupied by the other (not
   #                   current) player.
   def occupied_by_other_player?(field)
-    field.x == other_player.x && field.y == other_player.y
+    field.index == other_player.index
   end
 
   # Compared with other state.
@@ -165,7 +141,7 @@ class GameState
       blue == other.blue &&
       board == other.board &&
       lastMove == other.lastMove &&
-      free_acceleration == other.free_acceleration &&
+      has_to_play_card == other.has_to_play_card &&
       condition == other.condition
   end
 

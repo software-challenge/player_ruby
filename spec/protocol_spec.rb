@@ -16,6 +16,7 @@ RSpec.describe Protocol do
 
   context 'when getting a new game state' do
     it 'should update the game state' do
+      pending 'migrate to hase und igel'
       server_message <<-XML
         <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE" freeTurn="false">
         <red displayName="Spieler 1" color="RED" points="13" x="-1" y="1" direction="RIGHT" speed="1" coal="6" tile="0" passenger="1"/>
@@ -42,6 +43,7 @@ RSpec.describe Protocol do
     end
 
     it 'should update the last move, if it exists in the gamestate' do
+      pending 'migrate to hase und igel'
       server_message <<-XML
         <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE" freeTurn="false">
         <lastMove>
@@ -60,6 +62,7 @@ RSpec.describe Protocol do
     end
 
     it 'should set the additional free turn for the player' do
+      pending 'migrate to hase und igel'
       server_message <<-XML
         <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE" freeTurn="true">
       XML
@@ -73,6 +76,7 @@ RSpec.describe Protocol do
       server_message '<result />'
     end
     it 'should set the winning player' do
+      pending 'migrate to hase und igel'
       expect(network).to receive(:disconnect)
       server_message <<-XML
         <result>
@@ -109,6 +113,7 @@ RSpec.describe Protocol do
 
   context 'when receiving a new board' do
     it 'should create the new board in the gamestate' do
+      pending 'migrate to hase und igel'
       server_message <<-XML
         <board>
           <tiles>
@@ -154,6 +159,7 @@ RSpec.describe Protocol do
   end
 
   it 'should convert a move to xml' do
+    pending 'migrate to hase und igel'
     move = Move.new
     move.add_action(Acceleration.new(2))
     move.add_action(Turn.new(1))

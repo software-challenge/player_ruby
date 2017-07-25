@@ -43,18 +43,25 @@ class Advance < Action
   # performed. Performing may change the game state. The action is performed for
   # the current player of the game state.
   def perform!(gamestate)
+    check_validity(gamestate)
+    # perform state changes
     required_carrots = distance * (distance + 1) / 2
+    gamestate.current_player.carrots -= required_carrots
+    gamestate.current_player.index += distance
+  end
+
+  def check_validity(gamestate)
     player = gamestate.current_player
-    # check validty
+    required_carrots = distance * (distance + 1) / 2
     if required_carrots > player.carrots
       invalid("Nicht genug Karotten für Vorwärtszug um #{distance} Felder.")
     end
     if gamestate.board.field(player.index + distance).type == FieldType::INVALID
       invalid("Zielfeld Vorwärtszug um #{distance} Felder ist nicht vorhanden (das Spielfeld ist nicht gross genug).")
     end
-    # perform state changes
-    gamestate.current_player.carrots -= required_carrots
-    gamestate.current_player.index += distance
+
+
+
   end
 
   def type
@@ -83,6 +90,7 @@ class Card < Action
 
   # (see Advance#perform!)
   def perform!(gamestate)
+    raise "TODO"
   end
 
   def type

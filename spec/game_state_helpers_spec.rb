@@ -20,6 +20,7 @@ RSpec.describe GameStateHelpers do
     expect(gamestate.other_player).to eq(gamestate.blue)
   end
 
+
   it 'should raise an error on illegal format' do
     expect {
       state_from_string!('CC H bS I 2 1 G', gamestate)
@@ -29,7 +30,7 @@ RSpec.describe GameStateHelpers do
     }.to raise_error GameStateHelpers::BoardFormatError, /too many identifiers/
     expect {
       state_from_string!('rCb H bS I 2 1 G', gamestate)
-    }.to raise_error GameStateHelpers::BoardFormatError, /both players only allowed on start and goal/
+    }.to raise_error GameStateHelpers::BoardFormatError, /both players are only allowed on start and goal/
     expect {
       state_from_string!('rb H bS I 2 1 G', gamestate)
     }.to raise_error GameStateHelpers::BoardFormatError, /no type/

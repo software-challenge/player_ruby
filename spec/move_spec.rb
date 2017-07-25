@@ -6,6 +6,8 @@ RSpec.describe Move do
 
   include GameStateHelpers
 
+  before { pending 'migrate to hase und igel' }
+
   subject(:move) { described_class.new }
 
   it 'should accept actions to be added' do

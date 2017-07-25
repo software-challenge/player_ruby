@@ -2,7 +2,7 @@
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
-RSpec.describe Player, focus: true do
+RSpec.describe Player do
   subject(:player) { Player.new(PlayerColor::RED, '') }
 
   context 'when newly created' do

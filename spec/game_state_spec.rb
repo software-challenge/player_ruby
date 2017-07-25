@@ -17,6 +17,7 @@ RSpec.describe GameState do
   end
 
   it 'should perform moves' do
+    pending 'migrate to hase und igel'
     oldState = subject.clone
     move = Move.new
     move.add_action Acceleration.new(1)
