@@ -132,9 +132,24 @@ class GameState
     field.index == other_player.index
   end
 
-  def get_previous_field_by_type(type, index)
+  def previous_field_by_type(type, index)
     return nil if index < 1
-    board.fields.slice(0..(index - 1)).reverse.find { |f| f.type == type }
+    board.fields.first(index).reverse.find { |f| f.type == type }
+  end
+
+  def next_field_by_type(type, index)
+    fields = board.fields
+    return nil if index >= fields.length
+    fields.last(fields.length - index).find { |f| f.type == type }
+  end
+
+
+  def current_player_field
+    board.fields(current_player.index)
+  end
+
+  def is_on_hare_field?
+    current_player_field.type == FieldType::HARE
   end
 
   # Compared with other state.

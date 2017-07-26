@@ -41,11 +41,11 @@ class GameRules
   # @param state GameState
   # @param distance relativer Abstand zur aktuellen Position des Spielers
   # @return true, falls ein Vorwärtszug möglich ist
-  def self.isValidToAdvance(state, distance)
+  def self.is_valid_to_advance(state, distance)
     if (distance <= 0)
       return false
     end
-    player = state.getCurrentPlayer()
+    player = state.get_current_player()
     if (mustEatSalad(state))
       return false
     end
@@ -138,7 +138,7 @@ class GameRules
     player = state.current_player
     type = state.board.field(player.index).type
 
-    return true if (type == FieldType.HEDGEHOG || type == FieldType.START)
+    return true if (type == FieldType::HEDGEHOG || type == FieldType::START)
 
     lastAction = state.getLastNonSkipAction(player)
 
@@ -176,7 +176,7 @@ class GameRules
   def self.is_valid_to_fall_back(state)
     return false if (must_eat_salad(state))
     valid = true
-    target_field = state.get_previous_field_by_type(
+    target_field = state.previous_field_by_type(
       FieldType::HEDGEHOG, state.current_player.index
     )
     !target_field.nil? && !state.occupied_by_other_player?(target_field)
@@ -272,7 +272,10 @@ class GameRules
   # @return true, falls die <code>EAT_SALAD</code> Karte gespielt werden darf
   def self.is_valid_to_play_eat_salad(state)
     player = state.current_player
-    return !player_must_advance(state) && state.is_on_rabbit_field && player.owns_card_of_type(CardType::EAT_SALAD) && player.salads > 0
+    return !player_must_advance(state) &&
+           state.is_on_hare_field &&
+           player.owns_card_of_type(CardType::EAT_SALAD) &&
+           player.salads > 0
   end
 
   # Überprüft ob der derzeitige Spieler irgendeine Karte spielen kann.

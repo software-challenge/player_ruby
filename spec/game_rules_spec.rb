@@ -28,9 +28,9 @@ RSpec.describe GameRules do
     it { is_expected.to not_be_valid_to(:exchange_carrots, gamestate, 10) }
     it { is_expected.to not_be_valid_to(:play_eat_salad, gamestate) }
     it {
-      is_expected.to be_valid_to(
-        :advance, gamestate, gamestate.next_field_by_type(FieldType::CARROT, 0)
-      )
+      # note that the distance to the next carrot field is its index because player is on field 0
+      distance = gamestate.next_field_by_type(FieldType::CARROT, 0).index
+      is_expected.to be_valid_to(:advance, gamestate, distance)
     }
   end
 end
