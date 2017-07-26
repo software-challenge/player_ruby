@@ -72,7 +72,6 @@ class GameRules
         int carrotsLeft = player.getCarrots() - requiredCarrots
         valid = valid && carrotsLeft <= 10
         valid = valid && player.getSalads() == 0
-        break
       when FieldType::HEDGEHOG
         valid = false
       when FieldType::CARROT, FieldType::POSITION_1, FieldType::START, FieldType::POSITION_2
@@ -132,16 +131,14 @@ class GameRules
     return valid
   end
 
-  # Überpürft ab der derzeitige Spieler im nächsten Zug einen Vorwärtszug machen muss.
+  # Überprüft ab der derzeitige Spieler im nächsten Zug einen Vorwärtszug machen muss.
   # @param state GameState
   # @return true, falls der derzeitige Spieler einen Vorwärtszug gemacht werden muss
-  def self.playerMustAdvance(state)
-    player = state.getCurrentPlayer()
-    type = state.getTypeAt(player.getFieldIndex())
+  def self.player_must_advance(state)
+    player = state.current_player
+    type = state.board.field(player.index).type
 
-    if (type == FieldType.HEDGEHOG || type == FieldType.START)
-      return true
-    end
+    return true if (type == FieldType.HEDGEHOG || type == FieldType.START)
 
     lastAction = state.getLastNonSkipAction(player)
 
@@ -165,35 +162,24 @@ class GameRules
   # @param state GameState
   # @param n 10 oder -10 je nach Fragestellung
   # @return true, falls die durch n spezifizierte Aktion möglich ist.
-  def self.isValidToExchangeCarrots(state, n)
-    player = state.getCurrentPlayer()
-    valid = state.getTypeAt(player.getFieldIndex()).equals(FieldType.CARROT)
-    if (n == 10)
-      return valid
-    end
-    if (n == -10)
-      if (player.getCarrots() >= 10)
-        return valid
-      else
-        return false
-      end
-    end
-    return false
+  def self.is_valid_to_exchange_carrots(state, n)
+    player = state.current_player
+    return false if state.board.field(player.index).type != FieldType::CARROT
+    return true if n == 10
+    return (player.carrots >= 10) if n == -10
   end
 
   # Überprüft <code>FallBack</code> Züge auf Korrektheit
   #
   # @param state GameState
   # @return true, falls der currentPlayer einen Rückzug machen darf
-  def self.isValidToFallBack(state)
-    if (mustEatSalad(state))
-      return false
-    end
+  def self.is_valid_to_fall_back(state)
+    return false if (must_eat_salad(state))
     valid = true
-    newPosition = state.getPreviousFieldByType(FieldType.HEDGEHOG, state.getCurrentPlayer().getFieldIndex())
-    valid = valid && (newPosition != -1)
-    valid = valid && !state.isOccupied(newPosition)
-    return valid
+    target_field = state.get_previous_field_by_type(
+      FieldType::HEDGEHOG, state.current_player.index
+    )
+    !target_field.nil? && !state.occupied_by_other_player?(target_field)
   end
 
   # Überprüft ob der derzeitige Spieler die <code>FALL_BACK</code> Karte spielen darf.
@@ -284,9 +270,9 @@ class GameRules
   # Überprüft ob der derzeitige Spieler die <code>EAT_SALAD</code> Karte spielen darf.
   # @param state GameState
   # @return true, falls die <code>EAT_SALAD</code> Karte gespielt werden darf
-  def self.isValidToPlayEatSalad(state)
-    player = state.getCurrentPlayer()
-    return !playerMustAdvance(state) && state.isOnRabbitField() && player.ownsCardOfTyp(CardType::EAT_SALAD) && player.getSalads() > 0
+  def self.is_valid_to_play_eat_salad(state)
+    player = state.current_player
+    return !player_must_advance(state) && state.is_on_rabbit_field && player.owns_card_of_type(CardType::EAT_SALAD) && player.salads > 0
   end
 
   # Überprüft ob der derzeitige Spieler irgendeine Karte spielen kann.
@@ -336,11 +322,11 @@ class GameRules
     return valid
   end
 
-  def self.mustEatSalad(state)
-    player = state.getCurrentPlayer()
+  def self.must_eat_salad(state)
+    player = state.current_player
     # check whether player just moved to salad field and must eat salad
-    field = state.getBoard().getTypeAt(player.getFieldIndex())
-    if (field == FieldType::SALAD)
+    field = state.board.field(player.index)
+    if (field.type == FieldType::SALAD)
       if (player.getLastNonSkipAction().is_a(Advance))
         return true
       elsif (player.getLastNonSkipAction().is_a(Card))
@@ -370,7 +356,7 @@ class GameRules
   # @return
   def self.canMove(state)
     canMove = false
-    maxDistance = GameRuleLogic.calculateMoveableFields(state.getCurrentPlayer().getCarrots())
+    maxDistance = GameRules.calculateMoveableFields(state.getCurrentPlayer().getCarrots())
     (1..maxDistance).to_a.each do |i|
       canMove = canMove || isValidToAdvance(state, i)
     end

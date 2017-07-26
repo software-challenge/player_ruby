@@ -36,9 +36,9 @@ group :red_green_refactor, halt_on_fail: true do
     watch('spec/spec_helper.rb') { 'spec' }
   end
 
-  guard :rubocop, all_on_start: false do
-    # This never includes external ruby files because of the
-    # directory constraint at the top of this file:
-    watch(/.*.rb/)
-  end
+  # guard :rubocop, all_on_start: false do
+  #   # This never includes external ruby files because of the
+  #   # directory constraint at the top of this file:
+  #   watch(/.*.rb/)
+  # end
 end

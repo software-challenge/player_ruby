@@ -132,6 +132,11 @@ class GameState
     field.index == other_player.index
   end
 
+  def get_previous_field_by_type(type, index)
+    return nil if index < 1
+    board.fields.slice(0..(index - 1)).reverse.find { |f| f.type == type }
+  end
+
   # Compared with other state.
   def ==(other)
     turn == other.turn &&
