@@ -13,7 +13,7 @@ class GameRules
    #
    # @param moveCount Anzahl der Felder, um die bewegt wird
    # @return Anzahl der benötigten Karotten
-  def self.calculateCarrots(moveCount)
+  def self.calculate_carrots(moveCount)
     (moveCount * (moveCount + 1)) / 2
   end
 
@@ -23,7 +23,7 @@ class GameRules
   # @return Felder um die maximal bewegt werden kann
   def self.calculateMoveableFields(carrots)
     moves = 0
-    while (calculateCarrots(moves) <= carrots)
+    while (calculate_carrots(moves) <= carrots)
       moves += 1
     end
     return moves - 1
@@ -45,31 +45,30 @@ class GameRules
     if (distance <= 0)
       return false
     end
-    player = state.get_current_player()
-    if (mustEatSalad(state))
-      return false
-    end
+    player = state.current_player
+    return false if (must_eat_salad(state))
     valid = true
-    requiredCarrots = GameRules.calculateCarrots(distance)
-    valid = valid && (requiredCarrots <= player.getCarrots())
+    required_carrots = GameRules.calculate_carrots(distance)
+    valid = valid && (required_carrots <= player.carrots)
 
-    newPosition = player.getFieldIndex() + distance
-    valid = valid && !state.isOccupied(newPosition)
-    type = state.getBoard().getTypeAt(newPosition)
+    new_position = player.index + distance
+    new_field = state.board.field(new_position)
+    valid = valid && !state.occupied_by_other_player?(new_field)
+    type = new_field.type
     case type
       when FieldType::INVALID
         valid = false
-      when FielType::SALAD
-        valid = valid && player.getSalads() > 0
+      when FieldType::SALAD
+        valid = valid && player.salads > 0
       when FieldType::HARE
         GameState state2 = null
         state2 = state.clone()
         state2.setLastAction(new Advance(distance))
-        state2.getCurrentPlayer().setFieldIndex(newPosition)
-        state2.getCurrentPlayer().changeCarrotsBy(-requiredCarrots)
+        state2.getCurrentPlayer().setFieldIndex(new_position)
+        state2.getCurrentPlayer().changeCarrotsBy(-required_carrots)
         valid = valid && canPlayAnyCard(state2)
       when FieldType::GOAL
-        int carrotsLeft = player.getCarrots() - requiredCarrots
+        int carrotsLeft = player.getCarrots() - required_carrots
         valid = valid && carrotsLeft <= 10
         valid = valid && player.getSalads() == 0
       when FieldType::HEDGEHOG

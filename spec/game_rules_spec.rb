@@ -22,7 +22,7 @@ RSpec.describe GameRules do
   let(:gamestate) { GameState.new }
 
   context 'when a player is on start field' do
-    before { state_from_string!('r0 C C C C C C C C C C C C G', gamestate) }
+    before { state_from_string!('r0 C C C Cb C C C C C C C C G', gamestate) }
 
     it { is_expected.to not_be_valid_to(:fall_back, gamestate) }
     it { is_expected.to not_be_valid_to(:exchange_carrots, gamestate, 10) }
