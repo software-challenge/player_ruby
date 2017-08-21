@@ -23,10 +23,10 @@ RSpec.describe GameStateHelpers do
 
   it 'should raise an error on illegal format' do
     expect {
-      state_from_string!('CC H bS I 2 1 G', gamestate)
+      state_from_string!('CC H bS Ir 2 1 G', gamestate)
     }.to raise_error GameStateHelpers::BoardFormatError, /multiple types/
     expect {
-      state_from_string!('CDDb H bS I 2 1 G', gamestate)
+      state_from_string!('CDDb H bS Ir 2 1 G', gamestate)
     }.to raise_error GameStateHelpers::BoardFormatError, /too many identifiers/
     expect {
       state_from_string!('rCb H bS I 2 1 G', gamestate)
@@ -43,5 +43,14 @@ RSpec.describe GameStateHelpers do
     expect {
       state_from_string!('0 H S I 2 1 brG', gamestate)
     }.not_to raise_error
+  end
+
+  it 'should raise an error if a player is missing' do
+    expect {
+      state_from_string!('C H bS I 2 1 G', gamestate)
+    }.to raise_error GameStateHelpers::BoardFormatError, /no red player/
+    expect {
+      state_from_string!('C H rS I 2 1 G', gamestate)
+    }.to raise_error GameStateHelpers::BoardFormatError, /no blue player/
   end
 end

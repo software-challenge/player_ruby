@@ -80,4 +80,3 @@ RSpec.describe GameRules do
     }
   end
 end
-

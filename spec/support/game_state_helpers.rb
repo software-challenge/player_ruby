@@ -1,6 +1,7 @@
 module GameStateHelpers
 
-  class BoardFormatError < StandardError; end
+  class BoardFormatError < StandardError;
+  end
 
   def state_from_string!(string, gamestate)
     board = Board.new
@@ -35,31 +36,35 @@ module GameStateHelpers
       end
       type = nil
       case field[0]
-      when '1'
-        type = FieldType::POSITION_1
-      when '2'
-        type = FieldType::POSITION_2
-      when 'I'
-        type = FieldType::HEDGEHOG
-      when 'S'
-        type = FieldType::SALAD
-      when 'C'
-        type = FieldType::CARROT
-      when 'H'
-        type = FieldType::HARE
-      when 'X'
-        type = FieldType::INVALID
-      when 'G'
-        type = FieldType::GOAL
-      when '0'
-        type = FieldType::START
-      else
-        raise BoardFormatError, "unexpected field type '#{c}' at ##{index}"
+        when '1'
+          type = FieldType::POSITION_1
+        when '2'
+          type = FieldType::POSITION_2
+        when 'I'
+          type = FieldType::HEDGEHOG
+        when 'S'
+          type = FieldType::SALAD
+        when 'C'
+          type = FieldType::CARROT
+        when 'H'
+          type = FieldType::HARE
+        when 'X'
+          type = FieldType::INVALID
+        when 'G'
+          type = FieldType::GOAL
+        when '0'
+          type = FieldType::START
+        else
+          raise BoardFormatError, "unexpected field type '#{c}' at ##{index}"
       end
       board.add_field(Field.new(type, index))
     end
     gamestate.board = board
-    gamestate.add_player(red) unless red.nil?
-    gamestate.add_player(blue) unless blue.nil?
+    # A board without both players should raise an error because the game rule code also expects that both players are
+    # present and not having them would lead to failing tests because unrealistic situations are tested.
+    raise BoardFormatError, "no red player found" if red.nil?
+    gamestate.add_player(red)
+    raise BoardFormatError, "no blue player found" if blue.nil?
+    gamestate.add_player(blue)
   end
 end

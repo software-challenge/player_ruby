@@ -13,7 +13,7 @@ class GameRules
    #
    # @param moveCount Anzahl der Felder, um die bewegt wird
    # @return Anzahl der benötigten Karotten
-  def self.calculate_carrots(moveCount)
+  def self.calculateCarrots(moveCount)
     (moveCount * (moveCount + 1)) / 2
   end
 
@@ -23,7 +23,7 @@ class GameRules
   # @return Felder um die maximal bewegt werden kann
   def self.calculateMoveableFields(carrots)
     moves = 0
-    while (calculate_carrots(moves) <= carrots)
+    while (calculateCarrots(moves) <= carrots)
       moves += 1
     end
     return moves - 1
@@ -46,17 +46,18 @@ class GameRules
     player = state.current_player
     return false if must_eat_salad(state)
     valid = true
-    required_carrots = GameRules.calculate_carrots(distance)
-    valid = valid && (required_carrots <= player.carrots)
+    requiredCarrots = GameRules.calculateCarrots(distance)
+    valid = valid && (requiredCarrots <= player.getCarrots())
 
     new_position = player.index + distance
     valid = valid && !state.occupied_by_other_player?(state.fields[new_position])
     case state.fields[new_position].type
       when FieldType::INVALID
         valid = false
-      when FieldType::SALAD
-        valid = valid && player.salads > 0
+      when FielType::SALAD
+        valid = valid && player.getSalads() > 0
       when FieldType::HARE
+        GameState state2 = null
         state2 = state.clone()
         state2.set_last_action(Advance.new(distance))
         state2.current_player.index = new_position
