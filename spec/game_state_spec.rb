@@ -6,24 +6,25 @@ include GameStateHelpers
 
 RSpec.describe GameState do
 
-  let!(:player) { Player.new(PlayerColor::RED, '') }
-  subject { state_with_player_field(player) }
+  let(:gamestate) {GameState.new}
+  subject {state_from_string!('0 C Cr H bS I 2 1 G', gamestate); gamestate}
 
-  it 'should be equal when cloned' do
-    pending 'I guess there is a problem with equality '\
-      'testing for one nested object'
-    oldState = subject.deep_clone
-    expect(oldState).to eq(subject)
+  it 'should get the next field of type' do
+    expect(subject.get_next_field_by_type(FieldType::POSITION_1, 0)).to eq(subject.board.fields[7])
+    expect(subject.get_next_field_by_type(FieldType::HARE, 4)).to be_nil
+    expect(subject.get_next_field_by_type(FieldType::GOAL, 8)).to be_nil
+    expect(subject.get_next_field_by_type(FieldType::GOAL, 7)).to eq(subject.board.fields[8])
   end
 
-  it 'should perform moves' do
-    pending 'migrate to hase und igel'
-    oldState = subject.clone
-    move = Move.new
-    move.add_action Acceleration.new(1)
-    subject.perform!(move, player)
-    expect(oldState).to_not eq(subject)
-    expect(player.velocity).to eq(2)
+  it 'should return nil for illegal index' do
+    expect(subject.get_next_field_by_type(FieldType::POSITION_1, -1)).to be_nil
+    expect(subject.get_next_field_by_type(FieldType::POSITION_1, 8)).to be_nil
+    expect(subject.get_previous_field_by_type(FieldType::POSITION_1, -1)).to be_nil
+    expect(subject.get_previous_field_by_type(FieldType::POSITION_1, 0)).to be_nil
+    expect(subject.get_previous_field_by_type(FieldType::POSITION_1, 9)).to be_nil
   end
 
+  it 'should get the previous field of type' do
+    expect(subject.get_previous_field_by_type(FieldType::HARE, 7)).to eq(subject.board.fields[3])
+  end
 end

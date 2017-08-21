@@ -59,9 +59,6 @@ class Advance < Action
     if gamestate.board.field(player.index + distance).type == FieldType::INVALID
       invalid("Zielfeld Vorwärtszug um #{distance} Felder ist nicht vorhanden (das Spielfeld ist nicht gross genug).")
     end
-
-
-
   end
 
   def type
@@ -90,7 +87,28 @@ class Card < Action
 
   # (see Advance#perform!)
   def perform!(gamestate)
-    raise "TODO"
+    gamestate.current_player.must_play_card = false
+    case card_type
+      when CardType::EAT_SALAD
+        invalid("Das Ausspielen der EAT_SALAD Karte ist nicht möglich.") unless GameRules.is_valid_to_play_eat_salad(gamestate)
+        gamestate.current_player.salads -= 1
+        if gamestate.is_first(gamestate.current_player)
+          gamestate.current_player.carrots += 10
+        else
+          gamestate.current_player.carrots += 20
+        end
+      when CardType::FALL_BACK
+        raise "TODO"
+      when CardType::HURRY_AHEAD
+        raise "TODO"
+      when CardType::TAKE_OR_DROP_CARROTS
+        invalid("Das Ausspielen der TAKE_OR_DROP_CARROTS Karte ist nicht möglich.") unless GameRules.is_valid_to_play_take_or_drop_carrots(gamestate, value)
+        gamestate.current_player.carrots += value
+      else
+        raise "Unknown card type #{card_type.inspect}!"
+    end
+    gamestate.set_last_action(self)
+    gamestate.current_player.cards.delete(self.type)
   end
 
   def type
@@ -101,5 +119,24 @@ class Card < Action
     other.card_type == card_type &&
       (card_type != CardType::TAKE_OR_DROP_CARROTS || (other.value == value)) &&
       other.order == order
+  end
+end
+
+# Ein Aussetzzug. Ist nur erlaubt, sollten keine anderen Züge möglich sei
+class Skip < Action
+  def initialize(order = 0)
+    # skip should only be first and only action
+    @order = 0
+  end
+end
+
+# Eine Salatessen-Aktion. Kann nur auf einem Salatfeld ausgeführt werden. Muss ausgeführt werden,
+# ein Salatfeld betreten wird. Nachdem die Aktion ausgefürht wurde, muss das Salatfeld verlassen
+# werden, oder es muss ausgesetzt werden.
+# Duch eine Salatessen-Aktion wird ein Salat verbraucht und es werden je nachdem ob der Spieler führt
+# oder nicht 10 oder 30 Karotten aufgenommen.
+class EatSalad < Action
+  def initialize(order = 0)
+    @order = order
   end
 end

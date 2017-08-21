@@ -46,15 +46,6 @@ class Move
   end
 
   def perform!(gamestate, current_player)
-    # check if acceleration is only first action
-    other_action_before = false
-    @actions.each do |a|
-      if a.type != :acceleration
-        other_action_before = true
-      elsif other_action_before
-        raise InvalidMoveException.new('Beschleunigung muss am Anfang des Zuges geschehen.', self)
-      end
-    end
     @actions.each { |a| a.perform!(gamestate, current_player) }
   end
 end

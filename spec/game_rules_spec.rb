@@ -22,15 +22,62 @@ RSpec.describe GameRules do
   let(:gamestate) { GameState.new }
 
   context 'when a player is on start field' do
-    before { state_from_string!('r0 C C C C C C C C C C C C G', gamestate) }
+    before {state_from_string!('rb0 C C I H S C C C C C C C G', gamestate)}
 
     it { is_expected.to not_be_valid_to(:fall_back, gamestate) }
     it { is_expected.to not_be_valid_to(:exchange_carrots, gamestate, 10) }
     it { is_expected.to not_be_valid_to(:play_eat_salad, gamestate) }
+    # may move forward
     it {
       is_expected.to be_valid_to(
-        :advance, gamestate, gamestate.next_field_by_type(FieldType::CARROT, 0)
+                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::CARROT, 0).index
+                     )
+    }
+    # may not move forward exceeding carrots
+    it {
+      is_expected.to not_be_valid_to(
+                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::CARROT, 11).index
+                     )
+    }
+    # may move onto salad-field (because has two salads on game start)
+    it {
+      is_expected.to be_valid_to(
+                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::SALAD, 0).index
+                     )
+    }
+    # may not move onto hedgehog field
+    it {
+      is_expected.to not_be_valid_to(
+                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::HEDGEHOG, 0).index
+                     )
+    }
+    # may move onto hare-field (because has all cards on game start)
+    it {
+      is_expected.to be_valid_to(
+                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::HARE, 0).index
       )
     }
   end
+
+  context 'when a player can reach the goal' do
+    before do
+      state_from_string!('rb0 C C C C C C C C C C G', gamestate)
+      gamestate.current_player.salads = 0
+    end
+
+    # may move onto goal (has enough carrots to reach it and less than or equal to 10 when reached and no salads)
+    it {
+      is_expected.to be_valid_to(
+                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::GOAL, 0).index
+                     )
+    }
+
+    it {
+      gamestate.current_player.carrots = 1000
+      is_expected.to not_be_valid_to(
+                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::GOAL, 0).index
+                     )
+    }
+  end
 end
+

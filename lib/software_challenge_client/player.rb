@@ -32,6 +32,14 @@ class Player
   # @return [Array[CardType]] die noch nicht gespielten Karten
   attr_accessor :cards
 
+  # @!attribute [rw] last_non_skip_action
+  # @return [Action] letzte Aktion, die kein Skip war
+  attr_accessor :last_non_skip_action
+
+  # @!attribute [rw] must_play_card
+  # @return [Boolean] zeigt an, ob eine Karte gespielt werden muss, wird in Zugvalidierung verwendet.
+  attr_accessor :must_play_card
+
   # Konstruktor
   # @param color [PlayerColor] Farbe
   # @param name [String] Name
@@ -47,5 +55,9 @@ class Player
 
   def ==(other)
     color == other.color
+  end
+
+  def owns_card_of_type(card_type)
+    cards.include? card_type
   end
 end

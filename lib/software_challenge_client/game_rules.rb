@@ -13,7 +13,7 @@ class GameRules
    #
    # @param moveCount Anzahl der Felder, um die bewegt wird
    # @return Anzahl der benötigten Karotten
-  def self.calculateCarrots(moveCount)
+  def self.calculate_carrots(moveCount)
     (moveCount * (moveCount + 1)) / 2
   end
 
@@ -23,7 +23,7 @@ class GameRules
   # @return Felder um die maximal bewegt werden kann
   def self.calculateMoveableFields(carrots)
     moves = 0
-    while (calculateCarrots(moves) <= carrots)
+    while (calculate_carrots(moves) <= carrots)
       moves += 1
     end
     return moves - 1
@@ -41,43 +41,37 @@ class GameRules
   # @param state GameState
   # @param distance relativer Abstand zur aktuellen Position des Spielers
   # @return true, falls ein Vorwärtszug möglich ist
-  def self.isValidToAdvance(state, distance)
-    if (distance <= 0)
-      return false
-    end
-    player = state.getCurrentPlayer()
-    if (mustEatSalad(state))
-      return false
-    end
+  def self.is_valid_to_advance(state, distance)
+    return false if distance <= 0
+    player = state.current_player
+    return false if must_eat_salad(state)
     valid = true
-    requiredCarrots = GameRules.calculateCarrots(distance)
-    valid = valid && (requiredCarrots <= player.getCarrots())
+    required_carrots = GameRules.calculate_carrots(distance)
+    valid = valid && (required_carrots <= player.carrots)
 
-    newPosition = player.getFieldIndex() + distance
-    valid = valid && !state.isOccupied(newPosition)
-    type = state.getBoard().getTypeAt(newPosition)
-    case type
+    new_position = player.index + distance
+    valid = valid && !state.occupied_by_other_player?(state.fields[new_position])
+    case state.fields[new_position].type
       when FieldType::INVALID
         valid = false
-      when FielType::SALAD
-        valid = valid && player.getSalads() > 0
+      when FieldType::SALAD
+        valid = valid && player.salads > 0
       when FieldType::HARE
-        GameState state2 = null
         state2 = state.clone()
-        state2.setLastAction(new Advance(distance))
-        state2.getCurrentPlayer().setFieldIndex(newPosition)
-        state2.getCurrentPlayer().changeCarrotsBy(-requiredCarrots)
-        valid = valid && canPlayAnyCard(state2)
+        state2.set_last_action(Advance.new(distance))
+        state2.current_player.index = new_position
+        state2.current_player.carrots -= required_carrots
+        valid = valid && can_play_any_card(state2)
       when FieldType::GOAL
-        int carrotsLeft = player.getCarrots() - requiredCarrots
+        carrotsLeft = player.carrots - required_carrots
         valid = valid && carrotsLeft <= 10
-        valid = valid && player.getSalads() == 0
+        valid = valid && player.salads == 0
       when FieldType::HEDGEHOG
         valid = false
       when FieldType::CARROT, FieldType::POSITION_1, FieldType::START, FieldType::POSITION_2
         # do nothing
       else
-        raise "Unknown Type " + type
+        raise "Unknown Type #{state.fields[new_position].type.inspect}"
     end
     return valid
   end
@@ -93,7 +87,7 @@ class GameRules
   # @param state GameState
   # @return true, falls ein Zug möglich ist.
   def self.canDoAnything(state)
-    return canPlayAnyCard(state) || isValidToFallBack(state) ||
+    return can_play_any_card(state) || isValidToFallBack(state) ||
            isValidToExchangeCarrots(state, 10) ||
            isValidToExchangeCarrots(state, -10) ||
            isValidToEat(state) || canAdvanceToAnyField(state)
@@ -138,18 +132,18 @@ class GameRules
     player = state.current_player
     type = state.board.field(player.index).type
 
-    return true if (type == FieldType.HEDGEHOG || type == FieldType.START)
+    return true if (type == FieldType::HEDGEHOG || type == FieldType::START)
 
-    lastAction = state.getLastNonSkipAction(player)
+    last_action = state.current_player.last_non_skip_action
 
-    if (lastAction != null)
-      if (lastAction instanceof EatSalad)
+    if (!last_action.nil?)
+      if (last_action.kind_of? EatSalad)
         return true
-      elsif (lastAction instanceof Card)
+      elsif (last_action.kind_of? Card)
         # the player has to leave a rabbit field in next turn
-        if ((lastAction).getType() == CardType.EAT_SALAD)
+        if (last_action.type == CardType::EAT_SALAD)
           return true
-        elsif ((lastAction).getType() == CardType.TAKE_OR_DROP_CARROTS) # the player has to leave the rabbit field
+        elsif (last_action.type == CardType::TAKE_OR_DROP_CARROTS) # the player has to leave the rabbit field
           return true
         end
       end
@@ -205,7 +199,7 @@ class GameRules
         state2 = state.clone()
         state2.setLastAction(new Card(CardType.HURRY_AHEAD))
         state2.getCurrentPlayer().setCards(player.getCardsWithout(CardType.FALL_BACK))
-        valid = valid && canPlayAnyCard(state2)
+        valid = valid && can_play_any_card(state2)
       when FieldType::START
       when FieldType::CARROT
       when FieldType::POSITION_1
@@ -239,7 +233,7 @@ class GameRules
         state2 = state.clone()
         state2.setLastAction(new Card(CardType.HURRY_AHEAD))
         state2.getCurrentPlayer().setCards(player.getCardsWithout(CardType.HURRY_AHEAD))
-        valid = valid && canPlayAnyCard(state2)
+        valid = valid && can_play_any_card(state2)
       when FieldType::GOAL
         valid = valid && canEnterGoal(state)
       when FieldType::CARROT
@@ -257,9 +251,11 @@ class GameRules
   # @param state GameState
   # @param n 20 für nehmen, -20 für abgeben, 0 für nichts tun
   # @return true, falls die <code>TAKE_OR_DROP_CARROTS</code> Karte gespielt werden darf
-  def self.isValidToPlayTakeOrDropCarrots(state, n)
-    player = state.getCurrentPlayer()
-    valid = !playerMustAdvance(state) && state.isOnRabbitField() && player.ownsCardOfTyp(CardType::TAKE_OR_DROP_CARROTS)
+  def self.is_valid_to_play_take_or_drop_carrots(state, n)
+    player = state.current_player
+    valid = !player_must_advance(state) &&
+        state.current_field.type == FieldType::HARE &&
+        player.owns_card_of_type(CardType::TAKE_OR_DROP_CARROTS)
     valid = valid && (n == 20 || n == -20 || n == 0)
     if (n < 0)
       valid = valid && ((player.getCarrots() + n) >= 0)
@@ -272,18 +268,21 @@ class GameRules
   # @return true, falls die <code>EAT_SALAD</code> Karte gespielt werden darf
   def self.is_valid_to_play_eat_salad(state)
     player = state.current_player
-    return !player_must_advance(state) && state.is_on_rabbit_field && player.owns_card_of_type(CardType::EAT_SALAD) && player.salads > 0
+    !player_must_advance(state) &&
+        state.current_field.type == FieldType::HARE &&
+        player.owns_card_of_type(CardType::EAT_SALAD) &&
+        player.salads > 0
   end
 
   # Überprüft ob der derzeitige Spieler irgendeine Karte spielen kann.
   # TAKE_OR_DROP_CARROTS wird nur mit 20 überprüft
   # @param state GameState
   # @return true, falls das Spielen einer Karte möglich ist
-  def self.canPlayAnyCard(state)
+  def self.can_play_any_card(state)
     valid = false
-    player = state.getCurrentPlayer()
+    player = state.current_player
 
-    player.getCards.each do |card|
+    player.cards.each do |card|
       case card
         when CardType::EAT_SALAD
           valid = valid || isValidToPlayEatSalad(state)
@@ -292,7 +291,7 @@ class GameRules
         when CardType::HURRY_AHEAD
           valid = valid || isValidToPlayHurryAhead(state)
         when CardType::TAKE_OR_DROP_CARROTS
-          valid = valid || isValidToPlayTakeOrDropCarrots(state, 20)
+          valid = valid || is_valid_to_play_take_or_drop_carrots(state, 20)
         else
           raise "Unknown CardType " + card
       end
@@ -315,7 +314,7 @@ class GameRules
       when CardType::HURRY_AHEAD
         valid = isValidToPlayHurryAhead(state)
       when CardType::TAKE_OR_DROP_CARROTS
-        valid = isValidToPlayTakeOrDropCarrots(state, n)
+        valid = is_valid_to_play_take_or_drop_carrots(state, n)
       else
         raise "Unknown CardType " + c
     end

@@ -26,9 +26,9 @@ class GameState
   # @!attribute [rw] board
   # @return [Board] the game's board
   attr_accessor :board
-  # @!attribute [rw] lastMove
-  # @return [Move] the last move, that was made
-  attr_accessor :lastMove
+  # @!attribute [rw] last_move
+  # @return [Move] the last move performed
+  attr_accessor :last_move
   # @!attribute [rw] condition
   # @return [Condition] the winner and winning reason
   attr_accessor :condition
@@ -36,6 +36,9 @@ class GameState
   # @return [Boolean] true if the current player has to play a card
   attr_accessor :has_to_play_card
   alias has_to_play_card? has_to_play_card
+
+  extend Forwardable
+  def_delegators :@board, :fields
 
   def initialize
     @current_player_color = PlayerColor::RED
@@ -134,7 +137,14 @@ class GameState
 
   def get_previous_field_by_type(type, index)
     return nil if index < 1
+    return nil if index >= board.fields.size
     board.fields.slice(0..(index - 1)).reverse.find { |f| f.type == type }
+  end
+
+  def get_next_field_by_type(type, index)
+    return nil if index >= board.fields.size
+    return nil if index < 0
+    board.fields.slice((index + 1)..(board.fields.size - 1)).find {|f| f.type == type}
   end
 
   # Compared with other state.
@@ -154,5 +164,22 @@ class GameState
   # changing the original gamestate.
   def deep_clone
     Marshal.load(Marshal.dump(self))
+  end
+
+  def set_last_action(action)
+    return if action.kind_of? Skip
+    current_player.last_non_skip_action = action
+  end
+
+  def current_field
+    fields[current_player.index]
+  end
+
+  def is_first(player)
+    if PlayerColor.opponentColor(player.color) == PlayerColor::RED
+      player.index > red.index
+    else
+      player.index > blue.index
+    end
   end
 end
