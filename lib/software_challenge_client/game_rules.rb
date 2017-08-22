@@ -21,12 +21,10 @@ class GameRules
   #
   # @param carrots maximal ausgegebene Karotten
   # @return Felder um die maximal bewegt werden kann
-  def self.calculateMoveableFields(carrots)
-    moves = 0
-    while (calculate_carrots(moves) <= carrots)
-      moves += 1
-    end
-    return moves - 1
+  def self.calculate_movable_fields(carrots)
+    return 44 if carrots >= 990
+    return 0 if carrots < 1
+    (sqrt(2.0 * carrots + 0.25) - 0.48).round # -0.48 anstelle von -0.5 um Rundungsfehler zu vermeiden
   end
 
   # Überprüft <code>Advance</code> Aktionen auf ihre Korrektheit. Folgende
@@ -90,14 +88,14 @@ class GameRules
     return can_play_any_card(state) || isValidToFallBack(state) ||
            isValidToExchangeCarrots(state, 10) ||
            isValidToExchangeCarrots(state, -10) ||
-           isValidToEat(state) || canAdvanceToAnyField(state)
+           is_valid_to_eat(state) || canAdvanceToAnyField(state)
   end
 
   # Überprüft ob der derzeitige Spieler zu irgendeinem Feld einen Vorwärtszug machen kann.
   # @param state GameState
   # @return true, falls der Spieler irgendeinen Vorwärtszug machen kann
   def self.canAdvanceToAnyField(state)
-    fields = calculateMoveableFields(state.getCurrentPlayer().getCarrots())
+    fields = calculate_movable_fields(state.getCurrentPlayer().getCarrots())
     (0..fields).to_a.each do |i|
       return true if isValidToAdvance(state, i)
     end
@@ -113,16 +111,10 @@ class GameRules
   #
   # @param state GameState
   # @return true, falls ein Salad gegessen werden darf
-  def self.isValidToEat(state)
-    player = state.getCurrentPlayer()
-    valid = true
-    currentField = state.getTypeAt(player.getFieldIndex())
-
-    valid = valid && (currentField.equals(FieldType.SALAD))
-    valid = valid && (player.getSalads() > 0)
-    valid = valid && !playerMustAdvance(state)
-
-    return valid
+  def self.is_valid_to_eat(state)
+    state.current_field.type == FieldType::SALAD &&
+        state.current_player.salads > 0 &&
+        !player_must_advance(state)
   end
 
   # Überprüft ab der derzeitige Spieler im nächsten Zug einen Vorwärtszug machen muss.
@@ -233,7 +225,7 @@ class GameRules
         state2.current_player.cards.delete(CardType.HURRY_AHEAD)
         valid = valid && can_play_any_card(state2)
       when FieldType::GOAL
-        valid = valid && canEnterGoal(state)
+        valid = valid && can_enter_goal(state)
       when FieldType::CARROT
       when FieldType::POSITION_1
       when FieldType::POSITION_2
@@ -283,7 +275,7 @@ class GameRules
     player.cards.each do |card|
       case card
         when CardType::EAT_SALAD
-          valid = valid || isValidToPlayEatSalad(state)
+          valid = valid || is_valid_to_play_eat_salad(state)
         when CardType::FALL_BACK
           valid = valid || is_valid_to_play_fall_back(state)
         when CardType::HURRY_AHEAD
@@ -302,7 +294,7 @@ class GameRules
   # @param c Karte die gespielt werden soll
   # @param n Parameter mit dem TAKE_OR_DROP_CARROTS überprüft wird
   # @return true, falls das Spielen der entsprechenden karte möglich ist
-  def self.isValidToPlayCard(state, c, n)
+  def self.is_valid_to_play_card(state, c, n)
     valid
     case c
       when CardType::EAT_SALAD
@@ -339,11 +331,11 @@ class GameRules
   # TODO difference isValidToPlayCard
   # @param state
   # @return
-  def self.canPlayCard(state)
+  def self.can_play_card(state)
     player = state.getCurrentPlayer()
     canPlayCard = state.getTypeAt(player.getFieldIndex()).equals(FieldType.HARE)
     player.getCards().each do |card|
-      canPlayCard = canPlayCard || isValidToPlayCard(state, card, 0)
+      canPlayCard = canPlayCard || is_valid_to_play_card(state, card, 0)
     end
     return canPlayCard
   end
@@ -351,29 +343,29 @@ class GameRules
   # TODO difference isVAlidTOMove
   # @param state
   # @return
-  def self.canMove(state)
-    canMove = false
-    maxDistance = GameRules.calculateMoveableFields(state.getCurrentPlayer().getCarrots())
-    (1..maxDistance).to_a.each do |i|
-      canMove = canMove || isValidToAdvance(state, i)
+  def self.can_move(state)
+    can_move = false
+    max_distance = GameRules.calculate_movable_fields(state.getCurrentPlayer().getCarrots())
+    (1..max_distance).to_a.each do |i|
+      can_move = can_move || isValidToAdvance(state, i)
     end
-    return canMove
+    return can_move
   end
 
   # Überprüft ob eine Karte gespielt werden muss. Sollte nach einem
   # Zug eines Spielers immer false sein, ansonsten ist Zug ungültig.
   # @param state derzeitiger GameState
-  def self.mustPlayCard(state)
-    return state.getCurrentPlayer().mustPlayCard()
+  def self.must_play_card(state)
+    state.current_player.must_play_card
   end
 
 
   # Überprüft ob ein der derzeitige Spieler das Ziel betreten darf
   # @param state GameState
   # @return
-  def self.canEnterGoal(state)
-    player = state.getCurrentPlayer()
-    return player.getCarrots() <= 10 && player.getSalads() == 0
+  def self.can_enter_goal(state)
+    player = state.current_player
+    player.carrots <= 10 && player.salads == 0
   end
 
 end
