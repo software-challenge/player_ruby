@@ -24,7 +24,7 @@ class GameRules
   def self.calculate_movable_fields(carrots)
     return 44 if carrots >= 990
     return 0 if carrots < 1
-    (sqrt(2.0 * carrots + 0.25) - 0.48).round # -0.48 anstelle von -0.5 um Rundungsfehler zu vermeiden
+    (Math.sqrt(2 * c + 1/4) - 1/2).round
   end
 
   # Überprüft <code>Advance</code> Aktionen auf ihre Korrektheit. Folgende
