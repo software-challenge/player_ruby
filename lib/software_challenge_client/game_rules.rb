@@ -22,9 +22,9 @@ class GameRules
   # @param carrots maximal ausgegebene Karotten
   # @return Felder um die maximal bewegt werden kann
   def self.calculate_movable_fields(carrots)
-    return 44 if carrots >= 990
+    return 64 if carrots >= 2080
     return 0 if carrots < 1
-    (Math.sqrt(2 * c + 1/4) - 1/2).round
+    (Math.sqrt(2 * carrots + 1/4) - 1/2).round
   end
 
   # Überprüft <code>Advance</code> Aktionen auf ihre Korrektheit. Folgende

@@ -93,6 +93,13 @@ RSpec.describe GameRules do
         is_expected.to not_be_valid_to(:eat, gamestate)
       end
     end
+  end
 
+  context 'calculation of required carrots' do
+    it 'is the inverse of calculation of movable fields' do
+      (1..64).to_a.each do |m|
+        expect(GameRules.calculate_movable_fields(GameRules.calculate_carrots(m))).to eq(m)
+      end
+    end
   end
 end
