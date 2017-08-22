@@ -13,7 +13,7 @@ RSpec.describe Advance do
   let(:gamestate) { GameState.new }
 
   context 'when a player is on start field' do
-    before { state_from_string!('r0 C C C C C C C C C C C C G', gamestate) }
+    before { state_from_string!('r0 C C C bC C C C C C C C C G', gamestate) }
 
     it 'should be valid to advance' do
       expect {
@@ -62,16 +62,22 @@ RSpec.describe Advance do
       }.not_to raise_error
     end
 
-    it 'should be valid to play the fall back card' do
-      expect {
-        Card.new(CardType::FALL_BACK, 0).perform!(gamestate)
-      }.not_to raise_error
+    context 'when a player is first' do
+      before {state_from_string!('0 C bC C rH C C C C C C C C G', gamestate)}
+      it 'should be valid to play the fall back card' do
+        expect {
+          Card.new(CardType::FALL_BACK, 0).perform!(gamestate)
+        }.not_to raise_error
+      end
     end
 
-    it 'should be valid to play the hurry ahead card' do
-      expect {
-        Card.new(CardType::HURRY_AHEAD, 0).perform!(gamestate)
-      }.not_to raise_error
+    context 'when a player is second' do
+      before {state_from_string!('0 C C rH C C C bC C C C C C G', gamestate)}
+      it 'should be valid to play the hurry ahead card' do
+        expect {
+          Card.new(CardType::HURRY_AHEAD, 0).perform!(gamestate)
+        }.not_to raise_error
+      end
     end
   end
 end

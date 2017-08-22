@@ -98,9 +98,17 @@ class Card < Action
           gamestate.current_player.carrots += 20
         end
       when CardType::FALL_BACK
-        raise "TODO"
+        invalid("Das Ausspielen der FALL_BACK Karte ist nicht möglich.") unless GameRules.is_valid_to_play_fall_back(gamestate)
+        gamestate.current_player.index = gamestate.other_player.index - 1
+        if gamestate.fields[gamestate.current_player.index].type == FieldType::HARE
+          gamestate.current_player.must_play_card = true
+        end
       when CardType::HURRY_AHEAD
-        raise "TODO"
+        invalid("Das Ausspielen der HURRY_AHEAD Karte ist nicht möglich.") unless GameRules.is_valid_to_play_hurry_ahead(gamestate)
+        gamestate.current_player.index = gamestate.other_player.index + 1
+        if gamestate.fields[gamestate.current_player.index].type == FieldType::HARE
+          gamestate.current_player.must_play_card = true
+        end
       when CardType::TAKE_OR_DROP_CARROTS
         invalid("Das Ausspielen der TAKE_OR_DROP_CARROTS Karte ist nicht möglich.") unless GameRules.is_valid_to_play_take_or_drop_carrots(gamestate, value)
         gamestate.current_player.carrots += value

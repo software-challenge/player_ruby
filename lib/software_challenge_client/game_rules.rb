@@ -13,7 +13,7 @@ class GameRules
    #
    # @param moveCount Anzahl der Felder, um die bewegt wird
    # @return Anzahl der benötigten Karotten
-  def self.calculateCarrots(moveCount)
+  def self.calculate_carrots(moveCount)
     (moveCount * (moveCount + 1)) / 2
   end
 
@@ -23,7 +23,7 @@ class GameRules
   # @return Felder um die maximal bewegt werden kann
   def self.calculateMoveableFields(carrots)
     moves = 0
-    while (calculateCarrots(moves) <= carrots)
+    while (calculate_carrots(moves) <= carrots)
       moves += 1
     end
     return moves - 1
@@ -46,18 +46,17 @@ class GameRules
     player = state.current_player
     return false if must_eat_salad(state)
     valid = true
-    requiredCarrots = GameRules.calculateCarrots(distance)
-    valid = valid && (requiredCarrots <= player.getCarrots())
+    required_carrots = GameRules.calculate_carrots(distance)
+    valid = valid && (required_carrots <= player.carrots)
 
     new_position = player.index + distance
     valid = valid && !state.occupied_by_other_player?(state.fields[new_position])
     case state.fields[new_position].type
       when FieldType::INVALID
         valid = false
-      when FielType::SALAD
-        valid = valid && player.getSalads() > 0
+      when FieldType::SALAD
+        valid = valid && player.salads > 0
       when FieldType::HARE
-        GameState state2 = null
         state2 = state.clone()
         state2.set_last_action(Advance.new(distance))
         state2.current_player.index = new_position
@@ -180,26 +179,24 @@ class GameRules
   # Überprüft ob der derzeitige Spieler die <code>FALL_BACK</code> Karte spielen darf.
   # @param state GameState
   # @return true, falls die <code>FALL_BACK</code> Karte gespielt werden darf
-  def self.isValidToPlayFallBack(state)
-    player = state.getCurrentPlayer()
-    valid = !playerMustAdvance(state) && state.isOnRabbitField() && state.isFirst(player)
+  def self.is_valid_to_play_fall_back(state)
+    player = state.current_player
+    valid = !player_must_advance(state) &&
+        state.current_field.type == FieldType::HARE &&
+        state.is_first(player) &&
+        player.owns_card_of_type(CardType::FALL_BACK)
 
-    valid = valid && player.ownsCardOfTyp(CardType.FALL_BACK)
+    next_pos = state.other_player.index - 1
 
-    o = state.getOpponent(player)
-    nextPos = o.getFieldIndex() - 1
-
-    type = state.getTypeAt(nextPos)
-    case type
+    case state.fields[next_pos].type
       when FieldType::INVALID, FieldType::HEDGEHOG
         valid = false
       when FieldType::SALAD
-        valid = valid && player.getSalads() > 0
+        valid = valid && player.salads > 0
       when FieldType::HARE
-        state2 = null
         state2 = state.clone()
-        state2.setLastAction(new Card(CardType.HURRY_AHEAD))
-        state2.getCurrentPlayer().setCards(player.getCardsWithout(CardType.FALL_BACK))
+        state2.set_last_action(new Card(CardType::HURRY_AHEAD))
+        state2.current_player.delete(CardType::FALL_BACK)
         valid = valid && can_play_any_card(state2)
       when FieldType::START
       when FieldType::CARROT
@@ -207,7 +204,7 @@ class GameRules
       when FieldType::POSITION_2
         # do nothing
       else
-        raise "Unknown Type " + type
+        raise "Unknown Type #{state.fields[next_pos].type.inspect}"
     end
     return valid
   end
@@ -215,25 +212,25 @@ class GameRules
   # Überprüft ob der derzeitige Spieler die <code>HURRY_AHEAD</code> Karte spielen darf.
   # @param state GameState
   # @return true, falls die <code>HURRY_AHEAD</code> Karte gespielt werden darf
-  def self.isValidToPlayHurryAhead(state)
-    player = state.getCurrentPlayer()
-    valid = !playerMustAdvance(state) && state.isOnRabbitField() && !state.isFirst(player)
-    valid = valid && player.ownsCardOfTyp(CardType.HURRY_AHEAD)
+  def self.is_valid_to_play_hurry_ahead(state)
+    player = state.current_player
+    valid = !player_must_advance(state) &&
+      state.current_field.type == FieldType::HARE &&
+      state.is_second(player) &&
+      player.owns_card_of_type(CardType::HURRY_AHEAD)
 
-    Player o = state.getOpponent(player)
-    nextPos = o.getFieldIndex() + 1
+    o = state.other_player
+    next_pos = o.index + 1
 
-    type = state.getTypeAt(nextPos)
-    case type
+    case state.fields[next_pos].type
       when FieldType::INVALID, FieldType::HEDGEHOG
         valid = false
       when FieldType::SALAD
-        valid = valid && player.getSalads() > 0
+        valid = valid && player.salads > 0
       when FieldType::HARE
-        state2 = null
         state2 = state.clone()
-        state2.setLastAction(new Card(CardType.HURRY_AHEAD))
-        state2.getCurrentPlayer().setCards(player.getCardsWithout(CardType.HURRY_AHEAD))
+        state2.set_last_action(new Card(CardType.HURRY_AHEAD))
+        state2.current_player.cards.delete(CardType.HURRY_AHEAD)
         valid = valid && can_play_any_card(state2)
       when FieldType::GOAL
         valid = valid && canEnterGoal(state)
@@ -243,7 +240,7 @@ class GameRules
       when FieldType::START
         # do nothing
       else
-        raise "Unknown Type " + type
+        raise "Unknown Type #{state.fields[next_pos].type.inspect}"
     end
     return valid
   end
@@ -288,9 +285,9 @@ class GameRules
         when CardType::EAT_SALAD
           valid = valid || isValidToPlayEatSalad(state)
         when CardType::FALL_BACK
-          valid = valid || isValidToPlayFallBack(state)
+          valid = valid || is_valid_to_play_fall_back(state)
         when CardType::HURRY_AHEAD
-          valid = valid || isValidToPlayHurryAhead(state)
+          valid = valid || is_valid_to_play_hurry_ahead(state)
         when CardType::TAKE_OR_DROP_CARROTS
           valid = valid || is_valid_to_play_take_or_drop_carrots(state, 20)
         else
@@ -311,9 +308,9 @@ class GameRules
       when CardType::EAT_SALAD
         valid = isValidToPlayEatSalad(state)
       when CardType::FALL_BACK
-        valid = isValidToPlayFallBack(state)
+        valid = is_valid_to_play_fall_back(state)
       when CardType::HURRY_AHEAD
-        valid = isValidToPlayHurryAhead(state)
+        valid = is_valid_to_play_hurry_ahead(state)
       when CardType::TAKE_OR_DROP_CARROTS
         valid = is_valid_to_play_take_or_drop_carrots(state, n)
       else

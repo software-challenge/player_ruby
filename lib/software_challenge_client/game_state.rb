@@ -182,4 +182,8 @@ class GameState
       player.index > blue.index
     end
   end
+
+  def is_second(player)
+    !is_first(player)
+  end
 end
