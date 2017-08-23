@@ -4,6 +4,8 @@
 # actions are inherited from this Action class which should be considered
 # abstract/interface.
 class Action
+  attr_accessor :order
+
   # @return [ActionType] Type of the action.
   def type
     raise 'must be overridden'
@@ -35,6 +37,7 @@ class Advance < Action
 
   def initialize(distance)
     @distance = distance
+    @order = 0
   end
 
   # Perform the action.
@@ -43,21 +46,14 @@ class Advance < Action
   # performed. Performing may change the game state. The action is performed for
   # the current player of the game state.
   def perform!(gamestate)
-    check_validity(gamestate)
+    valid, message = GameRules.is_valid_to_advance(gamestate, distance)
+    invalid(message) unless valid
     # perform state changes
     required_carrots = distance * (distance + 1) / 2
     gamestate.current_player.carrots -= required_carrots
     gamestate.current_player.index += distance
-  end
-
-  def check_validity(gamestate)
-    player = gamestate.current_player
-    required_carrots = distance * (distance + 1) / 2
-    if required_carrots > player.carrots
-      invalid("Nicht genug Karotten für Vorwärtszug um #{distance} Felder.")
-    end
-    if gamestate.board.field(player.index + distance).type == FieldType::INVALID
-      invalid("Zielfeld Vorwärtszug um #{distance} Felder ist nicht vorhanden (das Spielfeld ist nicht gross genug).")
+    if gamestate.current_field.type == FieldType::HARE
+      gamestate.current_player.must_play_card = true
     end
   end
 
@@ -90,7 +86,8 @@ class Card < Action
     gamestate.current_player.must_play_card = false
     case card_type
       when CardType::EAT_SALAD
-        invalid("Das Ausspielen der EAT_SALAD Karte ist nicht möglich.") unless GameRules.is_valid_to_play_eat_salad(gamestate)
+        valid, message = GameRules.is_valid_to_play_eat_salad(gamestate)
+        invalid("Das Ausspielen der EAT_SALAD Karte ist nicht möglich. " + message) unless valid
         gamestate.current_player.salads -= 1
         if gamestate.is_first(gamestate.current_player)
           gamestate.current_player.carrots += 10
@@ -98,19 +95,22 @@ class Card < Action
           gamestate.current_player.carrots += 20
         end
       when CardType::FALL_BACK
-        invalid("Das Ausspielen der FALL_BACK Karte ist nicht möglich.") unless GameRules.is_valid_to_play_fall_back(gamestate)
+        valid, message = GameRules.is_valid_to_play_fall_back(gamestate)
+        invalid("Das Ausspielen der FALL_BACK Karte ist nicht möglich. " + message) unless valid
         gamestate.current_player.index = gamestate.other_player.index - 1
-        if gamestate.fields[gamestate.current_player.index].type == FieldType::HARE
+        if gamestate.field(gamestate.current_player.index).type == FieldType::HARE
           gamestate.current_player.must_play_card = true
         end
       when CardType::HURRY_AHEAD
-        invalid("Das Ausspielen der HURRY_AHEAD Karte ist nicht möglich.") unless GameRules.is_valid_to_play_hurry_ahead(gamestate)
+        valid, message = GameRules.is_valid_to_play_hurry_ahead(gamestate)
+        invalid("Das Ausspielen der HURRY_AHEAD Karte ist nicht möglich. " + message) unless valid
         gamestate.current_player.index = gamestate.other_player.index + 1
-        if gamestate.fields[gamestate.current_player.index].type == FieldType::HARE
+        if gamestate.field(gamestate.current_player.index).type == FieldType::HARE
           gamestate.current_player.must_play_card = true
         end
       when CardType::TAKE_OR_DROP_CARROTS
-        invalid("Das Ausspielen der TAKE_OR_DROP_CARROTS Karte ist nicht möglich.") unless GameRules.is_valid_to_play_take_or_drop_carrots(gamestate, value)
+        valid, message = GameRules.is_valid_to_play_take_or_drop_carrots(gamestate, value)
+        invalid("Das Ausspielen der TAKE_OR_DROP_CARROTS Karte ist nicht möglich. " + message) unless valid
         gamestate.current_player.carrots += value
       else
         raise "Unknown card type #{card_type.inspect}!"
@@ -136,6 +136,14 @@ class Skip < Action
     # skip should only be first and only action
     @order = 0
   end
+
+  def type
+    :skip
+  end
+
+  def ==(other)
+    other.type == type && other.order == order
+  end
 end
 
 # Eine Salatessen-Aktion. Kann nur auf einem Salatfeld ausgeführt werden. Muss ausgeführt werden,
@@ -146,5 +154,13 @@ end
 class EatSalad < Action
   def initialize(order = 0)
     @order = order
+  end
+
+  def type
+    :eat_salad
+  end
+
+  def ==(other)
+    other.type == type && other.order == order
   end
 end

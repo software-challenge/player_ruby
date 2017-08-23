@@ -11,7 +11,7 @@ class PlayerColor < TypesafeEnum::Base
   #
   # @param color [PlayerColor] The player's color, whose opponent needs to be found
   # @return [PlayerColor] the opponent's color
-  def self.opponentColor(color)
+  def self.opponent_color(color)
     if color == PlayerColor::RED
       return PlayerColor::BLUE
     end

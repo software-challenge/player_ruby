@@ -34,29 +34,8 @@ module GameStateHelpers
                 "multiple types for field ##{index}: '#{field}'"
         end
       end
-      type = nil
-      case field[0]
-        when '1'
-          type = FieldType::POSITION_1
-        when '2'
-          type = FieldType::POSITION_2
-        when 'I'
-          type = FieldType::HEDGEHOG
-        when 'S'
-          type = FieldType::SALAD
-        when 'C'
-          type = FieldType::CARROT
-        when 'H'
-          type = FieldType::HARE
-        when 'X'
-          type = FieldType::INVALID
-        when 'G'
-          type = FieldType::GOAL
-        when '0'
-          type = FieldType::START
-        else
-          raise BoardFormatError, "unexpected field type '#{c}' at ##{index}"
-      end
+      type = FieldType.find_by_value(field[0])
+      raise BoardFormatError, "unexpected field type '#{c}' at ##{index}" if type.nil?
       board.add_field(Field.new(type, index))
     end
     gamestate.board = board

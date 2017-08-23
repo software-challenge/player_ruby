@@ -6,92 +6,57 @@ RSpec.describe Move do
 
   include GameStateHelpers
 
-  before { pending 'migrate to hase und igel' }
-
   subject(:move) { described_class.new }
 
   it 'should accept actions to be added' do
-    move.add_action(Acceleration.new(3))
+    move.add_action(Advance.new(3))
     expect(move.actions.size).to eq(1)
   end
 
   it 'should be equal to a move with the same actions' do
     other = described_class.new
-    other.add_action(Acceleration.new(2))
-    other.add_action(Turn.new(1))
-    other.add_action(Advance.new(3))
-    other.add_action(Push.new(-1))
+    other.add_action(Advance.new(2))
+    other.add_action(Card.new(CardType::EAT_SALAD))
+    other.add_action(Skip.new)
+    other.add_action(EatSalad.new)
     other.add_hint(DebugHint.new('hint'))
-    move.add_action(Acceleration.new(2))
-    move.add_action(Turn.new(1))
-    move.add_action(Advance.new(3))
-    move.add_action(Push.new(-1))
+    move.add_action(Advance.new(2))
+    move.add_action(Card.new(CardType::EAT_SALAD))
+    move.add_action(Skip.new)
+    move.add_action(EatSalad.new)
+    move.add_hint(DebugHint.new('hint'))
     expect(move).to eq(other)
   end
 
-  context 'moving onto a sandbank' do
+  context 'moving forward' do
 
     let(:gamestate) { GameState.new }
+    let(:move) { Move.new }
 
     before do
-      text = <<-BOARD
-      .W.W.W.W...
-      ..b.W.S.W..
-      ...W.W.W.W.
-      ..r.W.W.W..
-      .W.W.W.W...
-      BOARD
-      state_from_string!(-2, -2, text, gamestate)
+      state_from_string!('b0 C C C rS C C C C I H G', gamestate)
     end
 
-    it 'is only allowed as last action' do
-      gamestate.current_player_color = PlayerColor::BLUE
-      move.add_action(Acceleration.new(2))
-      move.add_action(Advance.new(3))
+    it 'reduces the number of carrots' do
+      move.add_action(Advance.new(4))
       expect {
-        move.perform!(gamestate, gamestate.current_player)
-      }.to raise_error(InvalidMoveException)
-      move = Move.new
-      move.add_action(Acceleration.new(2))
-      move.add_action(Advance.new(2))
-      expect {
-        move.perform!(gamestate, gamestate.current_player)
-      }.not_to raise_error
-    end
-  end
-
-  context 'accelerating' do
-
-    let(:gamestate) { state_with_player_field(Player.new(PlayerColor::RED, '')) }
-
-    it 'should increase movement and velocity' do
-      move.add_action(Acceleration.new(1))
-      move.add_action(Acceleration.new(1))
-      expect {
-        move.perform!(gamestate, gamestate.current_player)
-      }.to change(gamestate.current_player, :velocity).by(2)
-       .and change(gamestate.current_player, :movement).by(2)
+        move.perform!(gamestate)
+      }.to change{gamestate.current_player.carrots}.by(-10)
     end
 
-    it 'is only allowed as first action in move' do
-      text = <<-BOARD
-      .W.W.W.W...
-      ..b.W.W.W..
-      ...W.W.W.W.
-      ..r.W.W.W..
-      .W.W.W.W...
-      BOARD
-      state_from_string!(-2, -2, text, gamestate)
-      move.add_action(Acceleration.new(1))
-      move.add_action(Acceleration.new(1))
-      move.add_action(Advance.new(1))
+    it 'is not allowed onto hedgehog fields' do
+      move.add_action(Advance.new(5))
       expect {
-        move.perform!(gamestate, gamestate.current_player)
-      }.not_to raise_error
-      move.add_action(Acceleration.new(1))
+        move.perform!(gamestate)
+      }.to raise_error InvalidMoveException, /Auf ein Igelfeld darf nicht vorwärts gezogen werden./
+    end
+
+    it 'is not allowed onto hare field without playing a card' do
+      move.add_action(Advance.new(6))
       expect {
-        move.perform!(gamestate, gamestate.current_player)
+        move.perform!(gamestate)
       }.to raise_error(InvalidMoveException)
     end
   end
+
 end

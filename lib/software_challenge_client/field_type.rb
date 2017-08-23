@@ -5,20 +5,20 @@ require 'typesafe_enum'
 # Felder 1,2 vor. Die Positionsfelder 3 und 4 wurden in Möhrenfelder
 # umgewandelt, und (1,5,6) sind jetzt Position-1-Felder.
 class FieldType < TypesafeEnum::Base
-  new :POSITION_1
-  new :POSITION_2
+  new :POSITION_1, '1'
+  new :POSITION_2, '2'
   # Igelfeld
-  new :HEDGEHOG
+  new :HEDGEHOG, 'I'
   # Salatfeld
-  new :SALAD
+  new :SALAD, 'S'
   # Karottenfeld
-  new :CARROT
+  new :CARROT, 'C'
   # Hasenfeld
-  new :HARE
+  new :HARE, 'H'
   # außerhalb des Spielfeldes
-  new :INVALID
+  new :INVALID, 'X'
   # Zielfeld
-  new :GOAL
+  new :GOAL, 'G'
   # Startfeld
-  new :START
+  new :START, '0'
 end

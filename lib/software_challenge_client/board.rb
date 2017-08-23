@@ -19,7 +19,7 @@ class Board
   end
 
   def to_s
-    fields.values.map { |f| f.type.key.to_s[0] }.join(' ')
+    fields.map { |f| f.type.value }.join(' ')
   end
 
   def ==(other)
@@ -30,7 +30,7 @@ class Board
   end
 
   def add_field(field)
-    fields[field.index] = field
+    @fields[field.index] = field
   end
 
   # Zugriff auf die Felder des Spielfeldes

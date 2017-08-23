@@ -43,7 +43,7 @@ RSpec.describe Advance do
       gamestate.current_player.carrots = 9999
       expect {
         Advance.new(14).perform!(gamestate)
-      }.to raise_error(InvalidMoveException, /Feld.+nicht vorhanden/)
+      }.to raise_error(InvalidMoveException, /Zielfeld.+nicht vorhanden/)
     end
   end
 

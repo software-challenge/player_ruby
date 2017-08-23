@@ -45,7 +45,29 @@ class Move
     @actions[index] = action
   end
 
-  def perform!(gamestate, current_player)
-    @actions.each { |a| a.perform!(gamestate, current_player) }
+  def perform!(gamestate)
+    raise InvalidMoveException.new(
+        "Zug enthält keine Aktionen (zum Aussetzen die Aktion Skip benutzen).",
+        self) if @actions.empty?
+    @actions.each_with_index do |action, index|
+      raise InvalidMoveException.new(
+        "order-Attribut falsch gesetzt (war #{action.order}, ist aber #{index}. Aktion im Zug).",
+        action) if action.order != index
+      action.perform!(gamestate)
+    end
+    raise InvalidMoveException.new(
+      'Es muss eine Karte gespielt werden.',
+      self) if gamestate.current_player.must_play_card
+    # change the state to the next turn
+    gamestate.last_move = self
+    gamestate.turn += 1
+    gamestate.switch_current_player
+    # change carrots for next player if on first/second-position-field
+    if gamestate.current_field.type == FieldType::POSITION_1 && gamestate.is_first(gamestate.current_player)
+      gamestate.current_player.carrots += 10
+    end
+    if gamestate.current_field.type == FieldType::POSITION_2 && gamestate.is_second(gamestate.current_player)
+      gamestate.current_player.carrots += 30
+    end
   end
 end

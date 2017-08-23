@@ -9,7 +9,9 @@ RSpec::Matchers.define_negated_matcher :not_raise_error, :raise_error
 # matcher to make game rule specs nicer to read
 RSpec::Matchers.define :be_valid_to do |what, *args|
   match do |actual|
-    actual.send('is_valid_to_' + what.to_s, *args) == true
+    # TODO: when all is_valid_to_... methods return two values, simplify this:
+    valid, _message = actual.send('is_valid_to_' + what.to_s, *args)
+    valid
   end
 end
 RSpec::Matchers.define_negated_matcher :not_be_valid_to, :be_valid_to
@@ -95,9 +97,30 @@ RSpec.describe GameRules do
     end
   end
 
+  context 'when a player is on a carrot field' do
+    before do
+      state_from_string!('b0 C C C rC C C C C C C G', gamestate)
+    end
+
+    it 'is allowed to take 10 carrots' do
+      is_expected.to be_valid_to(:exchange_carrots, gamestate, 10)
+    end
+
+    it 'is allowed to put 10 carrots away' do
+      is_expected.to be_valid_to(:exchange_carrots, gamestate, -10)
+    end
+
+    it 'is not allowed to exchange other quantities of carrots' do
+      is_expected.to not_be_valid_to(:exchange_carrots, gamestate, 3)
+      is_expected.to not_be_valid_to(:exchange_carrots, gamestate, -3)
+      is_expected.to not_be_valid_to(:exchange_carrots, gamestate, 42)
+      is_expected.to not_be_valid_to(:exchange_carrots, gamestate, 0)
+    end
+  end
+
   context 'calculation of required carrots' do
     it 'is the inverse of calculation of movable fields' do
-      (1..64).to_a.each do |m|
+      (1..44).to_a.each do |m|
         expect(GameRules.calculate_movable_fields(GameRules.calculate_carrots(m))).to eq(m)
       end
     end

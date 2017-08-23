@@ -38,13 +38,14 @@ class GameState
   alias has_to_play_card? has_to_play_card
 
   extend Forwardable
-  def_delegators :@board, :fields
+  def_delegators :@board, :field
 
   def initialize
     @current_player_color = PlayerColor::RED
     @start_player_color = PlayerColor::RED
     @board = Board.new
     @has_to_play_card = false
+    @turn = 0
   end
 
   # adds a player to the gamestate
@@ -172,11 +173,11 @@ class GameState
   end
 
   def current_field
-    fields[current_player.index]
+    field(current_player.index)
   end
 
   def is_first(player)
-    if PlayerColor.opponentColor(player.color) == PlayerColor::RED
+    if PlayerColor.opponent_color(player.color) == PlayerColor::RED
       player.index > red.index
     else
       player.index > blue.index
@@ -185,5 +186,9 @@ class GameState
 
   def is_second(player)
     !is_first(player)
+  end
+
+  def switch_current_player
+    current_player_color = other_player_color
   end
 end
