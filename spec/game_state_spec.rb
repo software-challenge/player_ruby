@@ -12,14 +12,14 @@ RSpec.describe GameState do
     state_from_string!('0 C Cr H bS I 2 1 G', gamestate)
   end
 
-  it 'should get the next field of type' do
+  it 'finds the next field of type' do
     expect(subject.next_field_of_type(FieldType::POSITION_1, 0)).to eq(subject.board.field(7))
     expect(subject.next_field_of_type(FieldType::HARE, 4)).to be_nil
     expect(subject.next_field_of_type(FieldType::GOAL, 8)).to be_nil
     expect(subject.next_field_of_type(FieldType::GOAL, 7)).to eq(subject.board.field(8))
   end
 
-  it 'should return nil for illegal index' do
+  it 'returns nil when searching for field with illegal index' do
     expect(subject.next_field_of_type(FieldType::POSITION_1, -1)).to be_nil
     expect(subject.next_field_of_type(FieldType::POSITION_1, 8)).to be_nil
     expect(subject.previous_field_of_type(FieldType::POSITION_1, -1)).to be_nil
@@ -27,7 +27,7 @@ RSpec.describe GameState do
     expect(subject.previous_field_of_type(FieldType::POSITION_1, 9)).to be_nil
   end
 
-  it 'should get the previous field of type' do
+  it 'finds the previous field of type' do
     expect(subject.previous_field_of_type(FieldType::HARE, 7)).to eq(subject.board.field(3))
   end
 
@@ -51,5 +51,15 @@ RSpec.describe GameState do
     Move.new([Advance.new(steps_to_next_carrot_field)]).perform!(gamestate)
     expect(gamestate.turn).to eq(1)
     expect(gamestate.round).to eq(0)
+  end
+
+  it 'chooses the current player based on current player color' do
+    expect(gamestate.current_player.color).to eq(gamestate.current_player_color)
+    gamestate.current_player_color = PlayerColor.opponent_color(gamestate.current_player_color)
+    expect(gamestate.current_player.color).to eq(gamestate.current_player_color)
+  end
+
+  it 'calculates all possible moves' do
+    expect(gamestate.possible_moves).to_not be_empty
   end
 end

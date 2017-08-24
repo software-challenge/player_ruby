@@ -155,6 +155,24 @@ class Protocol
     when 'left'
       logger.debug 'got left event, terminating'
       @network.disconnect
+    when 'lastNonSkipAction'
+      @context[:player].last_non_skip_action =
+        case attrs['class']
+        when 'advance'
+          Advance.new(attrs['distance'].to_i)
+        when 'card'
+          Card.new(CardType.find_by_key(attrs['type'].to_sym), attrs['value'].to_i)
+        when 'skip'
+          Skip.new
+        when 'eatSalad'
+          EatSalad.new
+        when 'fallBack'
+          FallBack.new
+        when 'exchangeCarrots'
+          ExchangeCarrots.new(attrs['value'].to_i)
+        else
+          raise "Unknown action type #{attrs['class']}"
+        end
     end
   end
 
@@ -189,6 +207,13 @@ class Protocol
     @network.sendString("<room roomId=\"#{@roomId}\">#{string}</room>")
   end
 
+  # converts "this_snake_case" to "thisSnakeCase"
+  def snake_case_to_lower_camel_case(string)
+    string.split('_').inject([]) do |result, e|
+      result + [result.empty? ? e : e.capitalize]
+    end.join
+  end
+
   # Converts a move to XML for sending to the server.
   #
   # @param move [Move] The move to convert to XML.
@@ -203,16 +228,18 @@ class Protocol
         attribute = case action.type
                     when :advance
                       { distance: action.distance }
-                    when :skip
+                    when :skip, :eat_salad, :fall_back
                       {}
                     when :card
-                      { type: action.card_type.key.to_s, value: action.value}
+                      { type: action.card_type.key.to_s, value: action.value }
+                    when :exchange_carrots
+                      { value: action.value }
                     else
                       raise "unknown action type: #{action.type.inspect}. "\
                             "Can't convert to XML!"
                     end
         attribute[:order] = index
-        data.tag!(action.type, attribute)
+        data.tag!(snake_case_to_lower_camel_case(action.type.to_s), attribute)
       end
     end
     move.hints.each do |hint|

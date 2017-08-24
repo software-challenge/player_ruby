@@ -15,7 +15,7 @@ RSpec.describe Protocol do
   end
 
   context 'when getting a new game state' do
-    it 'should update the game state' do
+    it 'updates the game state' do
       server_message <<-XML
         <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE">
         <red displayName="Spieler 1" color="RED" index="3" carrots="100" salads="2">
@@ -38,6 +38,7 @@ RSpec.describe Protocol do
       expect(subject.gamestate.turn).to eq(2)
       expect(subject.gamestate.start_player_color).to eq(PlayerColor::RED)
       expect(subject.gamestate.current_player_color).to eq(PlayerColor::BLUE)
+      expect(subject.gamestate.current_player).to_not be_nil
       expect(subject.gamestate.red.name).to eq('Spieler 1')
       expect(subject.gamestate.red.index).to eq(3)
       expect(subject.gamestate.red.carrots).to eq(100)
@@ -47,6 +48,7 @@ RSpec.describe Protocol do
                                                  CardType::EAT_SALAD,
                                                  CardType::HURRY_AHEAD,
                                                  CardType::TAKE_OR_DROP_CARROTS)
+      expect(subject.gamestate.red.last_non_skip_action).to eq(FallBack.new)
       expect(subject.gamestate.blue.name).to eq('Spieler 2')
       expect(subject.gamestate.blue.index).to eq(23)
       expect(subject.gamestate.blue.carrots).to eq(42)
@@ -54,9 +56,10 @@ RSpec.describe Protocol do
       expect(subject.gamestate.blue.cards).to contain_exactly(
                                                   CardType::FALL_BACK,
                                                   CardType::HURRY_AHEAD)
+      expect(subject.gamestate.blue.last_non_skip_action).to eq(ExchangeCarrots.new(10))
     end
 
-    it 'should update the last move, if it exists in the gamestate' do
+    it 'updates the last move, if it exists in the gamestate' do
       server_message <<-XML
         <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE">
         <lastMove>
@@ -80,11 +83,11 @@ RSpec.describe Protocol do
   end
 
   context 'when getting a winning condition from server' do
-    it 'should close the connection' do
+    it 'closes the connection' do
       expect(network).to receive(:disconnect)
       server_message '<data class="result" />'
     end
-    it 'should set the winning player' do
+    it 'sets the winning player' do
       expect(network).to receive(:disconnect)
       server_message <<-XML
         <data class="result">
@@ -129,7 +132,7 @@ RSpec.describe Protocol do
   end
 
   context 'when receiving a new board' do
-    it 'should create the new board in the gamestate' do
+    it 'creates the new board in the gamestate' do
       server_message <<-XML
         <board>
           <fields index="0" type="START" />
@@ -161,7 +164,7 @@ RSpec.describe Protocol do
     end
   end
 
-  it 'should convert a move to xml' do
+  it 'converts a move to xml' do
     move = Move.new
     move.add_action(Advance.new(2))
     move.add_action(Card.new(CardType::EAT_SALAD))
@@ -169,6 +172,9 @@ RSpec.describe Protocol do
     move.add_action(Card.new(CardType::HURRY_AHEAD))
     move.add_action(Card.new(CardType::TAKE_OR_DROP_CARROTS, 20))
     move.add_action(Skip.new)
+    move.add_action(EatSalad.new)
+    move.add_action(FallBack.new)
+    move.add_action(ExchangeCarrots.new(-10))
     # NOTE that this is brittle because XML formatting (whitespace, attribute
     # order) is arbitrary.
     expect(subject.move_to_xml(move)).to eq <<-XML
@@ -179,6 +185,9 @@ RSpec.describe Protocol do
   <card type="HURRY_AHEAD" value="0" order="3"/>
   <card type="TAKE_OR_DROP_CARROTS" value="20" order="4"/>
   <skip order="5"/>
+  <eatSalad order="6"/>
+  <fallBack order="7"/>
+  <exchangeCarrots value="-10" order="8"/>
 </data>
     XML
   end

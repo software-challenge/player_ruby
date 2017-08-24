@@ -127,9 +127,9 @@ class GameRules
     last_action = state.current_player.last_non_skip_action
 
     if (!last_action.nil?)
-      if (last_action.kind_of? EatSalad)
+      if (last_action.instance_of? EatSalad)
         return true
-      elsif (last_action.kind_of? Card)
+      elsif (last_action.instance_of? Card)
         # the player has to leave a rabbit field in next turn
         if (last_action.type == CardType::EAT_SALAD)
           return true
@@ -190,8 +190,8 @@ class GameRules
         return false, 'Spieler käme durch Spielen der FALL_BACK Kart auf ein Salatfeld, hat aber keine Salate.' if player.salads < 1
       when FieldType::HARE
         state2 = state.deep_clone
-        state2.set_last_action(new Card(CardType::HURRY_AHEAD))
-        state2.current_player.delete(CardType::FALL_BACK)
+        state2.set_last_action(Card.new(CardType::HURRY_AHEAD))
+        state2.current_player.cards.delete(CardType::FALL_BACK)
         return false, 'Spieler käme durch Spielen der FALL_BACK Kart auf ein Hasenfeld, kann aber dann keine weitere Karte mehr spielen.' unless can_play_any_card(state2)
       when FieldType::START
       when FieldType::CARROT
@@ -228,8 +228,8 @@ class GameRules
         return false, 'Spieler käme durch Spielen der HURRY_AHEAD Kart auf ein Salatfeld, hat aber keine Salate.' if player.salads < 1
       when FieldType::HARE
         state2 = state.deep_clone
-        state2.set_last_action(new Card(CardType::HURRY_AHEAD))
-        state2.current_player.delete(CardType::HURRY_AHEAD)
+        state2.set_last_action(Card.new(CardType::HURRY_AHEAD))
+        state2.current_player.cards.delete(CardType::HURRY_AHEAD)
         return false, 'Spieler käme durch Spielen der HURRY_AHEAD Kart auf ein Hasenfeld, kann aber dann keine weitere Karte mehr spielen.' unless can_play_any_card(state2)
       when FieldType::GOAL
         return false, 'Spieler käme durch Spielen der HURRY_AHEAD Kart ins Ziel, darf es aber nicht betreten (entweder noch Salate oder mehr als 10 Karotten).' unless can_enter_goal(state)
@@ -322,9 +322,9 @@ class GameRules
     # check whether player just moved to salad field and must eat salad
     field = state.board.field(player.index)
     if field.type == FieldType::SALAD
-      if player.last_non_skip_action&.is_a(Advance)
+      if player.last_non_skip_action&.instance_of?(Advance)
         return true
-      elsif player.last_non_skip_action&.is_a(Card)
+      elsif player.last_non_skip_action&.instance_of?(Card)
         card_action = player.last_non_skip_action
         if card_action.card_type == CardType::FALL_BACK ||
             card_action.card_type == CardType::HURRY_AHEAD

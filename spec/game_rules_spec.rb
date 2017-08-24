@@ -92,6 +92,10 @@ RSpec.describe GameRules do
       it 'is not allowed to eat another salad' do
         is_expected.to not_be_valid_to(:eat, gamestate)
       end
+
+      it 'is expected that he moves on' do
+        expect(GameRules.player_must_advance(gamestate)).to be true
+      end
     end
   end
 

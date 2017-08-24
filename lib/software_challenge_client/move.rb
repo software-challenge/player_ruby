@@ -49,10 +49,7 @@ class Move
     raise InvalidMoveException.new(
         "Zug enthält keine Aktionen (zum Aussetzen die Aktion Skip benutzen).",
         self) if @actions.empty?
-    @actions.each_with_index do |action, index|
-      raise InvalidMoveException.new(
-        "order-Attribut falsch gesetzt (war #{action.order}, ist aber #{index}. Aktion im Zug).",
-        action) if action.order != index
+    @actions.each do |action|
       action.perform!(gamestate)
     end
     raise InvalidMoveException.new(

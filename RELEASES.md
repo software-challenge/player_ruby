@@ -1,4 +1,10 @@
+= 1.0.0
+
+First version for game "Hase und Igel".
+
 = 0.3.4
+
+Last version for game "Mississippi Queen".
 
 - Renamed Turn#direction to Turn#turn_steps to make clearer that a number should be given, not a Direction instance.
 - Corrected generation of XML for Push-actions

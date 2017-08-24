@@ -37,8 +37,9 @@ class GameState
   attr_accessor :has_to_play_card
   alias has_to_play_card? has_to_play_card
 
-  extend Forwardable
-  def_delegators :@board, :field
+  def field(index)
+    board.field(index)
+  end
 
   def initialize
     @current_player_color = PlayerColor::RED
@@ -64,7 +65,7 @@ class GameState
   # @return [Player] the current player
   def current_player
     return red if current_player_color == PlayerColor::RED
-    return blue if current_player_color == PlayerColor::RED
+    return blue if current_player_color == PlayerColor::BLUE
   end
 
   # gets the other (not the current) player
@@ -125,7 +126,7 @@ class GameState
   # @param player [Player] the player, whos points to calculate
   # @return [Integer] the points of the player
   def points_for_player(player)
-    raise 'TODO'
+    player.index
   end
 
   # @return [Boolean] true if the given field is occupied by the other (not
@@ -180,7 +181,7 @@ class GameState
   end
 
   def set_last_action(action)
-    return if action.kind_of? Skip
+    return if action.instance_of? Skip
     current_player.last_non_skip_action = action
   end
 
@@ -202,5 +203,93 @@ class GameState
 
   def switch_current_player
     current_player_color = other_player_color
+  end
+
+  def possible_moves
+    found_moves = []
+    if GameRules.is_valid_to_eat(self)[0]
+      # Wenn ein Salat gegessen werden kann, muss auch ein Salat gegessen werden
+      found_moves << Move.new([EatSalad.new])
+      return found_moves
+    end
+    if GameRules.is_valid_to_exchange_carrots(self, 10)[0]
+      found_moves << Move.new([ExchangeCarrots.new(10)])
+    end
+    if GameRules.is_valid_to_exchange_carrots(self, -10)[0]
+      found_moves << Move.new([ExchangeCarrots.new(-10)])
+    end
+    if GameRules.is_valid_to_fall_back(self)[0]
+      found_moves << Move.new([FallBack.new])
+    end
+    # Generiere mögliche Vorwärtszüge
+    (1..(GameRules.calculate_movable_fields(self.current_player.carrots))).each do |distance|
+      actions = []
+      clone = self.deep_clone
+      # Überprüfe ob Vorwärtszug möglich ist
+      if GameRules.is_valid_to_advance(clone, distance)[0]
+        try_advance = Advance.new(distance)
+        try_advance.perform!(clone)
+        actions << try_advance
+        # überprüfe, ob eine Karte gespielt werden muss/kann
+        if GameRules.must_play_card(clone)
+          clone.check_for_playable_cards(actions).each do |card|
+            found_moves << card # TODO: this is unexpected, rename or refactor
+          end
+        else
+        # Füge möglichen Vorwärtszug hinzu
+          found_moves << Move.new(actions)
+        end
+      end
+    end
+    if found_moves.empty?
+      found_moves << Move.new([Skip.new])
+    end
+    found_moves
+  end
+
+  # @return [Array[Move]] gibt liste von Zuegen zurueck, die gemacht werden koennen, vorausgesetzt die gegebene Liste von Aktionen wurde schon gemacht.
+  def check_for_playable_cards(actions)
+    found_card_playing_moves = []
+    if current_player.must_play_card
+      if GameRules.is_valid_to_play_eat_salad(self)[0]
+        found_card_playing_moves << Move.new(actions + [Card.new(CardType::EAT_SALAD)])
+      end
+      [20, -20, 0].each do |carrots|
+        if GameRules.is_valid_to_play_take_or_drop_carrots(self,carrots)[0]
+          found_card_playing_moves << Move.new(actions + [Card.new(CardType::TAKE_OR_DROP_CARROTS, carrots)])
+        end
+      end
+      if GameRules.is_valid_to_play_hurry_ahead(self)[0]
+        actions_with_card_played = actions + [Card.new(CardType::HURRY_AHEAD)]
+        # pruefe, ob auf Hasenfeld gelandet
+        clone = self.deep_clone
+        Card.new(CardType::HURRY_AHEAD).perform!(clone)
+        moves = []
+        if GameRules.must_play_card(clone)
+          moves = clone.check_for_playable_cards(actions_with_card_played)
+        end
+        if moves.empty?
+          found_card_playing_moves << Move.new(actions_with_card_played)
+        else
+          found_card_playing_moves += moves
+        end
+      end
+      if GameRules.is_valid_to_play_fall_back(self)[0]
+        actions_with_card_played = actions + [Card.new(CardType::FALL_BACK)]
+        # pruefe, ob auf Hasenfeld gelandet
+        clone = self.deep_clone
+        Card.new(CardType::FALL_BACK).perform!(clone)
+        moves = []
+        if GameRules.must_play_card(clone)
+          moves = clone.check_for_playable_cards(actions_with_card_played)
+        end
+        if moves.empty?
+          found_card_playing_moves << Move.new(actions_with_card_played)
+        else
+          found_card_playing_moves += moves
+        end
+      end
+    end
+    found_card_playing_moves
   end
 end

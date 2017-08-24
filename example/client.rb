@@ -8,6 +8,9 @@ class Client < ClientInterface
 
   attr_accessor :gamestate
 
+  # Anzahl der Spielfelder
+  NUM_FIELDS = 65
+
   def initialize(log_level)
     logger.level = log_level
     logger.info 'Einfacher Spieler wurde erstellt.'
@@ -16,44 +19,79 @@ class Client < ClientInterface
   # gets called, when it's your turn
   def move_requested
     logger.info "Spielstand: #{gamestate.points_for_player(gamestate.current_player)} - #{gamestate.points_for_player(gamestate.other_player)}"
-    mov = best_move
-    logger.debug "Zug gefunden: #{mov}" unless mov.nil?
-    mov
+    move = best_move
+    logger.debug "Zug gefunden: #{move}" unless move.nil?
+    move
   end
 
-  # choose a move giving the most points
   def best_move
-    # try all moves in all directions
-    best = nil
-    points_for_best = 0
-    Direction.each do |direction|
-      [1, 2].each do |speed|
-        move = Move.new
-        if gamestate.current_player.velocity != speed
-          move.add_action(Acceleration.new(speed - gamestate.current_player.velocity))
-        end
-        # turn in that direction
-        possible_turn = Direction.from_to(gamestate.current_player.direction, direction)
-        if possible_turn.turn_steps != 0
-          move.add_action(possible_turn)
-        end
-        move.add_action(Advance.new(speed))
-        gamestate_copy = gamestate.deep_clone
-        begin
-          logger.debug("Teste Zug #{move} auf gueltigkeit")
-          move.perform!(gamestate_copy, gamestate_copy.current_player)
-          points_for_move = gamestate_copy.points_for_player(gamestate_copy.current_player)
-          logger.debug("Zug #{move} gueltig und wuerde #{points_for_move} Punkte geben!.")
-          on_sandbank = gamestate_copy.board.field(gamestate_copy.current_player.x, gamestate_copy.current_player.y).type == FieldType::SANDBANK
-          if !on_sandbank && (best.nil? || points_for_move > points_for_best)
-            best = move
-            points_for_best = points_for_move
+    possible_moves = gamestate.possible_moves # Enthält mindestens ein Element
+    salad_moves = []
+    winning_moves = []
+    selected_moves = []
+
+    index = gamestate.current_player.index
+    possible_moves.each do |move|
+      move.actions.each do |action|
+        case action.type
+          when :advance
+            target_field_index = action.distance + index
+            if target_field_index == NUM_FIELDS - 1
+              winning_moves << move
+            elsif gamestate.field(target_field_index).type == FieldType::SALAD
+              salad_moves << move
+            else
+              selected_moves << move
+            end
+          when :card
+            if action.card_type == CardType::EAT_SALAD
+              # Zug auf Hasenfeld und danach Salatkarte
+              salad_moves << move
+              # Muss nicht zusätzlich ausgewählt werden, wurde schon durch Advance ausgewählt
+            end
+          when :exchange_carrots
+            if action.value == 10 &&
+                gamestate.current_player.carrots < 30 &&
+                index < 40 &&
+                !gamestate.current_player.last_non_skip_action.instance_of?(ExchangeCarrots)
+              # Nehme nur Karotten auf, wenn weniger als 30 und nur am Anfang und nicht zwei
+              # mal hintereinander
+              selected_moves << move
+            elsif action.value == -10 &&
+                gamestate.current_player.carrots > 30 &&
+                index >= 40
+              # Abgeben von Karotten ist nur am Ende sinnvoll
+              selected_moves << move
+            end
+          when :fall_back
+            if index > 56 && # letztes Salatfeld
+                 gamestate.current_player.salads > 0
+              # Falle nur am Ende (index > 56) zurück, außer du musst noch einen Salat loswerden
+              selected_moves << move
+            elsif index <= 56 &&
+                  gamestate.previous_field_of_type(FieldType::HEDGEHOG, index) &&
+                  index - gamestate.previous_field_of_type(FieldType::HEDGEHOG, index).index < 5
+              # Falle zurück, falls sich Rückzug lohnt (nicht zu viele Karotten aufnehmen)
+              selected_moves << move
+              end
+          else
+            # Füge Salatessen oder Skip hinzu
+            selected_moves << move
           end
-        rescue InvalidMoveException => e
-          logger.debug("Zug #{move} ist ungueltig: #{e}")
-        end
       end
     end
-    best
+
+    if !winning_moves.empty?
+      logger.info("Waehle Gewinnzug")
+      winning_moves.sample
+    elsif !salad_moves.empty?
+      # es gibt die Möglichkeit einen Salat zu essen
+      logger.info("Waehle Zug zum Salatessen")
+      salad_moves.sample
+    elsif !selected_moves.empty?
+      selected_moves.sample
+    else
+      possible_moves.sample
+    end
   end
 end
