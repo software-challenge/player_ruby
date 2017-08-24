@@ -17,9 +17,9 @@ class Move
 
   # Initializer
   #
-  def initialize
-    @actions = []
-    @hints = []
+  def initialize(actions = [], hints = [])
+    @actions = actions
+    @hints = hints
   end
 
   # adds a hint to the move

@@ -9,9 +9,7 @@ RSpec::Matchers.define_negated_matcher :not_raise_error, :raise_error
 # matcher to make game rule specs nicer to read
 RSpec::Matchers.define :be_valid_to do |what, *args|
   match do |actual|
-    # TODO: when all is_valid_to_... methods return two values, simplify this:
-    valid, _message = actual.send('is_valid_to_' + what.to_s, *args)
-    valid
+    actual.send('is_valid_to_' + what.to_s, *args)[0]
   end
 end
 RSpec::Matchers.define_negated_matcher :not_be_valid_to, :be_valid_to
@@ -31,27 +29,27 @@ RSpec.describe GameRules do
     it { is_expected.to not_be_valid_to(:play_eat_salad, gamestate) }
     it 'is allowed to move forward' do
       is_expected.to be_valid_to(
-                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::CARROT, 0).index
+                         :advance, gamestate, gamestate.next_field_of_type(FieldType::CARROT, 0).index
                      )
     end
     it 'is not allowed to move further forward than carrots are available' do
       is_expected.to not_be_valid_to(
-                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::CARROT, 11).index
+                         :advance, gamestate, gamestate.next_field_of_type(FieldType::CARROT, 11).index
                      )
     end
     it 'is allowed to move onto salad-field (because has two salads on game start)' do
       is_expected.to be_valid_to(
-                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::SALAD, 0).index
+                         :advance, gamestate, gamestate.next_field_of_type(FieldType::SALAD, 0).index
                      )
     end
     it 'is not allowed to move on hedgehog field' do
       is_expected.to not_be_valid_to(
-                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::HEDGEHOG, 0).index
+                         :advance, gamestate, gamestate.next_field_of_type(FieldType::HEDGEHOG, 0).index
                      )
     end
     it 'is allowed to move onto hare-field (because has all cards on game start)' do
       is_expected.to be_valid_to(
-                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::HARE, 0).index
+                         :advance, gamestate, gamestate.next_field_of_type(FieldType::HARE, 0).index
       )
     end
   end
@@ -65,14 +63,14 @@ RSpec.describe GameRules do
     it 'is allowed to move onto goal' do
       # has enough carrots to reach it and less than or equal to 10 when reached and no salads)
       is_expected.to be_valid_to(
-                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::GOAL, 0).index
+                         :advance, gamestate, gamestate.next_field_of_type(FieldType::GOAL, 0).index
                      )
     end
 
     it 'is not allowed to move onto goal with to many carrots' do
       gamestate.current_player.carrots = 1000
       is_expected.to not_be_valid_to(
-                         :advance, gamestate, gamestate.get_next_field_by_type(FieldType::GOAL, 0).index
+                         :advance, gamestate, gamestate.next_field_of_type(FieldType::GOAL, 0).index
                      )
     end
   end

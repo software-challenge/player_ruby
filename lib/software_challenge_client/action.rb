@@ -4,8 +4,6 @@
 # actions are inherited from this Action class which should be considered
 # abstract/interface.
 class Action
-  attr_accessor :order
-
   # @return [ActionType] Type of the action.
   def type
     raise 'must be overridden'
@@ -37,7 +35,6 @@ class Advance < Action
 
   def initialize(distance)
     @distance = distance
-    @order = 0
   end
 
   # Perform the action.
@@ -68,16 +65,13 @@ end
 
 # Play a card.
 class Card < Action
-  attr_reader :order
-
   # only for type TAKE_OR_DROP_CARROTS
   attr_reader :value
 
   attr_reader :card_type
 
-  def initialize(card_type, order = 0, value = nil)
+  def initialize(card_type, value = 0)
     @card_type = card_type
-    @order = order
     @value = value
   end
 
@@ -125,16 +119,13 @@ class Card < Action
 
   def ==(other)
     other.card_type == card_type &&
-      (card_type != CardType::TAKE_OR_DROP_CARROTS || (other.value == value)) &&
-      other.order == order
+      (card_type != CardType::TAKE_OR_DROP_CARROTS || (other.value == value))
   end
 end
 
 # Ein Aussetzzug. Ist nur erlaubt, sollten keine anderen Züge möglich sei
 class Skip < Action
-  def initialize(order = 0)
-    # skip should only be first and only action
-    @order = 0
+  def initialize()
   end
 
   def type
@@ -142,7 +133,7 @@ class Skip < Action
   end
 
   def ==(other)
-    other.type == type && other.order == order
+    other.type == type
   end
 end
 
@@ -152,8 +143,7 @@ end
 # Duch eine Salatessen-Aktion wird ein Salat verbraucht und es werden je nachdem ob der Spieler führt
 # oder nicht 10 oder 30 Karotten aufgenommen.
 class EatSalad < Action
-  def initialize(order = 0)
-    @order = order
+  def initialize()
   end
 
   def type
@@ -161,6 +151,48 @@ class EatSalad < Action
   end
 
   def ==(other)
-    other.type == type && other.order == order
+    other.type == type
+  end
+end
+
+# Karottentauschaktion. Es können auf einem Karottenfeld 10 Karotten abgegeben oder aufgenommen werden.
+# Dies kann beliebig oft hintereinander ausgeführt werden.
+class ExchangeCarrots < Action
+  attr_accessor :value
+
+  def initialize(value)
+    @value = value
+  end
+
+  def perform!(gamestate)
+    valid, message = GameRules.is_valid_to_exchange_carrots(gamestate, value)
+    raise InvalidMoveException("Es können nicht #{value} Karotten aufgenommen werden. " + message) unless valid
+    gamestate.current_player.carrots += value
+    gamestate.set_last_action(self)
+  end
+
+  def type
+    :exchange_carrots
+  end
+
+  def ==(other)
+    other.type == type && other.value == value
+  end
+end
+
+class FallBack < Action
+  def perform!(gamestate)
+    valid, message = GameRules.is_valid_to_fall_back(gamestate)
+    raise InvalidMoveException("Es kann gerade kein Rückzug gemacht werden. " + message) unless valid
+    gamestate.current_player.index = gamestate.previous_field_of_type(FieldType::HEDGEHOG, gamestate.current_player.index).index
+    gamestate.set_last_action(self)
+  end
+
+  def type
+    :fall_back
+  end
+
+  def ==(other)
+    other.type == type
   end
 end

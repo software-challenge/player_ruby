@@ -43,6 +43,12 @@ class Protocol
     REXML::Document.parse_stream(text, self)
   end
 
+
+  # called when text is encountered
+  def text(text)
+    @context[:last_text] = text
+  end
+
   # called if an end-tag is read
   #
   # @param name [String] the end-tag name, that was read
@@ -50,9 +56,8 @@ class Protocol
     case name
     when 'board'
       logger.debug @gamestate.board.to_s
-    when 'result'
-      logger.info 'Got game result'
-      @network.disconnect
+    when 'type'
+      @context[:player].cards << CardType.find_by_key(@context[:last_text].to_sym)
     end
   end
 
@@ -79,13 +84,16 @@ class Protocol
         logger.info "Game ended - ERROR: #{attrs['message']}"
         @network.disconnect
       end
+      if attrs['class'] == 'result'
+        logger.info 'Got game result'
+        @network.disconnect
+      end
     when 'state'
       logger.debug 'new gamestate'
       @gamestate = GameState.new
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.start_player_color = attrs['startPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
       @gamestate.current_player_color = attrs['currentPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
-      @gamestate.additional_free_turn_after_push = attrs['freeTurn'] == 'true'
       logger.debug "Turn: #{@gamestate.turn}"
     when 'red'
       logger.debug 'new red player'
@@ -94,6 +102,7 @@ class Protocol
         throw new IllegalArgumentException("expected #{PlayerColor::RED} Player but got #{player.color}")
       end
       @gamestate.add_player(player)
+      @context[:player] = player
     when 'blue'
       logger.debug 'new blue player'
       player = parsePlayer(attrs)
@@ -101,36 +110,48 @@ class Protocol
         throw new IllegalArgumentException("expected #{PlayerColor::BLUE} Player but got #{player.color}")
       end
       @gamestate.add_player(player)
+      @context[:player] = player
     when 'board'
       logger.debug 'new board'
       @gamestate.board = Board.new
       @context[:current_tile_index] = nil
       @context[:current_tile_direction] = nil
-    when 'tile'
-      @context[:current_tile_index] = attrs['index'].to_i
-      @context[:current_tile_direction] = attrs['direction'].to_i
-    when 'field'
+    when 'fields'
       type = FieldType.find_by_key(attrs['type'].to_sym)
+      index = attrs['index'].to_i
       raise "unexpected field type: #{attrs['type']}. Known types are #{FieldType.map { |t| t.key.to_s }}" if type.nil?
-      x = attrs['x'].to_i
-      y = attrs['y'].to_i
-      points = attrs['points'].to_i
-      index = @context[:current_tile_index]
-      direction = @context[:current_tile_direction]
-
-      @gamestate.board.fields[[x, y]] = Field.new(type, x, y, index, direction, points)
+      @gamestate.board.fields[index] = Field.new(type, index)
     when 'lastMove'
-      @gamestate.lastMove = Move.new
-    when 'acceleration'
-      @gamestate.lastMove.add_action_with_order(Acceleration.new(attrs['acc'].to_i), attrs['order'].to_i)
+      @gamestate.last_move = Move.new
     when 'advance'
-      @gamestate.lastMove.add_action_with_order(Advance.new(attrs['distance'].to_i), attrs['order'].to_i)
-    when 'turn'
-      @gamestate.lastMove.add_action_with_order(Turn.new(attrs['direction'].to_i), attrs['order'].to_i)
-    when 'push'
-      @gamestate.lastMove.add_action_with_order(Push.new(Direction.find_by_key(attrs['direction'].to_sym)), attrs['order'].to_i)
+      @gamestate.last_move.add_action_with_order(
+          Advance.new(attrs['distance'].to_i), attrs['order'].to_i
+      )
+    when 'card'
+      @gamestate.last_move.add_action_with_order(
+          Card.new(CardType.find_by_key(attrs['type'].to_sym), attrs['value'].to_i),
+          attrs['order'].to_i
+      )
+    when 'skip'
+      @gamestate.last_move.add_action_with_order(
+          Skip.new, attrs['order'].to_i
+      )
+    when 'eatSalad'
+      @gamestate.last_move.add_action_with_order(
+          EatSalad.new, attrs['order'].to_i
+      )
+    when 'fallBack'
+      @gamestate.last_move.add_action_with_order(
+          FallBack.new, attrs['order'].to_i
+      )
+    when 'exchangeCarrots'
+      @gamestate.last_move.add_action_with_order(
+          ExchangeCarrots.new(attrs['value'].to_i), attrs['order'].to_i
+      )
     when 'winner'
-      @gamestate.condition = Condition.new(parsePlayer(attrs))
+      winning_player = parsePlayer(attrs)
+      @gamestate.condition = Condition.new(winning_player)
+      @context[:player] = winning_player
     when 'left'
       logger.debug 'got left event, terminating'
       @network.disconnect
@@ -147,13 +168,10 @@ class Protocol
       attributes['displayName']
     )
     player.points = attributes['points'].to_i
-    player.direction = Direction.find_by_key(attributes['direction'].to_sym)
-    player.x = attributes['x'].to_i
-    player.y = attributes['y'].to_i
-    player.passengers = attributes['passenger'].to_i
-    player.coal = attributes['coal'].to_i
-    player.velocity = attributes['speed'].to_i
-    player.movement = player.velocity
+    player.index = attributes['index'].to_i
+    player.carrots = attributes['carrots'].to_i
+    player.salads = attributes['salads'].to_i
+    player.cards = []
     player
   end
 
@@ -183,15 +201,13 @@ class Protocol
         # because XML-generation should be decoupled from internal data
         # structures.
         attribute = case action.type
-                    when :acceleration
-                      { acc: action.acceleration }
-                    when :push
-                      { direction: action.direction.key }
-                    when :turn
-                      { direction: action.turn_steps }
                     when :advance
                       { distance: action.distance }
-                    when default
+                    when :skip
+                      {}
+                    when :card
+                      { type: action.card_type.key.to_s, value: action.value}
+                    else
                       raise "unknown action type: #{action.type.inspect}. "\
                             "Can't convert to XML!"
                     end

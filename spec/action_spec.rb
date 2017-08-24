@@ -52,13 +52,13 @@ RSpec.describe Advance do
 
     it 'should be valid to play the take or drop carrots card' do
       expect {
-        Card.new(CardType::TAKE_OR_DROP_CARROTS, 0, 20).perform!(gamestate)
+        Card.new(CardType::TAKE_OR_DROP_CARROTS, 20).perform!(gamestate)
       }.not_to raise_error
     end
 
     it 'should be valid to play the eat salad card' do
       expect {
-        Card.new(CardType::EAT_SALAD, 0).perform!(gamestate)
+        Card.new(CardType::EAT_SALAD).perform!(gamestate)
       }.not_to raise_error
     end
 
@@ -66,7 +66,7 @@ RSpec.describe Advance do
       before {state_from_string!('0 C bC C rH C C C C C C C C G', gamestate)}
       it 'should be valid to play the fall back card' do
         expect {
-          Card.new(CardType::FALL_BACK, 0).perform!(gamestate)
+          Card.new(CardType::FALL_BACK).perform!(gamestate)
         }.not_to raise_error
       end
     end
@@ -75,7 +75,7 @@ RSpec.describe Advance do
       before {state_from_string!('0 C C rH C C C bC C C C C C G', gamestate)}
       it 'should be valid to play the hurry ahead card' do
         expect {
-          Card.new(CardType::HURRY_AHEAD, 0).perform!(gamestate)
+          Card.new(CardType::HURRY_AHEAD).perform!(gamestate)
         }.not_to raise_error
       end
     end

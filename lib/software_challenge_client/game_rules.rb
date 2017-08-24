@@ -8,8 +8,7 @@ require_relative 'card_type'
 class GameRules
 
    # Berechnet wie viele Karotten für einen Zug der länge
-   # <code>moveCount</code> benötigt werden. Entspricht den Veränderungen des
-   # Spieleabends der CAU.
+   # <code>moveCount</code> benötigt werden.
    #
    # @param moveCount Anzahl der Felder, um die bewegt wird
    # @return Anzahl der benötigten Karotten
@@ -39,7 +38,7 @@ class GameRules
   #
   # @param state GameState
   # @param distance relativer Abstand zur aktuellen Position des Spielers
-  # @return (true, '') falls ein Vorwärtszug möglich ist, (false, M) falls nicht, wobei M ein String mit einer Begruendung ist
+  # @return [true, ''] falls ein Vorwärtszug möglich ist, [false, M] falls nicht, wobei M ein String mit einer Begruendung ist
   def self.is_valid_to_advance(state, distance)
     return false, 'Ein Vorwärtszug benötigt eine Mindestdistanz von einem Feld.' if distance <= 0
     player = state.current_player
@@ -152,7 +151,7 @@ class GameRules
     return false, "Karotten können nur auf einem Karottenfeld #{n > 0 ? 'genommen' : 'abgegeben'} werden" if state.board.field(player.index).type != FieldType::CARROT
     return true, '' if n == 10
     return false, 'Gültige Karottenzahlen sind 10 und -10.' unless n == -10
-    return false, "Spieler hat keine 10 Karotten zum abgeben (er hat #{player.carrots})." if player.carrots < 10
+    return false, "Spieler hat keine 10 Karotten zum Abgeben (er hat #{player.carrots})." if player.carrots < 10
     return true, ''
   end
 
@@ -162,7 +161,7 @@ class GameRules
   # @return [true, ''], falls der currentPlayer einen Rückzug machen darf, [false, M] falls nicht, wobei M ein String mit dem Grund ist.
   def self.is_valid_to_fall_back(state)
     return false, 'Spieler muss einen Salat fressen.' if must_eat_salad(state)
-    target_field = state.get_previous_field_by_type(
+    target_field = state.previous_field_of_type(
       FieldType::HEDGEHOG, state.current_player.index
     )
     return false, 'Es gibt kein Igelfeld hinter dem Spieler.' if target_field.nil?
@@ -258,7 +257,7 @@ class GameRules
     return false, "#{n} ist keine erlaubte Anzahl beim Spielen der Karte TAKE_OR_DROP_CARROTS (erlaubt sind 20, -20 und 0)." unless [20, -20, 0].include?(n)
     return true, '' if n >= 0
     # at this point, n has to be -20
-    return false, "Spieler hat keine 20 Karotten zum abgeben (er hat #{player.carrots})." if player.carrots < 20
+    return false, "Spieler hat keine 20 Karotten zum Abgeben (er hat #{player.carrots})." if player.carrots < 20
     return true, ''
   end
 

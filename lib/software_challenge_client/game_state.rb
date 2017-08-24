@@ -63,10 +63,8 @@ class GameState
   #
   # @return [Player] the current player
   def current_player
-    if current_player_color == PlayerColor::RED
-    then red
-    else blue
-    end
+    return red if current_player_color == PlayerColor::RED
+    return blue if current_player_color == PlayerColor::RED
   end
 
   # gets the other (not the current) player
@@ -124,7 +122,7 @@ class GameState
 
   # calculates a player's points based on the current gamestate
   #
-  # @param player [Player] the player, whos point will be calculated
+  # @param player [Player] the player, whos points to calculate
   # @return [Integer] the points of the player
   def points_for_player(player)
     raise 'TODO'
@@ -136,13 +134,27 @@ class GameState
     field.index == other_player.index
   end
 
-  def get_previous_field_by_type(type, index)
+  # Searches backwards starting at the field with the given index. The field
+  # at the given index is not considered. If no field of the given type exists,
+  # nil is returned.
+  #
+  # @param [FieldType] type of the field to search for
+  # @param [Integer] index before which field-index to start searching
+  # @return [Field] the next field before the given index of given type
+  def previous_field_of_type(type, index)
     return nil if index < 1
     return nil if index >= board.fields.size
-    board.fields.slice(0..(index - 1)).reverse.find { |f| f.type == type }
+    board.fields.slice(0..(index - 1)).reverse.find {|f| f.type == type}
   end
 
-  def get_next_field_by_type(type, index)
+  # Searches forward starting at the field with the given index. The field
+  # at the given index is not considered. If no field of the given type exists,
+  # nil is returned.
+  #
+  # @param [FieldType] type of the field to search for
+  # @param [Integer] index after which field-index to start searching
+  # @return [Field] the next field after the given index of given type
+  def next_field_of_type(type, index)
     return nil if index >= board.fields.size
     return nil if index < 0
     board.fields.slice((index + 1)..(board.fields.size - 1)).find {|f| f.type == type}
@@ -151,14 +163,14 @@ class GameState
   # Compared with other state.
   def ==(other)
     turn == other.turn &&
-      start_player_color == other.start_player_color &&
-      current_player_color == other.current_player_color &&
-      red == other.red &&
-      blue == other.blue &&
-      board == other.board &&
-      lastMove == other.lastMove &&
-      has_to_play_card == other.has_to_play_card &&
-      condition == other.condition
+        start_player_color == other.start_player_color &&
+        current_player_color == other.current_player_color &&
+        red == other.red &&
+        blue == other.blue &&
+        board == other.board &&
+        lastMove == other.lastMove &&
+        has_to_play_card == other.has_to_play_card &&
+        condition == other.condition
   end
 
   # Create a deep copy of the gamestate. Can be used to perform moves on without
