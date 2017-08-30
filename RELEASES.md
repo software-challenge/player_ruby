@@ -1,3 +1,7 @@
+= 1.1.0
+
+Added missing perform! methods for actions.
+
 = 1.0.0
 
 First version for game "Hase und Igel".
