@@ -49,7 +49,7 @@ class Player
     @points = 0
     @index = 0
     @carrots = 68
-    @salads = 2
+    @salads = 5
     @cards = CardType.to_a
   end
 

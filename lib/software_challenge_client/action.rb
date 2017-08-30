@@ -135,6 +135,10 @@ class Skip < Action
   def ==(other)
     other.type == type
   end
+
+  def perform!(_gamestate)
+    # does nothing
+  end
 end
 
 # Eine Salatessen-Aktion. Kann nur auf einem Salatfeld ausgeführt werden. Muss ausgeführt werden,
@@ -153,6 +157,21 @@ class EatSalad < Action
   def ==(other)
     other.type == type
   end
+
+  def perform!(gamestate)
+    valid, msg = GameRules.is_valid_to_eat(gamestate)
+    if valid
+      gamestate.current_player.salads -= 1
+      if gamestate.is_first(gamestate.current_player)
+        gamestate.current_player.carrots += 10
+      else
+        gamestate.current_player.carrots += 30
+      end
+      gamestate.set_last_action(self)
+    else
+      invalid(msg)
+    end
+  end
 end
 
 # Karottentauschaktion. Es können auf einem Karottenfeld 10 Karotten abgegeben oder aufgenommen werden.
@@ -166,7 +185,7 @@ class ExchangeCarrots < Action
 
   def perform!(gamestate)
     valid, message = GameRules.is_valid_to_exchange_carrots(gamestate, value)
-    raise InvalidMoveException("Es können nicht #{value} Karotten aufgenommen werden. " + message) unless valid
+    invalid("Es können nicht #{value} Karotten aufgenommen werden. " + message) unless valid
     gamestate.current_player.carrots += value
     gamestate.set_last_action(self)
   end

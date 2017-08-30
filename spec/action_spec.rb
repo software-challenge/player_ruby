@@ -81,3 +81,62 @@ RSpec.describe Advance do
     end
   end
 end
+
+RSpec.describe Skip do
+
+  let(:gamestate) { GameState.new }
+
+  it 'is performable, but does nothing' do
+    expect {
+      Skip.new.perform!(gamestate)
+    }.not_to raise_error
+  end
+
+end
+
+RSpec.describe EatSalad do
+
+  let(:gamestate) { GameState.new }
+
+  context 'when player is on salad field' do
+    before {state_from_string!('0 C bC C rS C C C C C C C C G', gamestate)}
+    it 'changes the number of salads' do
+      expect {
+        EatSalad.new.perform!(gamestate)
+      }.to change{gamestate.current_player.salads }.from(5).to(4)
+    end
+  end
+
+end
+
+RSpec.describe ExchangeCarrots do
+
+  let(:gamestate) { GameState.new }
+
+  context 'when player is on carrot field' do
+    before {state_from_string!('0 C bC C rC C C C C C C C C G', gamestate)}
+    it 'changes the number of carrots' do
+      [-10, 10].each do |c|
+        expect {
+          ExchangeCarrots.new(c).perform!(gamestate)
+        }.to change{gamestate.current_player.carrots }.by(c)
+      end
+    end
+  end
+
+end
+
+RSpec.describe FallBack do
+
+  let(:gamestate) { GameState.new }
+
+  context 'when player is behind a hedgehog field' do
+    before {state_from_string!('0 I bC C rC C C C C C C C C G', gamestate)}
+    it 'places the player on the hedgehog field' do
+      expect {
+        FallBack.new.perform!(gamestate)
+      }.to change{gamestate.current_player.index }.from(4).to(1)
+    end
+  end
+
+end

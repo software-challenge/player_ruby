@@ -13,7 +13,7 @@ RSpec.describe Player do
                                    CardType::FALL_BACK,
                                    CardType::HURRY_AHEAD
                                  ])
-      expect(player.salads).to eq(2)
+      expect(player.salads).to eq(5)
       expect(player.carrots).to eq(68)
     end
 
