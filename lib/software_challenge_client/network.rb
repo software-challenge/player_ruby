@@ -1,4 +1,5 @@
 # encoding: UTF-8
+
 require 'socket'
 require 'rexml/document'
 require 'rexml/element'
@@ -9,31 +10,23 @@ require_relative 'client_interface'
 
 # This class handles the socket connection to the server
 class Network
-
   include Logging
-
-  @socket
-  @host
-  @port
-
-  @board
-  @client
-  @protocol
-
-  @receiveBuffer
-  @reservationID
 
   # @!attribute [r] connected
   # @return [Boolean] true, if the client is connected to a server
   attr_reader :connected
 
   def initialize(host, port, board, client, reservation = nil)
-    @host, @port, @connected, @board, @client =
-      host, port, false, board, client
+    logger.debug("New version")
+    @host = host
+    @port = port
+    @board = board
+    @client = client
 
+    @connected = false
     @protocol = Protocol.new(self, @client)
-    @reservationID = reservation || ''
-    @receiveBuffer = ''
+    @reservation_id = reservation || ''
+    @receive_buffer = ''
   end
 
   # connects the client with a given server
@@ -44,28 +37,24 @@ class Network
     logger.info 'Connection to server established.'
     @connected = true
 
-    self.sendString('<protocol>')
-    if @reservationID != ''
-      document = REXML::Document.new
+    sendString('<protocol>')
+    document = REXML::Document.new
+    if @reservation_id != ''
       element = REXML::Element.new('joinPrepared')
-      element.add_attribute('reservationCode', @reservationID)
-      document.add(element)
-      self.sendXML(document)
+      element.add_attribute('reservationCode', @reservation_id)
     else
-      document = REXML::Document.new
       element = REXML::Element.new('join')
-      element.add_attribute('gameType', 'swc_2017_mississippi_queen')
-      document.add(element)
-      self.sendXML(document)
+      element.add_attribute('gameType', 'swc_2018_hase_und_igel')
     end
-    return @connected
+    document.add(element)
+    sendXML(document)
+    @connected
   end
 
   # disconnects the client from a server
   def disconnect
-
     if @connected
-      sendString("</protocol>")
+      sendString('</protocol>')
       @connected = false
       @socket.close
     end
@@ -74,72 +63,65 @@ class Network
 
   # reads from the socket until "</room>" is read
   def readString
+    return false unless @connected
+    sock_msg = ''
+
+    line = ''
     logger.debug 'reading'
-    sockMsg = ''
-    if(!@connected)
-      return
-    end
-
-    line =''
-    char = ''
-    while (line != "</room>" && line != "</protocol>") && !(char = @socket.getc).nil?
-      line+=char
-      if char=='\n' || char==' '
-
-        line = ''
-      end
-      sockMsg += char
+    @socket.each_char do |char|
+      line += char
+      sock_msg += char
+      line = '' if ['\n', ' '].include? char
+      break if ['</room>', '</protocol>'].include? line
     end
     logger.debug 'ended reading'
-    if sockMsg != ''
-
-      @receiveBuffer.concat(sockMsg)
+    if sock_msg != ''
+      @receive_buffer.concat(sock_msg)
 
       # Remove <protocol> tag
-      @receiveBuffer = @receiveBuffer.gsub('<protocol>', '')
-      @receiveBuffer = @receiveBuffer.gsub('</protocol>', '')
+      @receive_buffer = @receive_buffer.gsub('<protocol>', '')
+      @receive_buffer = @receive_buffer.gsub('</protocol>', '')
 
-      logger.debug "Received XML from server: #{@receiveBuffer}"
+      logger.debug "Received XML from server: #{@receive_buffer}"
 
       # Process text
-      @protocol.process_string(@receiveBuffer);
-      self.emptyReceiveBuffer
+      @protocol.process_string(@receive_buffer)
+      emptyReceiveBuffer
     end
-    return true
-  end
-
-  # empties the receive buffer
-  def emptyReceiveBuffer
-    @receiveBuffer = ''
-  end
-
-  # processes an incomming message
-  #
-  # @return [Boolean] true, if the processing of a incomming message was successfull
-  def processMessages
-    if !@connected
-      return false
-    end
-    return self.readString
-  end
-
-  # sends a string to the socket
-  #
-  # @param s [String] the message, to be sent
-  def sendString(s)
-    if(@connected)
-      @socket.print(s);
-      logger.debug "Sending: #{s}"
-    end
+    true
   end
 
   # sends a xml Document to the buffer
   #
   # @param xml [REXML::Document] the Document, that will be sent
   def sendXML(xml)
-    text  = ''
+    text = ''
     xml.write(text)
-    self.sendString(text);
+    sendString(text)
+  end
+
+  # processes an incomming message
+  #
+  # @return [Boolean] true, if the processing of a incomming message was successfull
+  def processMessages
+    return false unless @connected
+    readString
+  end
+
+  # sends a string to the socket
+  #
+  # @param s [String] the message, to be sent
+  def sendString(s)
+    return unless @connected
+    logger.debug "Sending: #{s}"
+    @socket.print(s)
+  end
+
+  private
+
+  # empties the receive buffer
+  def emptyReceiveBuffer
+    @receive_buffer = ''
   end
 
 end

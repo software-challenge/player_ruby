@@ -1,3 +1,8 @@
+= 1.2.0
+
+- fixed connection code
+- fixed bug which lead to a exception when testing for playability of fallback card
+
 = 1.1.0
 
 Added missing perform! methods for actions.

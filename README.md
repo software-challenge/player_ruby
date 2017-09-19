@@ -67,14 +67,14 @@ to get a live preview of them at [http://localhost:8808](http://localhost:8808).
 ## Development
 
 After checking out the repo, run `bin/setup` to install
-dependencies. Then, run `rake false` to run the tests. You can also
+dependencies. Then, run `rspec` to run the tests. You can also
 run `bin/console` for an interactive prompt that will allow you to
 experiment.
 
 To install this gem onto your local machine, run `bundle exec rake
 install`.
 
-To develop inside a docker container, use the included `Dockerfile` and
+To develop inside a docker container, make sure you have Docker installed and execute
 `develop.sh`.
 
 ### Specs

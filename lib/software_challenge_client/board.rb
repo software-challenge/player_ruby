@@ -40,6 +40,7 @@ class Board
   #   exisitert (weil der Index ausserhalb von 0..64 liegt), wird ein neues
   #   Feld vom Typ INVALID zurückgegeben.
   def field(index)
+    return Field.new(FieldType::INVALID, index) if index.negative?
     fields.fetch(index, Field.new(FieldType::INVALID, index))
   end
 end
