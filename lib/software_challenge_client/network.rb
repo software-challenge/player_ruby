@@ -17,7 +17,6 @@ class Network
   attr_reader :connected
 
   def initialize(host, port, board, client, reservation = nil)
-    logger.debug("New version")
     @host = host
     @port = port
     @board = board
