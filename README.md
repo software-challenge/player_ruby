@@ -30,7 +30,7 @@ ruby main.rb
 ```
 
 in a shell (while being in the example directory). Note that the
-software_challenge_client gem needs to be installed for this to work and a
+`software_challenge_client` gem needs to be installed for this to work and a
 server waiting for a manual client has to be running.
 
 ## Documentation
@@ -91,10 +91,12 @@ pass.
 ### Releasing
 
 To release a new version, update the version number in
-`lib/software_challenge_client/version.rb` and update RELEASES.md. Then run
-`bundle exec rake release`, which will create a git tag for the version, push
-git commits and tags, and push the `.gem` file to
-[rubygems.org](https://rubygems.org).
+`lib/software_challenge_client/version.rb` and update RELEASES.md.
+
+Then run `bundle exec rake release`, which will create a git tag for the
+version, push git commits and tags, and push the `.gem` file to
+[rubygems.org](https://rubygems.org). You may also use the `release.sh` script
+which executes `bundle exec rake release` in a suitable docker container.
 
 ## Contributing
 
