@@ -110,7 +110,7 @@ class Card < Action
         raise "Unknown card type #{card_type.inspect}!"
     end
     gamestate.set_last_action(self)
-    gamestate.current_player.cards.delete(self.type)
+    gamestate.current_player.cards.delete(card_type)
   end
 
   def type

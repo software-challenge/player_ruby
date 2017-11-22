@@ -127,4 +127,17 @@ RSpec.describe GameRules do
       end
     end
   end
+
+  it 'should not enter a infinite loop (stack level to deep)' do
+    state_from_string!('bC C H r1 H G', gamestate)
+    gamestate.current_player_color = PlayerColor::BLUE
+    gamestate.current_player.carrots = 49
+    gamestate.current_player.salads = 0
+    gamestate.current_player.cards = [
+      CardType::TAKE_OR_DROP_CARROTS,
+      CardType::HURRY_AHEAD,
+      CardType::FALL_BACK
+    ]
+    expect { gamestate.possible_moves }.not_to raise_error
+  end
 end
