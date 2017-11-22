@@ -53,11 +53,11 @@ class GameRules
       when FieldType::SALAD
         return false, 'Ohne Salat darf ein Salatfeld nicht betreten werden.' if player.salads < 1
       when FieldType::HARE
-        state2 = state.deep_clone
-        state2.set_last_action(Advance.new(distance))
-        state2.current_player.index = new_position
-        state2.current_player.carrots -= required_carrots
-        return false, 'Auf ein Hasenfeld darf nur gezogen werden, wenn eine Karte gespielt werden kann' unless can_play_any_card(state2)
+        state_after_advance = state.deep_clone
+        state_after_advance.set_last_action(Advance.new(distance))
+        state_after_advance.current_player.index = new_position
+        state_after_advance.current_player.carrots -= required_carrots
+        return false, 'Auf ein Hasenfeld darf nur gezogen werden, wenn eine Karte gespielt werden kann' unless can_play_any_card(state_after_advance)
       when FieldType::GOAL
         carrotsLeft = player.carrots - required_carrots
         return false, "Auf das Zielfeld darf nur mit maximal 10 Karotten gezogen werden (es sind aber #{carrotsLeft} bei Erreichen des Zielfeldes)." unless carrotsLeft <= 10
@@ -131,9 +131,7 @@ class GameRules
         return true
       elsif (last_action.instance_of? Card)
         # the player has to leave a rabbit field in next turn
-        if (last_action.type == CardType::EAT_SALAD)
-          return true
-        elsif (last_action.type == CardType::TAKE_OR_DROP_CARROTS) # the player has to leave the rabbit field
+        if (last_action.type == CardType::EAT_SALAD || last_action.type == CardType::TAKE_OR_DROP_CARROTS)
           return true
         end
       end
@@ -227,10 +225,10 @@ class GameRules
       when FieldType::SALAD
         return false, 'Spieler käme durch Spielen der HURRY_AHEAD Kart auf ein Salatfeld, hat aber keine Salate.' if player.salads < 1
       when FieldType::HARE
-        state2 = state.deep_clone
-        state2.set_last_action(Card.new(CardType::HURRY_AHEAD))
-        state2.current_player.cards.delete(CardType::HURRY_AHEAD)
-        return false, 'Spieler käme durch Spielen der HURRY_AHEAD Kart auf ein Hasenfeld, kann aber dann keine weitere Karte mehr spielen.' unless can_play_any_card(state2)
+        state_after_card_played = state.deep_clone
+        state_after_card_played.set_last_action(Card.new(CardType::HURRY_AHEAD))
+        state_after_card_played.current_player.cards.delete(CardType::HURRY_AHEAD)
+        return false, 'Spieler käme durch Spielen der HURRY_AHEAD Kart auf ein Hasenfeld, kann aber dann keine weitere Karte mehr spielen.' unless can_play_any_card(state_after_card_played)
       when FieldType::GOAL
         return false, 'Spieler käme durch Spielen der HURRY_AHEAD Kart ins Ziel, darf es aber nicht betreten (entweder noch Salate oder mehr als 10 Karotten).' unless can_enter_goal(state)
       when FieldType::CARROT
