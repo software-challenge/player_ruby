@@ -1,3 +1,7 @@
+= 1.2.1
+
+- fixed a bug which could lead to an infinite loop in the possible_move method
+
 = 1.2.0
 
 - fixed connection code
