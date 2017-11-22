@@ -187,10 +187,10 @@ class GameRules
       when FieldType::SALAD
         return false, 'Spieler käme durch Spielen der FALL_BACK Kart auf ein Salatfeld, hat aber keine Salate.' if player.salads < 1
       when FieldType::HARE
-        state2 = state.deep_clone
-        state2.set_last_action(Card.new(CardType::HURRY_AHEAD))
-        state2.current_player.cards.delete(CardType::FALL_BACK)
-        return false, 'Spieler käme durch Spielen der FALL_BACK Kart auf ein Hasenfeld, kann aber dann keine weitere Karte mehr spielen.' unless can_play_any_card(state2)
+        state_after_card_played = state.deep_clone
+        state_after_card_played.set_last_action(Card.new(CardType::FALL_BACK))
+        state_after_card_played.current_player.cards.delete(CardType::FALL_BACK)
+        return false, 'Spieler käme durch Spielen der FALL_BACK Kart auf ein Hasenfeld, kann aber dann keine weitere Karte mehr spielen.' unless can_play_any_card(state_after_card_played)
       when FieldType::START
       when FieldType::CARROT
       when FieldType::POSITION_1
