@@ -16,6 +16,8 @@ RSpec::Matchers.define_negated_matcher :not_be_valid_to, :be_valid_to
 
 include GameStateHelpers
 
+require_relative '../example/client'
+
 RSpec.describe GameRules do
 
   subject { GameRules }
@@ -139,5 +141,27 @@ RSpec.describe GameRules do
       CardType::FALL_BACK
     ]
     expect { gamestate.possible_moves }.not_to raise_error
+  end
+
+  it 'should not hang (FIXME: better title)', focus: true do
+    state_from_string!('0 C C C H rC bH H 1 2 S I C C H I 1 C 2 I C C S 2 I C H 2 C C I 1 C 2 H C H I 2 H C C S I 1 C 2 C C H I C H C 2 C I S C H C C 1 H G', gamestate)
+    gamestate.current_player_color = PlayerColor::BLUE
+    gamestate.current_player.carrots = 57
+    gamestate.current_player.salads = 4
+    gamestate.current_player.cards = [
+      CardType::TAKE_OR_DROP_CARROTS,
+      CardType::HURRY_AHEAD,
+      CardType::FALL_BACK
+    ]
+    gamestate.current_player.last_non_skip_action = Card.new(CardType::EAT_SALAD)
+    expect(gamestate.current_player.index).to eq(6)
+    expect(gamestate.other_player.index).to eq(5)
+    client = Client.new(0)
+    client.gamestate = gamestate
+    expect(gamestate.possible_moves.size).to eq(1)
+    expect do
+      client.move_requested
+    end.not_to raise_error
+    expect(client.best_move).not_to be_empty
   end
 end
