@@ -56,8 +56,6 @@ class Protocol
     case name
     when 'board'
       logger.debug @gamestate.board.to_s
-    when 'type'
-      @context[:player].cards << CardType.find_by_key(@context[:last_text].to_sym)
     end
   end
 
@@ -118,35 +116,18 @@ class Protocol
       @context[:current_tile_direction] = nil
     when 'fields'
       type = FieldType.find_by_key(attrs['type'].to_sym)
-      index = attrs['index'].to_i
+      x = attrs['x'].to_i
+      y = attrs['y'].to_i
       raise "unexpected field type: #{attrs['type']}. Known types are #{FieldType.map { |t| t.key.to_s }}" if type.nil?
-      @gamestate.board.fields[index] = Field.new(type, index)
+      @gamestate.board.add_field(Field.new(type, x, y))
     when 'lastMove'
-      @gamestate.last_move = Move.new
-    when 'advance'
-      @gamestate.last_move.add_action_with_order(
-          Advance.new(attrs['distance'].to_i), attrs['order'].to_i
-      )
-    when 'card'
-      @gamestate.last_move.add_action_with_order(
-          Card.new(CardType.find_by_key(attrs['type'].to_sym), attrs['value'].to_i),
-          attrs['order'].to_i
-      )
-    when 'skip'
-      @gamestate.last_move.add_action_with_order(
-          Skip.new, attrs['order'].to_i
-      )
-    when 'eatSalad'
-      @gamestate.last_move.add_action_with_order(
-          EatSalad.new, attrs['order'].to_i
-      )
-    when 'fallBack'
-      @gamestate.last_move.add_action_with_order(
-          FallBack.new, attrs['order'].to_i
-      )
-    when 'exchangeCarrots'
-      @gamestate.last_move.add_action_with_order(
-          ExchangeCarrots.new(attrs['value'].to_i), attrs['order'].to_i
+      direction = Direction.find_by_key(attrs['direction'].to_sym)
+      x = attrs['x'].to_i
+      y = attrs['y'].to_i
+      raise "unexpected direction: #{attrs['direction']}. Known directions are #{Direction.map { |d| d.key.to_s }}" if direction.nil?
+      @gamestate.last_move = Move.new(
+        Coordinate.new(x, y),
+        direction
       )
     when 'winner'
       winning_player = parsePlayer(attrs)
@@ -155,24 +136,6 @@ class Protocol
     when 'left'
       logger.debug 'got left event, terminating'
       @network.disconnect
-    when 'lastNonSkipAction'
-      @context[:player].last_non_skip_action =
-        case attrs['class']
-        when 'advance'
-          Advance.new(attrs['distance'].to_i)
-        when 'card'
-          Card.new(CardType.find_by_key(attrs['type'].to_sym), attrs['value'].to_i)
-        when 'skip'
-          Skip.new
-        when 'eatSalad'
-          EatSalad.new
-        when 'fallBack'
-          FallBack.new
-        when 'exchangeCarrots'
-          ExchangeCarrots.new(attrs['value'].to_i)
-        else
-          raise "Unknown action type #{attrs['class']}"
-        end
     end
   end
 

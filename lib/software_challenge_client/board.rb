@@ -20,6 +20,7 @@ class Board
     (0..9).to_a.each do |x|
       @fields[x] = []
       (0..9).to_a.each do |y|
+        @fields[x][y] = Field.new(FieldType::EMPTY, x, y)
       end
     end
   end
@@ -44,5 +45,9 @@ class Board
   def field(x, y)
     return nil if x.negative? || y.negative?
     fields.dig(x, y) # NOTE that #dig requires ruby 2.3+
+  end
+
+  def add_field(field)
+    @fields[field.x][field.y] = field
   end
 end
