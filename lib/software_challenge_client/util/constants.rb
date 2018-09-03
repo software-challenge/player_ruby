@@ -1,6 +1,7 @@
 # encoding: UTF-8
-#Game constants
+
+# Game constants
 module Constants
-  ROUND_LIMIT = 100
-  SIZE = 24 #board's width and height
+  ROUND_LIMIT = 30
+  SIZE = 10 # board's width and height
 end

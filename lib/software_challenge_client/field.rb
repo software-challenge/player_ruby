@@ -1,31 +1,37 @@
 # encoding: UTF-8
 require_relative 'field_type'
 
-# Ein Feld des Spielfelds. Ein Spielfeld ist durch den index eindeutig identifiziert.
+# Ein Feld des Spielfelds. Ein Spielfeld ist durch die Koordinaten eindeutig identifiziert.
 # Das type Attribut gibt an, um welchen Feldtyp es sich handelt
 class Field
   # @!attribute [rw] type
   # @return [FieldType] der Typ des Feldes
   attr_accessor :type
-  # @!attribute [r] index
-  # @return [Integer] der Index des Feldes (0 bis 64)
-  attr_reader :index
+  # @!attribute [r] x
+  # @return [Integer] die X-Koordinate des Feldes (0 bis 9, 0 ist ganz links, 9 ist ganz rechts)
+  attr_reader :x
+  # @!attribute [r] y
+  # @return [Integer] die Y-Koordinate des Feldes (0 bis 9, 0 ist ganz unten, 9 ist ganz oben)
+  attr_reader :y
 
   # Konstruktor
   #
   # @param type [FieldType] Feldtyp
-  # @param index [Integer] Index
-  def initialize(type, index)
-    self.type = type
-    @index = index
+  # @param x [Integer] X-Koordinate
+  # @param y [Integer] Y-Koordinate
+  def initialize(type, x, y)
+    @type = type
+    @x = x
+    @y = y
   end
 
-  def ==(another_field)
-    return self.type == another_field.type &&
-      self.index == another_field.index
+  def ==(other)
+    type == other.type &&
+      x == other.x &&
+      y == other.y
   end
 
   def to_s
-    return "Feld ##{self.index}, Typ = #{self.type}"
+    "Feld (#{x},#{y}), Typ = #{type}"
   end
 end

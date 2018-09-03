@@ -32,20 +32,15 @@ class GameState
   # @!attribute [rw] condition
   # @return [Condition] the winner and winning reason
   attr_accessor :condition
-  # @!attribute [rw] has_to_play_card
-  # @return [Boolean] true if the current player has to play a card
-  attr_accessor :has_to_play_card
-  alias has_to_play_card? has_to_play_card
 
-  def field(index)
-    board.field(index)
+  def field(coordinates)
+    board.field(coordinates)
   end
 
   def initialize
     @current_player_color = PlayerColor::RED
     @start_player_color = PlayerColor::RED
     @board = Board.new
-    @has_to_play_card = false
     @turn = 0
   end
 
@@ -129,38 +124,6 @@ class GameState
     player.index
   end
 
-  # @return [Boolean] true if the given field is occupied by the other (not
-  #                   current) player.
-  def occupied_by_other_player?(field)
-    field.index == other_player.index
-  end
-
-  # Searches backwards starting at the field with the given index. The field
-  # at the given index is not considered. If no field of the given type exists,
-  # nil is returned.
-  #
-  # @param [FieldType] type of the field to search for
-  # @param [Integer] index before which field-index to start searching
-  # @return [Field] the next field before the given index of given type
-  def previous_field_of_type(type, index)
-    return nil if index < 1
-    return nil if index >= board.fields.size
-    board.fields.slice(0..(index - 1)).reverse.find {|f| f.type == type}
-  end
-
-  # Searches forward starting at the field with the given index. The field
-  # at the given index is not considered. If no field of the given type exists,
-  # nil is returned.
-  #
-  # @param [FieldType] type of the field to search for
-  # @param [Integer] index after which field-index to start searching
-  # @return [Field] the next field after the given index of given type
-  def next_field_of_type(type, index)
-    return nil if index >= board.fields.size
-    return nil if index < 0
-    board.fields.slice((index + 1)..(board.fields.size - 1)).find {|f| f.type == type}
-  end
-
   # Compared with other state.
   def ==(other)
     turn == other.turn &&
@@ -170,7 +133,6 @@ class GameState
         blue == other.blue &&
         board == other.board &&
         lastMove == other.lastMove &&
-        has_to_play_card == other.has_to_play_card &&
         condition == other.condition
   end
 
@@ -185,111 +147,13 @@ class GameState
     current_player.last_non_skip_action = action
   end
 
-  def current_field
-    field(current_player.index)
-  end
-
-  def is_first(player)
-    if PlayerColor.opponent_color(player.color) == PlayerColor::RED
-      player.index > red.index
-    else
-      player.index > blue.index
-    end
-  end
-
-  def is_second(player)
-    !is_first(player)
-  end
-
   def switch_current_player
     current_player_color = other_player_color
   end
 
   def possible_moves
     found_moves = []
-    if GameRules.is_valid_to_eat(self)[0]
-      # Wenn ein Salat gegessen werden kann, muss auch ein Salat gegessen werden
-      found_moves << Move.new([EatSalad.new])
-      return found_moves
-    end
-    if GameRules.is_valid_to_exchange_carrots(self, 10)[0]
-      found_moves << Move.new([ExchangeCarrots.new(10)])
-    end
-    if GameRules.is_valid_to_exchange_carrots(self, -10)[0]
-      found_moves << Move.new([ExchangeCarrots.new(-10)])
-    end
-    if GameRules.is_valid_to_fall_back(self)[0]
-      found_moves << Move.new([FallBack.new])
-    end
-    # Generiere mögliche Vorwärtszüge
-    (1..(GameRules.calculate_movable_fields(self.current_player.carrots))).each do |distance|
-      actions = []
-      clone = self.deep_clone
-      # Überprüfe ob Vorwärtszug möglich ist
-      if GameRules.is_valid_to_advance(clone, distance)[0]
-        try_advance = Advance.new(distance)
-        try_advance.perform!(clone)
-        actions << try_advance
-        # überprüfe, ob eine Karte gespielt werden muss/kann
-        if GameRules.must_play_card(clone)
-          clone.check_for_playable_cards(actions).each do |card|
-            found_moves << card # TODO: this is unexpected, rename or refactor
-          end
-        else
-        # Füge möglichen Vorwärtszug hinzu
-          found_moves << Move.new(actions)
-        end
-      end
-    end
-    if found_moves.empty?
-      found_moves << Move.new([Skip.new])
-    end
     found_moves
   end
 
-  # @return [Array[Move]] gibt liste von Zuegen zurueck, die gemacht werden koennen, vorausgesetzt die gegebene Liste von Aktionen wurde schon gemacht.
-  def check_for_playable_cards(actions)
-    found_card_playing_moves = []
-    if current_player.must_play_card
-      if GameRules.is_valid_to_play_eat_salad(self)[0]
-        found_card_playing_moves << Move.new(actions + [Card.new(CardType::EAT_SALAD)])
-      end
-      [20, -20, 0].each do |carrots|
-        if GameRules.is_valid_to_play_take_or_drop_carrots(self,carrots)[0]
-          found_card_playing_moves << Move.new(actions + [Card.new(CardType::TAKE_OR_DROP_CARROTS, carrots)])
-        end
-      end
-      if GameRules.is_valid_to_play_hurry_ahead(self)[0]
-        actions_with_card_played = actions + [Card.new(CardType::HURRY_AHEAD)]
-        # pruefe, ob auf Hasenfeld gelandet
-        clone = self.deep_clone
-        Card.new(CardType::HURRY_AHEAD).perform!(clone)
-        moves = []
-        if GameRules.must_play_card(clone)
-          moves = clone.check_for_playable_cards(actions_with_card_played)
-        end
-        if moves.empty?
-          found_card_playing_moves << Move.new(actions_with_card_played)
-        else
-          found_card_playing_moves += moves
-        end
-      end
-      if GameRules.is_valid_to_play_fall_back(self)[0]
-        actions_with_card_played = actions + [Card.new(CardType::FALL_BACK)]
-        # pruefe, ob auf Hasenfeld gelandet
-        clone = self.deep_clone
-        Card.new(CardType::FALL_BACK).perform!(clone)
-        moves = []
-        if GameRules.must_play_card(clone)
-          moves = clone.check_for_playable_cards(actions_with_card_played)
-        end
-        if moves.empty?
-          found_card_playing_moves << Move.new(actions_with_card_played)
-        else
-          found_card_playing_moves += moves
-        end
-      end
-    end
-    found_card_playing_moves
-  end
 end
