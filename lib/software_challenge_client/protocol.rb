@@ -144,16 +144,10 @@ class Protocol
   # @param attributes [Hash] Attributes for the new Player.
   # @return [Player] The created Player object.
   def parsePlayer(attributes)
-    player = Player.new(
+    Player.new(
       PlayerColor.find_by_key(attributes['color'].to_sym),
       attributes['displayName']
     )
-    player.points = attributes['points'].to_i
-    player.index = attributes['index'].to_i
-    player.carrots = attributes['carrots'].to_i
-    player.salads = attributes['salads'].to_i
-    player.cards = []
-    player
   end
 
   # send a xml document
@@ -182,31 +176,14 @@ class Protocol
   # @param move [Move] The move to convert to XML.
   def move_to_xml(move)
     builder = Builder::XmlMarkup.new(indent: 2)
-    builder.data(class: 'move') do |data|
-      move.actions.each_with_index do |action, index|
-        # Converting every action type here instead of requiring the Action
-        # class interface to supply a method which returns the action hash
-        # because XML-generation should be decoupled from internal data
-        # structures.
-        attribute = case action.type
-                    when :advance
-                      { distance: action.distance }
-                    when :skip, :eat_salad, :fall_back
-                      {}
-                    when :card
-                      { type: action.card_type.key.to_s, value: action.value }
-                    when :exchange_carrots
-                      { value: action.value }
-                    else
-                      raise "unknown action type: #{action.type.inspect}. "\
-                            "Can't convert to XML!"
-                    end
-        attribute[:order] = index
-        data.tag!(snake_case_to_lower_camel_case(action.type.to_s), attribute)
+    # Converting every the move here instead of requiring the Move
+    # class interface to supply a method which returns the XML
+    # because XML-generation should be decoupled from internal data
+    # structures.
+    builder.data(class: 'move', x: move.x, y: move.y, direction: move.direction) do |data|
+      move.hints.each do |hint|
+        data.hint(content: hint.content)
       end
-    end
-    move.hints.each do |hint|
-      data.hint(content: hint.content)
     end
     builder.target!
   end

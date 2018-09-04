@@ -2,7 +2,7 @@
 
 require 'typesafe_enum'
 class FieldType < TypesafeEnum::Base
-  new :EMPTY, '_'
+  new :EMPTY, '~'
   new :RED, 'R'
   new :BLUE, 'B'
   new :OBSTRUCTED, 'O'

@@ -45,8 +45,19 @@ class Move
     "Move: (#{x},#{y}) #{direction}"
   end
 
+  def valid?(gamestate)
+
+  end
+
   def perform!(gamestate)
-    # TODO
+    if GameRuleLogic.valid_move(move, gamestate.board)
+      type = gamestate.board.field(move.x, movey).type
+      gamestate.board.change_field(move.x, move.y, FieldType::EMPTY)
+      target = GameRuleLogic.move_target(move, gamestate.board)
+      gamestate.board.change_field(target.x, target.y, type)
+    else
+      raise InvalidMoveException.new('Invalid move', self)
+    end
     # change the state to the next turn
     gamestate.last_move = self
     gamestate.turn += 1

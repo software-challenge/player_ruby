@@ -17,16 +17,18 @@ class Board
   # Initializes the board
   def initialize
     @fields = []
-    (0..9).to_a.each do |x|
-      @fields[x] = []
-      (0..9).to_a.each do |y|
-        @fields[x][y] = Field.new(FieldType::EMPTY, x, y)
+    (0..9).to_a.each do |y|
+      @fields[y] = []
+      (0..9).to_a.each do |x|
+        @fields[y][x] = Field.new(FieldType::EMPTY, y, x)
       end
     end
   end
 
   def to_s
-    fields.map { |f| f.type.value }.join(' ')
+    fields.reverse.map do |row|
+      row.map { |f| f.type.value }.join(' ')
+    end.join("\n")
   end
 
   def ==(other)
@@ -44,10 +46,14 @@ class Board
   #   exisitert (weil die Koordinaten ausserhalb von (0,0)..(9,9) liegen), wird nil zurückgegeben.
   def field(x, y)
     return nil if x.negative? || y.negative?
-    fields.dig(x, y) # NOTE that #dig requires ruby 2.3+
+    fields.dig(y, x) # NOTE that #dig requires ruby 2.3+
   end
 
   def add_field(field)
-    @fields[field.x][field.y] = field
+    @fields[field.y][field.x] = field
+  end
+
+  def change_field(x, y, type)
+    @fields[y][x].type = type
   end
 end

@@ -7,7 +7,7 @@ class Runner
   include Logging
 
   def initialize(host, port, client, reservation = nil)
-    logger.info 'Software Challenge 2018'
+    logger.info 'Software Challenge 2019'
     logger.info 'Ruby Client'
     logger.info "Host: #{host}"
     logger.info "Port: #{port}"
