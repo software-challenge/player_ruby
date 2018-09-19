@@ -3,7 +3,7 @@
 
 require_relative './util/constants'
 require_relative 'direction'
-require_relative 'coordinate'
+require_relative 'coordinates'
 require_relative 'line_direction'
 
 # an iterator with all field-coordinates on the line given by a field on it and
@@ -23,23 +23,19 @@ class Line
     when LineDirection::HORIZONTAL
       leftmost_x = 0
       leftmost_y = @start.y
-      break
     when LineDirection::VERTICAL
       leftmost_x = @start.x
       leftmost_y = SIZE - 1
-      break
     when LineDirection::RISING_DIAGONAL
       # for rising diagonals, we have to decrease x and y
       shift = Math.min(@start.x, @start.y)
       leftmost_x = @start.x - shift
       leftmost_y = @start.y - shift
-      break
     when LineDirection::FALLING_DIAGONAL
       # for falling diagonals, we have to decrease x and increase y
       shift = Math.min(@start.x, (SIZE - 1) - @start.y)
       leftmost_x = @start.x - shift
       leftmost_y = @start.y + shift
-      break
     end
     @xi = leftmost_x
     @yi = leftmost_y
@@ -103,16 +99,16 @@ class Line
     end
   end
 
-  def line_direction_for_direction(direction)
+  def self.line_direction_for_direction(direction)
     case direction
     when Direction::LEFT, Direction::RIGHT
-      Direction::HORIZONTAL
+      LineDirection::HORIZONTAL
     when Direction::UP, Direction::DOWN
-      Direction::VERTICAL
+      LineDirection::VERTICAL
     when Direction::UP_RIGHT, Direction::DOWN_LEFT
-      Direction::RISING_DIAGONAL
+      LineDirection::RISING_DIAGONAL
     when Direction::UP_LEFT, Direction::DOWN_RIGHT
-      Direction::FALLING_DIAGONAL
+      LineDirection::FALLING_DIAGONAL
     end
   end
 end

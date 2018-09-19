@@ -27,7 +27,7 @@ module GameStateHelpers
             raise boardformaterror,
                   "unknown identifier for field (#{x},#{y}): '#{field}'"
           end
-        board.add_field(Field.new(type, x, Constants::SIZE - 1 - y))
+        board.add_field(Field.new(x, Constants::SIZE - 1 - y, type))
       end
     end
     gamestate.board = board

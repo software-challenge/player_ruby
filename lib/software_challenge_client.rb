@@ -17,4 +17,7 @@ module SoftwareChallengeClient
   require 'software_challenge_client/protocol'
   require 'software_challenge_client/runner'
   require 'software_challenge_client/game_rule_logic'
+  require 'software_challenge_client/direction'
+  require 'software_challenge_client/line_direction'
+  require 'software_challenge_client/coordinates'
 end

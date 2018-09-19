@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require_relative 'field_type'
+require_relative 'line'
 
 # All methods which define the game rules. Needed for checking validity of moves
 # and performing them.
@@ -101,9 +102,9 @@ class GameRuleLogic
   end
 
   def self.valid_move(move, board)
-    if board.field(move.fromField) == FieldType::RED
+    if board.field(move.x, move.y).type == FieldType::RED
       moving_player_color = PlayerColor::RED
-    elsif board.field(move.fromField) == FieldType::BLUE
+    elsif board.field(move.x, move.y).type == FieldType::BLUE
       moving_player_color = PlayerColor::BLUE
     else
       # moving from a field which is not occupied by a fish is invalid

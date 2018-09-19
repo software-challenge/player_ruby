@@ -19,7 +19,7 @@ class Field
   # @param type [FieldType] Feldtyp
   # @param x [Integer] X-Koordinate
   # @param y [Integer] Y-Koordinate
-  def initialize(type, x, y)
+  def initialize(x, y, type)
     @type = type
     @x = x
     @y = y

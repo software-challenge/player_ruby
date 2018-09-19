@@ -20,7 +20,7 @@ class Board
     (0..9).to_a.each do |y|
       @fields[y] = []
       (0..9).to_a.each do |x|
-        @fields[y][x] = Field.new(FieldType::EMPTY, y, x)
+        @fields[y][x] = Field.new(x, y, FieldType::EMPTY)
       end
     end
   end

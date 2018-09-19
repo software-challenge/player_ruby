@@ -32,7 +32,7 @@ RSpec.describe Board do
     end
 
     it 'should return the field at the index' do
-      field = Field.new(FieldType::OBSTRUCTED, 2, 3)
+      field = Field.new(2, 3, FieldType::OBSTRUCTED)
       board.add_field(field)
       expect(board.field(2, 3)).to eq(field)
       expect(board.field(0, 0).type).to eq(FieldType::EMPTY)

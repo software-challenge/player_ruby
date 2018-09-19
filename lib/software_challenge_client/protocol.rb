@@ -119,7 +119,7 @@ class Protocol
       x = attrs['x'].to_i
       y = attrs['y'].to_i
       raise "unexpected field type: #{attrs['type']}. Known types are #{FieldType.map { |t| t.key.to_s }}" if type.nil?
-      @gamestate.board.add_field(Field.new(type, x, y))
+      @gamestate.board.add_field(Field.new(x, y, type))
     when 'lastMove'
       direction = Direction.find_by_key(attrs['direction'].to_sym)
       x = attrs['x'].to_i

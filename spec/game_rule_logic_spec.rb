@@ -39,9 +39,26 @@ RSpec.describe GameRuleLogic do
       state_from_string!(field, gamestate)
     end
 
-    it 'is not valid to move an empty field'
-    it 'is not valid to move a fish from other player'
-    it 'is not valid to move an obstructed field'
+    it 'is valid to move own fish' do
+      expect(subject.valid_move(Move.new(1, 0, Direction::UP), gamestate.board)).to be true
+    end
+
+    it 'is not valid to move an empty field' do
+      expect(subject.valid_move(Move.new(2, 1, Direction::UP), gamestate.board)).to be false
+    end
+
+    it 'is not valid to move a fish from other player' do
+      expect(
+        subject.valid_move(Move.new(0, 1, Direction::RIGHT), gamestate.board)
+      ).to be false
+    end
+
+    it 'is not valid to move an obstructed field' do
+      expect(
+        subject.valid_move(Move.new(5, 3, Direction::RIGHT), gamestate.board)
+      ).to be false
+    end
+
     it 'is not valid to move onto an obstructed field'
     it 'is not valid to move out of the board'
   end

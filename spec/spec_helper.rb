@@ -22,6 +22,7 @@ require 'bundler/setup'
 Bundler.setup
 
 require 'pry'
+require 'pry-byebug'
 
 require 'software_challenge_client'
 

@@ -13,7 +13,7 @@ class Move
   #
   # @return [Integer] Y-coordinate of the piranha to move. Row of the the board.
   # Lower row is 0, upper row is 9.
-  attr_reader :x
+  attr_reader :y
 
   # @!attribute [r] direction
   #
@@ -26,9 +26,11 @@ class Move
 
   # Initializer
   #
-  def initialize(actions = [], hints = [])
-    @actions = actions
-    @hints = hints
+  def initialize(x, y, direction)
+    @x = x
+    @y = y
+    @direction = direction
+    @hints = []
   end
 
   # adds a hint to the move
@@ -38,22 +40,26 @@ class Move
   end
 
   def ==(other)
-    x == other.x && y == other.x && direction == other.direction
+    x == other.x && y == other.y && direction == other.direction
   end
 
   def to_s
     "Move: (#{x},#{y}) #{direction}"
   end
 
-  def valid?(gamestate)
+  def fromField
+    Coordinates.new(x, y)
+  end
 
+  def valid?(gamestate)
+    GameRuleLogic.valid_move(self, gamestate.board)
   end
 
   def perform!(gamestate)
-    if GameRuleLogic.valid_move(move, gamestate.board)
-      type = gamestate.board.field(move.x, movey).type
-      gamestate.board.change_field(move.x, move.y, FieldType::EMPTY)
-      target = GameRuleLogic.move_target(move, gamestate.board)
+    if GameRuleLogic.valid_move(self, gamestate.board)
+      type = gamestate.board.field(x, y).type
+      gamestate.board.change_field(x, y, FieldType::EMPTY)
+      target = GameRuleLogic.move_target(self, gamestate.board)
       gamestate.board.change_field(target.x, target.y, type)
     else
       raise InvalidMoveException.new('Invalid move', self)

@@ -33,8 +33,8 @@ class GameState
   # @return [Condition] the winner and winning reason
   attr_accessor :condition
 
-  def field(coordinates)
-    board.field(coordinates)
+  def field(x, y)
+    board.field(x, y)
   end
 
   def initialize
@@ -140,11 +140,6 @@ class GameState
   # changing the original gamestate.
   def deep_clone
     Marshal.load(Marshal.dump(self))
-  end
-
-  def set_last_action(action)
-    return if action.instance_of? Skip
-    current_player.last_non_skip_action = action
   end
 
   def switch_current_player

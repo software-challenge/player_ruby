@@ -9,14 +9,24 @@ RSpec.describe GameState do
   subject(:gamestate) { described_class.new }
 
   before do
-    state_from_string!('0 C Cr H bS I 2 1 G', gamestate)
+    field =
+      <<~FIELD
+          ~ R R R R R R R R ~
+          B ~ ~ ~ ~ ~ ~ ~ ~ B
+          B ~ ~ ~ ~ ~ ~ ~ ~ B
+          B ~ ~ ~ ~ ~ ~ ~ ~ B
+          B ~ ~ O ~ ~ ~ ~ ~ B
+          B ~ ~ ~ ~ ~ ~ ~ ~ B
+          B ~ ~ ~ ~ O ~ ~ ~ B
+          B ~ ~ ~ ~ ~ ~ ~ ~ B
+          B ~ ~ ~ ~ ~ ~ ~ ~ B
+          ~ R R R R R R R R ~
+        FIELD
+    state_from_string!(field, gamestate)
   end
 
-  it 'finds the next field of type' do
-    expect(subject.next_field_of_type(FieldType::POSITION_1, 0)).to eq(subject.board.field(7))
-    expect(subject.next_field_of_type(FieldType::HARE, 4)).to be_nil
-    expect(subject.next_field_of_type(FieldType::GOAL, 8)).to be_nil
-    expect(subject.next_field_of_type(FieldType::GOAL, 7)).to eq(subject.board.field(8))
+  it 'holds the board' do
+    expect(subject.field(0, 0)).to eq(Field.new(0,0, FieldType::EMPTY))
   end
 
   it 'returns nil when searching for field with illegal index' do

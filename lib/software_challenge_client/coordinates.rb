@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Coordinate
+class Coordinates
   attr_reader :x
   attr_reader :y
 
