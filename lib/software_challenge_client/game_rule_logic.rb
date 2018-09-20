@@ -3,10 +3,14 @@
 
 require_relative 'field_type'
 require_relative 'line'
+require_relative './util/constants'
 
 # All methods which define the game rules. Needed for checking validity of moves
 # and performing them.
 class GameRuleLogic
+
+  include Constants
+
   def self.add_blocked_fields(board)
     number_of_blocked_fields = 2
     lower_bound = 2 # first row or column, in which blocked fields are allowed
@@ -41,10 +45,10 @@ class GameRuleLogic
 
   def self.count_fish(board, start, direction)
     # filter function for fish field type
-    fish = proc { |t| t == FieldType::RED || t == FieldRype::BLUE }
+    fish = proc { |f| f.type == FieldType::RED || f.type == FieldType::BLUE }
     Line.new(start, direction).to_a.map do |p|
-      board.field(p)
-    end.select(fish).size
+      board.field(p.x, p.y)
+    end.select(&fish).size
   end
 
   def self.player_field_type(color)
@@ -66,18 +70,19 @@ class GameRuleLogic
   end
 
   def self.move_target(move, board)
-    speed = GameRuleLogic.countFish(
-      board, move.fromField,
+    speed = GameRuleLogic.count_fish(
+      board, move.from_field,
       Line.line_direction_for_direction(move.direction)
     )
-    move.targetField(speed)
+    c = move.target_field(speed)
+    board.field(c.x, c.y)
   end
 
   def self.inside_bounds?(coordinates)
     coordinates.x >= 0 &&
-      coordinates.x < FIELDSIZE &&
+      coordinates.x < SIZE &&
       coordinates.y >= 0 &&
-      coordinates.y < FIELDSIZE
+      coordinates.y < SIZE
   end
 
   def self.obstacle?(field_type, moving_player_color)
@@ -86,15 +91,15 @@ class GameRuleLogic
     )
   end
 
-  def self.no_obstacle?(_from_field, direction, _to_field, color, board)
-    Line.new(fromField, direction)
+  def self.no_obstacle?(from_field, direction, to_field, color, board)
+    Line.new(from_field, direction)
         .to_a
-        .filter { |c| Line.between(fromField, toField, direction, c) }
-        .none? { |f| GameRuleLogic.obstacle?(board.field(f), color) }
+        .select { |c| Line.between(from_field, to_field, direction).call(c) }
+        .none? { |f| GameRuleLogic.obstacle?(board.field(f.x, f.y).type, color) }
   end
 
   def self.valid_move_target(target, moving_player_color, board)
-    target_field_type = board.field(target)
+    target_field_type = board.field(target.x, target.y).type
     target_field_type == FieldType::EMPTY ||
       target_field_type == GameRuleLogic.player_field_type(
         PlayerColor.opponent_color(moving_player_color)
@@ -113,10 +118,10 @@ class GameRuleLogic
 
     target = GameRuleLogic.move_target(move, board)
 
-    GameRuleLogic.inside_bounds(target) &&
+    GameRuleLogic.inside_bounds?(target) &&
       GameRuleLogic.valid_move_target(target, moving_player_color, board) &&
-      GameRuleLogic.no_obstacle(
-        move.fromField,
+      GameRuleLogic.no_obstacle?(
+        move.from_field,
         Line.line_direction_for_direction(move.direction),
         target, moving_player_color, board
       )

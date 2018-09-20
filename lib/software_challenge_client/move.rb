@@ -47,7 +47,7 @@ class Move
     "Move: (#{x},#{y}) #{direction}"
   end
 
-  def fromField
+  def from_field
     Coordinates.new(x, y)
   end
 
@@ -68,5 +68,26 @@ class Move
     gamestate.last_move = self
     gamestate.turn += 1
     gamestate.switch_current_player
+  end
+
+  def target_field(speed)
+    case direction
+    when Direction::UP
+      Coordinates.new(x, y + speed)
+    when Direction::UP_RIGHT
+      Coordinates.new(x + speed, y + speed)
+    when Direction::RIGHT
+      Coordinates.new(x + speed, y)
+    when Direction::DOWN_RIGHT
+      Coordinates.new(x + speed, y - speed)
+    when Direction::DOWN
+      Coordinates.new(x, y - speed)
+    when Direction::DOWN_LEFT
+      Coordinates.new(x - speed, y - speed)
+    when Direction::LEFT
+      Coordinates.new(x - speed, y)
+    when Direction::UP_LEFT
+      Coordinates.new(x - speed, y + speed)
+    end
   end
 end

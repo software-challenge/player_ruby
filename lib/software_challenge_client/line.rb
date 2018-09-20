@@ -11,6 +11,8 @@ require_relative 'line_direction'
 class Line
   include Enumerable
 
+  include Constants
+
   # start: Coordinates
   # direction: LineDirection
   def initialize(start, direction)
@@ -41,19 +43,19 @@ class Line
     @yi = leftmost_y
 
     @members = []
-    while xi >= 0 && yi >= 0 && xi < SIZE && yi < SIZE
-      @members << Coordinate.new(xi, yi)
+    while @xi >= 0 && @yi >= 0 && @xi < SIZE && @yi < SIZE
+      @members << Coordinates.new(@xi, @yi)
       # horizontal lines and diagonals move right
       if [LineDirection::HORIZONTAL,
           LineDirection::RISING_DIAGONAL,
-          LineDirection.FALLING_DIAGONAL].include? direction
+          LineDirection::FALLING_DIAGONAL].include? @direction
         @xi += 1
       end
       # vertical lines and falling diagonals move down
       if [LineDirection::VERTICAL,
-          LineDirection::FALLING_DIAGONAL].include? direction
+          LineDirection::FALLING_DIAGONAL].include? @direction
         @yi -= 1
-      elsif direction == LineDirection::RISING_DIAGONAL
+      elsif @direction == LineDirection::RISING_DIAGONAL
         # rising diagonals move up
         @yi += 1
       end
@@ -68,10 +70,10 @@ class Line
   # to be used as a filter
   # e.g. Line.new(2,3, HORIZONTAL).filter(between(2, 3, 5, 3, HORIZONTAL))
   def self.between(start, bound, direction)
-    lower_x = Math.min(start.x, bound.x)
-    lower_y = Math.min(start.y, bound.y)
-    higher_x = Math.max(start.x, bound.x)
-    higher_y = Math.max(start.y, bound.y)
+    lower_x = [start.x, bound.x].min
+    lower_y = [start.y, bound.y].min
+    higher_x = [start.x, bound.x].max
+    higher_y = [start.y, bound.y].max
     proc do |f|
       case direction
       when LineDirection::HORIZONTAL
