@@ -7,10 +7,12 @@ require 'rexml/element'
 require_relative 'protocol'
 require_relative 'board'
 require_relative 'client_interface'
+require_relative 'util/constants'
 
 # This class handles the socket connection to the server
 class Network
   include Logging
+  include Constants
 
   # @!attribute [r] connected
   # @return [Boolean] true, if the client is connected to a server
@@ -43,7 +45,7 @@ class Network
       element.add_attribute('reservationCode', @reservation_id)
     else
       element = REXML::Element.new('join')
-      element.add_attribute('gameType', 'swc_2018_hase_und_igel')
+      element.add_attribute('gameType', GAME_IDENTIFIER)
     end
     document.add(element)
     sendXML(document)

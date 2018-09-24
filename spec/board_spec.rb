@@ -12,16 +12,16 @@ RSpec.describe Board do
     before do
       field =
         <<~FIELD
-          ~ R R R R R R R R ~
-          B ~ ~ ~ ~ ~ ~ ~ ~ B
-          B ~ ~ ~ ~ ~ ~ ~ ~ B
-          B ~ ~ ~ ~ ~ ~ ~ ~ B
-          B ~ ~ O ~ ~ ~ ~ ~ B
-          B ~ ~ ~ ~ ~ ~ ~ ~ B
-          B ~ ~ ~ ~ O ~ ~ ~ B
-          B ~ ~ ~ ~ ~ ~ ~ ~ B
-          B ~ ~ ~ ~ ~ ~ ~ ~ B
-          ~ R R R R R R R R ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ B ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ R ~ ~ ~ ~
+          B ~ ~ O ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ O ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          B ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ R ~ ~ ~ ~ ~ ~ R ~
         FIELD
       state_from_string!(field, gamestate)
     end
@@ -37,7 +37,12 @@ RSpec.describe Board do
       expect(board.field(2, 3)).to eq(field)
       expect(board.field(0, 0).type).to eq(FieldType::EMPTY)
       expect(board.field(0, 1).type).to eq(FieldType::BLUE)
+      expect(board.field(0, 5).type).to eq(FieldType::BLUE)
+      expect(board.field(7, 8).type).to eq(FieldType::BLUE)
       expect(board.field(1, 0).type).to eq(FieldType::RED)
+      expect(board.field(8, 0).type).to eq(FieldType::RED)
+      expect(board.field(5, 6).type).to eq(FieldType::RED)
+      expect(board.field(8, 0).type).to eq(FieldType::RED)
       expect(board.field(5, 3).type).to eq(FieldType::OBSTRUCTED)
     end
   end

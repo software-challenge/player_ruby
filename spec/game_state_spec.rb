@@ -29,47 +29,22 @@ RSpec.describe GameState do
     expect(subject.field(0, 0)).to eq(Field.new(0,0, FieldType::EMPTY))
   end
 
-  it 'returns nil when searching for field with illegal index' do
-    expect(subject.next_field_of_type(FieldType::POSITION_1, -1)).to be_nil
-    expect(subject.next_field_of_type(FieldType::POSITION_1, 8)).to be_nil
-    expect(subject.previous_field_of_type(FieldType::POSITION_1, -1)).to be_nil
-    expect(subject.previous_field_of_type(FieldType::POSITION_1, 0)).to be_nil
-    expect(subject.previous_field_of_type(FieldType::POSITION_1, 9)).to be_nil
-  end
-
-  it 'finds the previous field of type' do
-    expect(subject.previous_field_of_type(FieldType::HARE, 7)).to eq(subject.board.field(3))
-  end
-
   it 'is clonable' do
     clone = gamestate.deep_clone
     clone.turn += 1
-    clone.board.fields[0] = Field.new(FieldType::CARROT, 0)
-    clone.current_player.index += 2
+    clone.board.add_field(Field.new(0, 0, FieldType::RED))
+    clone.current_player_color = PlayerColor::BLUE
     # if clone is not independent, changes should also affect the original gamestate
     expect(gamestate.turn).to_not eq(clone.turn)
-    expect(gamestate.board.fields[0]).to_not eq(clone.board.fields[0])
-    expect(gamestate.current_player.index).to_not eq(clone.current_player.index)
+    expect(gamestate.board.field(0,0)).to_not eq(clone.board.field(0,0))
+    expect(gamestate.current_player_color).to_not eq(clone.current_player_color)
   end
 
-  it 'updates the current turn number' do
-    state_from_string!('0 C Cr C bC C C C G', gamestate)
-    expect(gamestate.turn).to eq(0)
-    expect(gamestate.round).to eq(0)
-    red = gamestate.current_player
-    steps_to_next_carrot_field = gamestate.next_field_of_type(FieldType::CARROT, red.index).index - red.index
-    Move.new([Advance.new(steps_to_next_carrot_field)]).perform!(gamestate)
-    expect(gamestate.turn).to eq(1)
-    expect(gamestate.round).to eq(0)
-  end
-
-  it 'chooses the current player based on current player color' do
-    expect(gamestate.current_player.color).to eq(gamestate.current_player_color)
-    gamestate.current_player_color = PlayerColor.opponent_color(gamestate.current_player_color)
-    expect(gamestate.current_player.color).to eq(gamestate.current_player_color)
+  it 'returns all own fields' do
+    expect(gamestate.own_fields.size).to eq(16)
   end
 
   it 'calculates all possible moves' do
-    expect(gamestate.possible_moves).to_not be_empty
+    expect(gamestate.possible_moves.size).to eq(16*3)
   end
 end

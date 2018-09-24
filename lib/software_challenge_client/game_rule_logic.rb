@@ -69,12 +69,16 @@ class GameRuleLogic
     end
   end
 
-  def self.move_target(move, board)
+  def self.target_coordinates(move, board)
     speed = GameRuleLogic.count_fish(
       board, move.from_field,
       Line.line_direction_for_direction(move.direction)
     )
-    c = move.target_field(speed)
+    move.target_field(speed)
+  end
+
+  def self.move_target(move, board)
+    c = GameRuleLogic.target_coordinates(move, board)
     board.field(c.x, c.y)
   end
 
@@ -106,32 +110,36 @@ class GameRuleLogic
       )
   end
 
-  def self.valid_move(move, board)
-    if board.field(move.x, move.y).type == FieldType::RED
-      moving_player_color = PlayerColor::RED
-    elsif board.field(move.x, move.y).type == FieldType::BLUE
-      moving_player_color = PlayerColor::BLUE
-    else
-      # moving from a field which is not occupied by a fish is invalid
-      return false
-    end
+  def self.valid_move?(move, board, current_player_color)
+    from_field_type = board.field(move.x, move.y).type
+    return false unless
+      [FieldType::BLUE, FieldType::RED].include? from_field_type
+    return false unless
+      current_player_color == FieldType.player_color(from_field_type)
+
+    return false unless
+      GameRuleLogic.inside_bounds?(
+        GameRuleLogic.target_coordinates(move, board)
+      )
 
     target = GameRuleLogic.move_target(move, board)
 
-    GameRuleLogic.inside_bounds?(target) &&
-      GameRuleLogic.valid_move_target(target, moving_player_color, board) &&
+    GameRuleLogic.valid_move_target(target, current_player_color, board) &&
       GameRuleLogic.no_obstacle?(
         move.from_field,
         Line.line_direction_for_direction(move.direction),
-        target, moving_player_color, board
+        target, current_player_color, board
       )
   end
 
-  def self.possible_moves(board, field)
-    ALL_DIRECTIONS.map do |direction|
-      Line.directions_for_line_direction(direction)
-          .map { |d| Move.new(field, d) } # create two moves for every line direction
-          .filter { |m| GameRuleLogic.valid_move(m, board) } # remove invalid moves
-    end.flatten
+  def self.possible_moves(board, field, current_player_color)
+    Direction.map { |direction| Move.new(field.x, field.y, direction) }
+             .select do |m|
+               GameRuleLogic.valid_move?(m, board, current_player_color)
+             end
+  end
+
+  def self.swarm_size(board, player_color)
+    0 # TODO
   end
 end

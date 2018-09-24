@@ -1,4 +1,4 @@
-# encoding: UTF-8
+# encoding: utf-8
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
@@ -17,67 +17,26 @@ RSpec.describe Protocol do
   context 'when getting a new game state' do
     it 'updates the game state' do
       server_message <<-XML
-        <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE">
-        <red displayName="Spieler 1" color="RED" index="3" carrots="100" salads="2">
-           <cards>
-             <type>TAKE_OR_DROP_CARROTS</type>
-             <type>EAT_SALAD</type>
-             <type>HURRY_AHEAD</type>
-             <type>FALL_BACK</type>
-           </cards>
-           <lastNonSkipAction class="fallBack" order="0"/>
-        </red>
-        <blue displayName="Spieler 2" color="BLUE" index="23" carrots="42" salads="0">
-           <cards>
-             <type>FALL_BACK</type>
-             <type>HURRY_AHEAD</type>
-           </cards>
-           <lastNonSkipAction class="exchangeCarrots" order="0" value="10"/>
-        </blue>
+  <room roomId="bc65c764-c062-4b06-940c-5c6c39cb2324">
+    <data class="memento">
+      <state class="sc.plugin2019.GameState" startPlayerColor="RED" currentPlayerColor="BLUE" turn="2">
+        <red displayName="Roter Spieler" color="RED"/>
+        <blue displayName="Blauer Spieler" color="BLUE"/>
       XML
       expect(subject.gamestate.turn).to eq(2)
       expect(subject.gamestate.start_player_color).to eq(PlayerColor::RED)
       expect(subject.gamestate.current_player_color).to eq(PlayerColor::BLUE)
       expect(subject.gamestate.current_player).to_not be_nil
-      expect(subject.gamestate.red.name).to eq('Spieler 1')
-      expect(subject.gamestate.red.index).to eq(3)
-      expect(subject.gamestate.red.carrots).to eq(100)
-      expect(subject.gamestate.red.salads).to eq(2)
-      expect(subject.gamestate.red.cards).to contain_exactly(
-                                                 CardType::FALL_BACK,
-                                                 CardType::EAT_SALAD,
-                                                 CardType::HURRY_AHEAD,
-                                                 CardType::TAKE_OR_DROP_CARROTS)
-      expect(subject.gamestate.red.last_non_skip_action).to eq(FallBack.new)
-      expect(subject.gamestate.blue.name).to eq('Spieler 2')
-      expect(subject.gamestate.blue.index).to eq(23)
-      expect(subject.gamestate.blue.carrots).to eq(42)
-      expect(subject.gamestate.blue.salads).to eq(0)
-      expect(subject.gamestate.blue.cards).to contain_exactly(
-                                                  CardType::FALL_BACK,
-                                                  CardType::HURRY_AHEAD)
-      expect(subject.gamestate.blue.last_non_skip_action).to eq(ExchangeCarrots.new(10))
+      expect(subject.gamestate.red.name).to eq('Roter Spieler')
+      expect(subject.gamestate.blue.name).to eq('Blauer Spieler')
     end
 
     it 'updates the last move, if it exists in the gamestate' do
       server_message <<-XML
         <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE">
-        <lastMove>
-          <card order="3" type="TAKE_OR_DROP_CARROTS" value="20"/>
-          <advance distance="3" order="0"/>
-          <skip order="2"/>
-          <eatSalad order="1"/>
-          <fallBack order="5"/>
-          <exchangeCarrots order="4" value="-10"/>
-        </lastMove>
+          <lastMove class="move" x="8" y="9" direction="DOWN"/>
       XML
-      move = Move.new
-      move.add_action(Advance.new(3))
-      move.add_action(EatSalad.new)
-      move.add_action(Skip.new)
-      move.add_action(Card.new(CardType::TAKE_OR_DROP_CARROTS, 20))
-      move.add_action(ExchangeCarrots.new(-10))
-      move.add_action(FallBack.new)
+      move = Move.new(8,9,Direction::DOWN)
       expect(subject.gamestate.last_move).to eq(move)
     end
   end
@@ -96,11 +55,7 @@ RSpec.describe Protocol do
               <aggregation>SUM</aggregation>
               <relevantForRanking>true</relevantForRanking>
             </fragment>
-            <fragment name="Ø Feldnummer">
-              <aggregation>AVERAGE</aggregation>
-              <relevantForRanking>true</relevantForRanking>
-            </fragment>
-            <fragment name="Ø Karotten">
+            <fragment name="Ø Schwarm">
               <aggregation>AVERAGE</aggregation>
               <relevantForRanking>true</relevantForRanking>
             </fragment>
@@ -108,26 +63,15 @@ RSpec.describe Protocol do
           <score cause="CAUSE1" reason="R1">
             <part>2</part>
             <part>23</part>
-            <part>42</part>
           </score>
           <score cause="CAUSE2" reason="R2">
             <part>0</part>
             <part>3</part>
-            <part>100</part>
           </score>
-          <winner class="player" displayName="Winning Player" color="BLUE" index="23" carrots="42" salads="0">
-            <cards>
-              <type>FALL_BACK</type>
-              <type>HURRY_AHEAD</type>
-            </cards>
-            <lastNonSkipAction class="exchangeCarrots" order="0" value="10"/>
-          </winner>
+          <winner displayName="Winning Player" color="BLUE" />
         </data>
       XML
       expect(subject.gamestate.condition.winner.name).to eq("Winning Player")
-      expect(subject.gamestate.condition.winner.cards).to contain_exactly(
-                                                              CardType::FALL_BACK,
-                                                              CardType::HURRY_AHEAD)
     end
   end
 
@@ -135,59 +79,139 @@ RSpec.describe Protocol do
     it 'creates the new board in the gamestate' do
       server_message <<-XML
         <board>
-          <fields index="0" type="START" />
-          <fields index="1" type="CARROT" />
-          <fields index="3" type="POSITION_1" />
-          <fields index="4" type="POSITION_2" />
-          <fields index="5" type="HEDGEHOG" />
-          <fields index="6" type="SALAD" />
-          <fields index="7" type="CARROT" />
-          <fields index="2" type="HARE" />
-          <fields index="8" type="CARROT" />
-          <fields index="9" type="CARROT" />
-          <fields index="10" type="GOAL" />
+          <fields>
+            <field x="0" y="0" state="EMPTY"/>
+            <field x="0" y="1" state="RED"/>
+            <field x="0" y="2" state="RED"/>
+            <field x="0" y="3" state="RED"/>
+            <field x="0" y="4" state="RED"/>
+            <field x="0" y="5" state="RED"/>
+            <field x="0" y="6" state="RED"/>
+            <field x="0" y="7" state="RED"/>
+            <field x="0" y="8" state="RED"/>
+            <field x="0" y="9" state="EMPTY"/>
+          </fields>
+          <fields>
+            <field x="1" y="0" state="BLUE"/>
+            <field x="1" y="1" state="EMPTY"/>
+            <field x="1" y="2" state="EMPTY"/>
+            <field x="1" y="3" state="EMPTY"/>
+            <field x="1" y="4" state="EMPTY"/>
+            <field x="1" y="5" state="EMPTY"/>
+            <field x="1" y="6" state="EMPTY"/>
+            <field x="1" y="7" state="EMPTY"/>
+            <field x="1" y="8" state="EMPTY"/>
+            <field x="1" y="9" state="BLUE"/>
+          </fields>
+          <fields>
+            <field x="2" y="0" state="BLUE"/>
+            <field x="2" y="1" state="EMPTY"/>
+            <field x="2" y="2" state="EMPTY"/>
+            <field x="2" y="3" state="EMPTY"/>
+            <field x="2" y="4" state="EMPTY"/>
+            <field x="2" y="5" state="OBSTRUCTED"/>
+            <field x="2" y="6" state="EMPTY"/>
+            <field x="2" y="7" state="EMPTY"/>
+            <field x="2" y="8" state="EMPTY"/>
+            <field x="2" y="9" state="BLUE"/>
+          </fields>
+          <fields>
+            <field x="3" y="0" state="BLUE"/>
+            <field x="3" y="1" state="EMPTY"/>
+            <field x="3" y="2" state="EMPTY"/>
+            <field x="3" y="3" state="EMPTY"/>
+            <field x="3" y="4" state="EMPTY"/>
+            <field x="3" y="5" state="EMPTY"/>
+            <field x="3" y="6" state="EMPTY"/>
+            <field x="3" y="7" state="EMPTY"/>
+            <field x="3" y="8" state="EMPTY"/>
+            <field x="3" y="9" state="BLUE"/>
+          </fields>
+          <fields>
+            <field x="4" y="0" state="BLUE"/>
+            <field x="4" y="1" state="EMPTY"/>
+            <field x="4" y="2" state="EMPTY"/>
+            <field x="4" y="3" state="EMPTY"/>
+            <field x="4" y="4" state="EMPTY"/>
+            <field x="4" y="5" state="EMPTY"/>
+            <field x="4" y="6" state="EMPTY"/>
+            <field x="4" y="7" state="EMPTY"/>
+            <field x="4" y="8" state="EMPTY"/>
+            <field x="4" y="9" state="BLUE"/>
+          </fields>
+          <fields>
+            <field x="5" y="0" state="BLUE"/>
+            <field x="5" y="1" state="EMPTY"/>
+            <field x="5" y="2" state="EMPTY"/>
+            <field x="5" y="3" state="EMPTY"/>
+            <field x="5" y="4" state="EMPTY"/>
+            <field x="5" y="5" state="EMPTY"/>
+            <field x="5" y="6" state="EMPTY"/>
+            <field x="5" y="7" state="EMPTY"/>
+            <field x="5" y="8" state="EMPTY"/>
+            <field x="5" y="9" state="BLUE"/>
+          </fields>
+           <fields>
+            <field x="6" y="0" state="BLUE"/>
+            <field x="6" y="1" state="EMPTY"/>
+            <field x="6" y="2" state="EMPTY"/>
+            <field x="6" y="3" state="OBSTRUCTED"/>
+            <field x="6" y="4" state="EMPTY"/>
+            <field x="6" y="5" state="EMPTY"/>
+            <field x="6" y="6" state="EMPTY"/>
+            <field x="6" y="7" state="EMPTY"/>
+            <field x="6" y="8" state="EMPTY"/>
+            <field x="6" y="9" state="BLUE"/>
+          </fields>
+          <fields>
+            <field x="7" y="0" state="BLUE"/>
+            <field x="7" y="1" state="EMPTY"/>
+            <field x="7" y="2" state="EMPTY"/>
+            <field x="7" y="3" state="EMPTY"/>
+            <field x="7" y="4" state="EMPTY"/>
+            <field x="7" y="5" state="EMPTY"/>
+            <field x="7" y="6" state="EMPTY"/>
+            <field x="7" y="7" state="EMPTY"/>
+            <field x="7" y="8" state="EMPTY"/>
+            <field x="7" y="9" state="BLUE"/>
+          </fields>
+          <fields>
+            <field x="8" y="0" state="BLUE"/>
+            <field x="8" y="1" state="EMPTY"/>
+            <field x="8" y="2" state="EMPTY"/>
+            <field x="8" y="3" state="EMPTY"/>
+            <field x="8" y="4" state="EMPTY"/>
+            <field x="8" y="5" state="EMPTY"/>
+            <field x="8" y="6" state="EMPTY"/>
+            <field x="8" y="7" state="EMPTY"/>
+            <field x="8" y="8" state="EMPTY"/>
+            <field x="8" y="9" state="BLUE"/>
+          </fields>
+          <fields>
+            <field x="9" y="0" state="EMPTY"/>
+            <field x="9" y="1" state="RED"/>
+            <field x="9" y="2" state="RED"/>
+            <field x="9" y="3" state="RED"/>
+            <field x="9" y="4" state="RED"/>
+            <field x="9" y="5" state="RED"/>
+            <field x="9" y="6" state="RED"/>
+            <field x="9" y="7" state="RED"/>
+            <field x="9" y="8" state="RED"/>
+            <field x="9" y="9" state="EMPTY"/>
+          </fields>
         </board>
       XML
       board = subject.gamestate.board
-      expect(board.fields.size).to eq(11)
-      expect(board.field(0).type).to eq(FieldType::START)
-      expect(board.field(1).type).to eq(FieldType::CARROT)
-      expect(board.field(2).type).to eq(FieldType::HARE)
-      expect(board.field(3).type).to eq(FieldType::POSITION_1)
-      expect(board.field(4).type).to eq(FieldType::POSITION_2)
-      expect(board.field(5).type).to eq(FieldType::HEDGEHOG)
-      expect(board.field(6).type).to eq(FieldType::SALAD)
-      expect(board.field(7).type).to eq(FieldType::CARROT)
-      expect(board.field(8).type).to eq(FieldType::CARROT)
-      expect(board.field(9).type).to eq(FieldType::CARROT)
-      expect(board.field(10).type).to eq(FieldType::GOAL)
+      expect(board.fields.size).to eq(10)
     end
   end
 
   it 'converts a move to xml' do
-    move = Move.new
-    move.add_action(Advance.new(2))
-    move.add_action(Card.new(CardType::EAT_SALAD))
-    move.add_action(Card.new(CardType::FALL_BACK))
-    move.add_action(Card.new(CardType::HURRY_AHEAD))
-    move.add_action(Card.new(CardType::TAKE_OR_DROP_CARROTS, 20))
-    move.add_action(Skip.new)
-    move.add_action(EatSalad.new)
-    move.add_action(FallBack.new)
-    move.add_action(ExchangeCarrots.new(-10))
+    move = Move.new(3, 5, Direction::UP_RIGHT)
     # NOTE that this is brittle because XML formatting (whitespace, attribute
     # order) is arbitrary.
     expect(subject.move_to_xml(move)).to eq <<-XML
-<data class="move">
-  <advance distance="2" order="0"/>
-  <card type="EAT_SALAD" value="0" order="1"/>
-  <card type="FALL_BACK" value="0" order="2"/>
-  <card type="HURRY_AHEAD" value="0" order="3"/>
-  <card type="TAKE_OR_DROP_CARROTS" value="20" order="4"/>
-  <skip order="5"/>
-  <eatSalad order="6"/>
-  <fallBack order="7"/>
-  <exchangeCarrots value="-10" order="8"/>
+<data class="move" x="3" y="5" direction="UP_RIGHT">
 </data>
     XML
   end

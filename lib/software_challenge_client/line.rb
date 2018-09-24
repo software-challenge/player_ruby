@@ -30,12 +30,12 @@ class Line
       leftmost_y = SIZE - 1
     when LineDirection::RISING_DIAGONAL
       # for rising diagonals, we have to decrease x and y
-      shift = Math.min(@start.x, @start.y)
+      shift = [@start.x, @start.y].min
       leftmost_x = @start.x - shift
       leftmost_y = @start.y - shift
     when LineDirection::FALLING_DIAGONAL
       # for falling diagonals, we have to decrease x and increase y
-      shift = Math.min(@start.x, (SIZE - 1) - @start.y)
+      shift = [@start.x, (SIZE - 1) - @start.y].min
       leftmost_x = @start.x - shift
       leftmost_y = @start.y + shift
     end

@@ -90,8 +90,8 @@ class Protocol
       logger.debug 'new gamestate'
       @gamestate = GameState.new
       @gamestate.turn = attrs['turn'].to_i
-      @gamestate.start_player_color = attrs['startPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
-      @gamestate.current_player_color = attrs['currentPlayer'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
+      @gamestate.start_player_color = attrs['startPlayerColor'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
+      @gamestate.current_player_color = attrs['currentPlayerColor'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
       logger.debug "Turn: #{@gamestate.turn}"
     when 'red'
       logger.debug 'new red player'
@@ -114,8 +114,8 @@ class Protocol
       @gamestate.board = Board.new
       @context[:current_tile_index] = nil
       @context[:current_tile_direction] = nil
-    when 'fields'
-      type = FieldType.find_by_key(attrs['type'].to_sym)
+    when 'field'
+      type = FieldType.find_by_key(attrs['state'].to_sym)
       x = attrs['x'].to_i
       y = attrs['y'].to_i
       raise "unexpected field type: #{attrs['type']}. Known types are #{FieldType.map { |t| t.key.to_s }}" if type.nil?
@@ -125,10 +125,7 @@ class Protocol
       x = attrs['x'].to_i
       y = attrs['y'].to_i
       raise "unexpected direction: #{attrs['direction']}. Known directions are #{Direction.map { |d| d.key.to_s }}" if direction.nil?
-      @gamestate.last_move = Move.new(
-        Coordinate.new(x, y),
-        direction
-      )
+      @gamestate.last_move = Move.new(x, y, direction)
     when 'winner'
       winning_player = parsePlayer(attrs)
       @gamestate.condition = Condition.new(winning_player)
@@ -180,7 +177,7 @@ class Protocol
     # class interface to supply a method which returns the XML
     # because XML-generation should be decoupled from internal data
     # structures.
-    builder.data(class: 'move', x: move.x, y: move.y, direction: move.direction) do |data|
+    builder.data(class: 'move', x: move.x, y: move.y, direction: move.direction.key) do |data|
       move.hints.each do |hint|
         data.hint(content: hint.content)
       end

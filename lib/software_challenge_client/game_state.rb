@@ -121,7 +121,7 @@ class GameState
   # @param player [Player] the player, whos points to calculate
   # @return [Integer] the points of the player
   def points_for_player(player)
-    player.index
+    GameRuleLogic.swarm_size(board, player)
   end
 
   # Compared with other state.
@@ -146,9 +146,16 @@ class GameState
     current_player_color = other_player_color
   end
 
+  def own_fields
+    board.fields_of_type(
+      PlayerColor.field_type(current_player_color)
+    )
+  end
+
   def possible_moves
-    found_moves = []
-    found_moves
+    own_fields.map do |f|
+      GameRuleLogic.possible_moves(board, f, current_player_color)
+    end.flatten
   end
 
 end

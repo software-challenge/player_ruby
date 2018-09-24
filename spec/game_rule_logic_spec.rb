@@ -32,7 +32,7 @@ RSpec.describe GameRuleLogic do
           B ~ ~ O ~ ~ ~ ~ ~ B
           B ~ ~ ~ ~ ~ ~ ~ ~ B
           B ~ ~ ~ ~ O ~ ~ ~ B
-          B ~ ~ ~ ~ ~ ~ ~ ~ B
+          B ~ ~ ~ ~ O ~ ~ ~ B
           B ~ ~ ~ ~ ~ ~ ~ ~ B
           ~ R R R R R R R R ~
         FIELD
@@ -40,29 +40,55 @@ RSpec.describe GameRuleLogic do
     end
 
     it 'is valid to move own fish' do
-      expect(subject.valid_move(Move.new(1, 0, Direction::UP), gamestate.board)).to be true
+      expect(subject.valid_move?(Move.new(1, 0, Direction::UP), gamestate.board, gamestate.current_player_color)).to be true
     end
 
     it 'is not valid to move an empty field' do
-      expect(subject.valid_move(Move.new(2, 1, Direction::UP), gamestate.board)).to be false
-    end
-
-    it 'is not valid to move a fish from other player' do
-      expect(
-        subject.valid_move(Move.new(0, 1, Direction::RIGHT), gamestate.board)
-      ).to be false
+      expect(subject.valid_move?(Move.new(2, 1, Direction::UP), gamestate.board, gamestate.current_player_color)).to be false
     end
 
     it 'is not valid to move an obstructed field' do
       expect(
-        subject.valid_move(Move.new(5, 3, Direction::RIGHT), gamestate.board)
+        subject.valid_move?(Move.new(5, 3, Direction::RIGHT), gamestate.board, gamestate.current_player_color)
       ).to be false
     end
 
-    it 'is not valid to move onto an obstructed field'
-    it 'is not valid to move out of the board'
+    it 'is not valid to move onto an obstructed field' do
+      expect(subject.valid_move?(Move.new(5, 0, Direction::UP), gamestate.board, gamestate.current_player_color)).to be false
+    end
+
+    it 'is not valid to move out of the board' do
+      expect(subject.valid_move?(Move.new(5, 0, Direction::DOWN), gamestate.board, gamestate.current_player_color)).to be false
+    end
+
+    it 'calculates all valid moves for a given field' do
+      expect(
+        subject.possible_moves(gamestate.board, gamestate.board.field(1, 0), PlayerColor::RED)
+      ).to contain_exactly(
+        Move.new(1, 0, Direction::UP),
+        Move.new(1, 0, Direction::UP_RIGHT),
+        Move.new(1, 0, Direction::RIGHT)
+      )
+    end
   end
 
-  context 'when a player can win'
+  it 'calculates correct swarm size' do
+    field =
+      <<~FIELD
+          ~ R R R R B R R R ~
+          B R R R ~ ~ ~ ~ ~ ~
+          B ~ ~ ~ R ~ ~ ~ ~ ~
+          B ~ ~ ~ ~ ~ ~ ~ ~ ~
+          B ~ ~ O ~ ~ ~ ~ ~ ~
+          B B B ~ ~ ~ ~ ~ ~ ~
+          B ~ ~ ~ ~ O ~ ~ ~ B
+          B ~ ~ ~ ~ O ~ ~ ~ B
+          B ~ ~ ~ ~ ~ ~ ~ ~ B
+          ~ R R ~ R ~ R R R ~
+        FIELD
+    state_from_string!(field, gamestate)
+    expect(subject.swarm_size(gamestate.board, PlayerColor::RED)).to eq(8)
+    expect(subject.swarm_size(gamestate.board, PlayerColor::BLUE)).to eq(10)
+  end
 
 end
