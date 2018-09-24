@@ -51,6 +51,10 @@ class Board
     fields.dig(y, x) # NOTE that #dig requires ruby 2.3+
   end
 
+  def field_at(coordinates)
+    field(coordinates.x, coordinates.y)
+  end
+
   def fields_of_type(field_type)
     fields.flatten.select{ |f| f.type == field_type }
   end

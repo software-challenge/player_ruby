@@ -31,6 +31,10 @@ class Field
       y == other.y
   end
 
+  def coordinates
+    Coordinates.new(x, y)
+  end
+
   def to_s
     "Feld (#{x},#{y}), Typ = #{type}"
   end

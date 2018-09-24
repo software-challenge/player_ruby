@@ -140,6 +140,49 @@ class GameRuleLogic
   end
 
   def self.swarm_size(board, player_color)
-    0 # TODO
+    GameRuleLogic.greatest_swarm_from_fields(
+      board,
+      board.fields_of_type(
+        PlayerColor.field_type(player_color)
+      ).to_set,
+      Set.new
+    ).size
   end
+
+  def self.neighbours(board, field)
+    Direction
+      .map { |d| d.translate(field.coordinates) }
+      .select { |c| GameRuleLogic.inside_bounds?(c) }
+      .map { |c| board.field_at(c) }
+  end
+
+  def self.greatest_swarm_from_fields(board, fields_to_check, current_biggest_swarm)
+    # stop searching when the size of the current found biggest set is bigger than the rest of the fields
+    return current_biggest_swarm if current_biggest_swarm.size > fields_to_check.size
+
+    # start a new set of adjacent fields with the first field in fields_to_check
+    current_swarm = Set.new
+    field = fields_to_check.to_a.first
+    fields_to_check.delete(field)
+    current_swarm.add(field)
+
+    # move all adjacent fields to the set
+    loop do
+      to_add = current_swarm
+                 .map { |f| GameRuleLogic.neighbours(board, f)}
+                 .flatten
+                 .select { |f| fields_to_check.include? f }
+      break if to_add.empty?
+      fields_to_check -= to_add
+      current_swarm += to_add
+    end
+
+    # keep trying to find bigger sets
+    if current_swarm.size > current_biggest_swarm.size
+      GameRuleLogic.greatest_swarm_from_fields(board, fields_to_check, current_swarm)
+    else
+      GameRuleLogic.greatest_swarm_from_fields(board, fields_to_check, current_biggest_swarm)
+    end
+  end
+
 end
