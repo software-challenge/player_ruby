@@ -25,16 +25,20 @@ class Field
     @y = y
   end
 
+  # Vergleicht zwei Felder. Felder sind gleich, wenn sie gleiche Koordinaten und gleichen Typ haben.
+  # @return [Boolean] true bei Gleichheit, false sonst.
   def ==(other)
     type == other.type &&
       x == other.x &&
       y == other.y
   end
 
+  # @return [Coordinates] Die Koordinaten des Feldes als Koordinatenpaar.
   def coordinates
     Coordinates.new(x, y)
   end
 
+  # @return [String] Textuelle Darstellung des Feldes.
   def to_s
     "Feld (#{x},#{y}), Typ = #{type}"
   end

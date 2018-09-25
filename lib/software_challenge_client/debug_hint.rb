@@ -1,11 +1,15 @@
-# encoding: UTF-8
-# A debug hint, that can be added to a move
+# encoding: utf-8
+
+# Ein Hinweis, der zu einem Zug hinzugefügt werden kann. Z.B. zu
+# Diagnosezwecken. Der Hinweis wird in der grafischen Oberfläche angezeigt und
+# in Replay-Dateien gespeichert.
 class DebugHint
   # @!attribute [r] content
-  # @return [String] a hint
+  # @return [String] Der Text des Hinweises.
   attr_reader :content
 
-  # @param content [Object] of the hint, will be converted to a string
+  # Erstellt einen neuen Hinweis.
+  # @param content [Object] Inhalt des Hinweises. Wird zu String konvertiert.
   def initialize(content)
     @content = content.to_s
   end

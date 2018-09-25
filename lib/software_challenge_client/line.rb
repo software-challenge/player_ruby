@@ -6,15 +6,15 @@ require_relative 'direction'
 require_relative 'coordinates'
 require_relative 'line_direction'
 
-# an iterator with all field-coordinates on the line given by a field on it and
-# a direction
+# Ein Iterator, der alle Koordinatenpaare auf einer Linie des Spielbrettes enthält.
 class Line
   include Enumerable
-
   include Constants
 
-  # start: Coordinates
-  # direction: LineDirection
+  # Erzeugt einen neuen Iterator.
+  #
+  # @param start [Coordinates]
+  # @param direction [LineDirection]
   def initialize(start, direction)
     @direction = direction
     @start = start
@@ -66,9 +66,15 @@ class Line
     @members.each(&block)
   end
 
-  # limits a line to fields between the given start and end (excluding)
-  # to be used as a filter
-  # e.g. Line.new(2,3, HORIZONTAL).filter(between(2, 3, 5, 3, HORIZONTAL))
+  # Begrenzt den Iterator auf Koordinatenpaare von Feldern innerhalb der gegebenen beiden Koordinatenpaare (exklusive).
+  # Kann als Filter verwendet werden.
+  #
+  # @example
+  #   Line.new(
+  #     Coordinates.new(2, 3), LineDirection::HORIZONTAL
+  #   ).select do |c|
+  #     Line.between(Coordinates.new(2, 3), Coordinates.new(5, 3), LineDirection::HORIZONTAL).call(c)
+  #   end
   def self.between(start, bound, direction)
     lower_x = [start.x, bound.x].min
     lower_y = [start.y, bound.y].min
@@ -88,6 +94,8 @@ class Line
     end
   end
 
+  # @param line_direction [LineDirection] Ausrichtung der Linie
+  # @return [Array<Direction>] Die beiden Bewegungsrichtungen, die auf einer Linie mit der Ausrichtung möglich sind.
   def self.directions_for_line_direction(line_direction)
     case line_direction
     when LineDirection::HORIZONTAL
@@ -101,6 +109,8 @@ class Line
     end
   end
 
+  # @param line_direction [Direction] Bewegungsrichtung
+  # @return [Array<Direction>] Die Ausrichtung einer Linie, die auf der Bewegungsrichtung liegt.
   def self.line_direction_for_direction(direction)
     case direction
     when Direction::LEFT, Direction::RIGHT

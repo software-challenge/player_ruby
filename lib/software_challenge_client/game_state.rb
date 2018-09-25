@@ -6,37 +6,41 @@ require_relative 'move'
 require_relative 'condition'
 require_relative 'field_type'
 
-# The state of a game, as received from the server.
+# Ein Spielzustand. Wird vom Server an die Computerspieler übermittelt und enthält alles, was der Computerspieler wissen muss, um einen Zug zu machen.
+#
+# Um eine Liste der gerade möglichen Züge zu bekommen, gibt es die Methode {GameState#possible_moves}.
 class GameState
   # @!attribute [rw] turn
-  # @return [Integer] turn number
+  # @return [Integer] Aktuelle Zugnummer (von 0 beginnend)
   attr_accessor :turn
   # @!attribute [rw] start_player_color
-  # @return [PlayerColor] the start-player's color
+  # @return [PlayerColor] Die Farbe des Spielers, der den ersten Zug im Spiel machen darf.
   attr_accessor :start_player_color
   # @!attribute [rw] current_player_color
-  # @return [PlayerColor] the current player's color
+  # @return [PlayerColor] Die Farbe des Spielers, der den nächsten Zug machen darf, der also gerade an der Reihe ist.
   attr_accessor :current_player_color
   # @!attribute [r] red
-  # @return [Player] the red player
+  # @return [Player] Der rote Spieler
   attr_reader :red
   # @!attribute [r] blue
-  # @return [Player] the blue player
+  # @return [Player] Der blaue Spieler
   attr_reader :blue
   # @!attribute [rw] board
-  # @return [Board] the game's board
+  # @return [Board] Das aktuelle Spielbrett
   attr_accessor :board
   # @!attribute [rw] last_move
-  # @return [Move] the last move performed
+  # @return [Move] Der zuletzt gemachte Zug (ist nil vor dem ersten Zug, also bei turn == 0)
   attr_accessor :last_move
   # @!attribute [rw] condition
-  # @return [Condition] the winner and winning reason
+  # @return [Condition] Gewinner und Gewinngrund, falls das Spiel bereits entschieden ist, sonst nil.
   attr_accessor :condition
 
+  # Zugriff auf ein Feld des Spielbrettes. Siehe {Board#field}.
   def field(x, y)
     board.field(x, y)
   end
 
+  # Erstellt einen neuen Spielzustand.
   def initialize
     @current_player_color = PlayerColor::RED
     @start_player_color = PlayerColor::RED
@@ -44,9 +48,9 @@ class GameState
     @turn = 0
   end
 
-  # adds a player to the gamestate
+  # Fügt einen Spieler zum Spielzustand hinzu.
   #
-  # @param player [Player] the player, that will be added
+  # @param player [Player] Der hinzuzufügende Spieler.
   def add_player(player)
     if player.color == PlayerColor::RED
       @red = player
@@ -55,76 +59,58 @@ class GameState
     end
   end
 
-  # gets the current player
-  #
-  # @return [Player] the current player
+  # @return [Player] Spieler, der gerade an der Reihe ist.
   def current_player
     return red if current_player_color == PlayerColor::RED
     return blue if current_player_color == PlayerColor::BLUE
   end
 
-  # gets the other (not the current) player
-  #
-  # @return [Player] the other (not the current) player
+  # @return [Player] Spieler, der gerade nicht an der Reihe ist.
   def other_player
     return blue if current_player_color == PlayerColor::RED
     return red if current_player_color == PlayerColor::BLUE
   end
 
-  # gets the other (not the current) player's color
-  #
-  # @return [PlayerColor] the other (not the current) player's color
+  # @return [PlayerColor] Farbe des Spielers, der gerade nicht an der Reihe ist.
   def other_player_color
     PlayerColor.opponent_color(current_player_color)
   end
 
-  # gets the current round
-  #
-  # @return [Integer] the current round
+  # @return [Integer] Aktuelle Runde (von 0 beginnend).
   def round
     turn / 2
   end
 
-  # performs a move on the gamestate
+  # Führt einen Zug auf dem Spielzustand aus. Das Spielbrett wird entsprechend modifiziert.
   #
-  # @param move [Move] the move, that will be performed
-  # @param player [Player] the player, who makes the move
-  def perform!(move, player)
-    move.actions.each do |action|
-      action.perform!(self, player)
-    end
+  # @param move [Move] Der auszuführende Zug.
+  def perform!(move)
+    move.perform!(self)
   end
 
-  # has the game ended?
-  #
-  # @return [Boolean] true, if the game has allready ended
+  # @return [Boolean] true, falls das Spiel bereits geendet hat, false bei noch laufenden Spielen.
   def game_ended?
     !condition.nil?
   end
 
-  # gets the game's winner
-  #
-  # @return [Player] the game's winner
+  # @return [Player] Der Spieler, der das Spiel gewonnen hat, falls dies schon entschieden ist. Sonst false.
   def winner
     condition.nil? ? nil : condition.winner
   end
 
-  # gets the winning reason
-  #
-  # @return [String] the winning reason
+  # @return [String] Der Grund, warum das Spiel beendet wurde, nil falls das Spiel noch läuft.
   def winning_reason
     condition.nil? ? nil : condition.reason
   end
 
-  # calculates a player's points based on the current gamestate
+  # Ermittelt die Punkte eines Spielers. Wenn das Spiel durch Erreichen des Rundenlimits beendet wird, hat der Spieler mit den meisten Punkten gewonnen.
   #
-  # @param player [Player] the player, whos points to calculate
-  # @return [Integer] the points of the player
+  # @param player [Player] Der Spieler, dessen Punkte berechnet werden sollen.
+  # @return [Integer] Die Punkte des Spielers, entspricht der Anzahl der Fische im größten Schwarm des Spielers.
   def points_for_player(player)
     GameRuleLogic.swarm_size(board, player)
   end
 
-  # Compared with other state.
   def ==(other)
     turn == other.turn &&
         start_player_color == other.start_player_color &&
@@ -136,22 +122,24 @@ class GameState
         condition == other.condition
   end
 
-  # Create a deep copy of the gamestate. Can be used to perform moves on without
-  # changing the original gamestate.
+  # Erzeugt eine Kopie des Spielzustandes. Änderungen an dieser Kopie beeinflussen den originalen Spielzustand nicht. Die Kopie kann also zum testen von Spielzügen genutzt werden.
   def deep_clone
     Marshal.load(Marshal.dump(self))
   end
 
+  # Wechselt den Spieler, der aktuell an der Reihe ist.
   def switch_current_player
     current_player_color = other_player_color
   end
 
+  # @return [Array<Field>] Alle Felder mit Fischen des Spielers, der gerade an der Reihe ist.
   def own_fields
     board.fields_of_type(
       PlayerColor.field_type(current_player_color)
     )
   end
 
+  # @return [Array<Move>] Alle regelkonformen Züge, die der aktuelle Spieler gerade machen könnte.
   def possible_moves
     own_fields.map do |f|
       GameRuleLogic.possible_moves(board, f, current_player_color)

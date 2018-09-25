@@ -1,10 +1,10 @@
 # encoding: UTF-8
 require_relative 'player'
 
-# Represents the winning condition received from the server when the game ended.
+# Das Ergebnis eines Spieles. Ist im `GameState#condition` zu finden, wenn das Spiel beendet wurde.
 class Condition
   # @!attribute [r] winner
-  # @return [Player] winning player
+  # @return [Player] Spieler, der das Spiel gewonnen hat.
   attr_reader :winner
 
   # Initializes the winning Condition with a player

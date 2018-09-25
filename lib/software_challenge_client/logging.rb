@@ -1,9 +1,10 @@
+# coding: utf-8
 require 'logger'
 
-# This module provides a shared logger to all classes into which it is mixed.
+# Dieses Modul kann inkludiert werden, um eine Logausgabe auf der Konsole verwenden zu können.
 # See http://stackoverflow.com/a/6768164/390808
 #
-# Usage:
+# Verwendung:
 #
 #   class MyClass
 #     include Logging

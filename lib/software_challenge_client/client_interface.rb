@@ -1,12 +1,17 @@
-# encoding: UTF-8
+# encoding: utf-8
 
-# The interface a client should implement to work with the gem.
+# Das Interface sollte von einem Client implementiert werden, damit er über das
+# Gem an einem Spiel teilnehmen kann.
 class ClientInterface
-  # Is updated by the gem, when a new gamestate is received from the server.
+  # Wird automatisch aktualisiert und ist immer der Spielzustand des aktuellen Zuges.
   attr_accessor :gamestate
 
-  # Is called when the server requests a move from the client.
-  # @return [Move] Needs to return a valid move.
+  # Wird aufgerufen, wenn der Client einen Zug machen soll. Dies ist der
+  # Einstiegspunkt für die eigentliche Logik des Computerspielers. Er muss auf
+  # Basis des Spielzustandes entscheiden, welchen Zug er machen möchte und diese
+  # zurückgeben.
+  #
+  # @return [Move] Ein für den aktuellen Spielzustand gültiger Spielzug.
   def move_requested
     raise 'Not yet implemented'
   end

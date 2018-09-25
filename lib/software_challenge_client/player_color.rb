@@ -1,15 +1,15 @@
-# encoding: UTF-8
+# encoding: utf-8
 # player color constants
 require 'typesafe_enum'
+
+# Die Spielerfarben. RED, BLUE oder NONE.
 class PlayerColor < TypesafeEnum::Base
   new :NONE
   new :RED
   new :BLUE
 
-  # Returns the opponents Color
-  #
-  # @param color [PlayerColor] The player's color, whose opponent needs to be found
-  # @return [PlayerColor] the opponent's color
+  # @param color [PlayerColor]
+  # @return [PlayerColor] Farbe des Gegenspielers
   def self.opponent_color(color)
     case color
     when PlayerColor::RED
@@ -21,6 +21,9 @@ class PlayerColor < TypesafeEnum::Base
     end
   end
 
+  # @param color [PlayerColor] Die Spielerfarbe, zu dem der Feldtyp ermittelt werden soll.
+  # @return [FieldType] Der zur Spielerfarbe gehörende Feldtyp, also FieldType::RED für PlayerColor::RED und FieldType::BLUE für PlayerColor::BLUE. In allen anderen Fällen nil.
+  # @see FieldType#player_color
   def self.field_type(color)
     case color
     when PlayerColor::RED

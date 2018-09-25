@@ -1,7 +1,7 @@
-# encoding: UTF-8
+# encoding: utf-8
 
-# Exception indicating a move which was performed is not valid for the given
-# state.
+# Exception, die geworfen wird, wenn ein ungültiger Zug ausgeführt wird.
+# @see Move#perform!
 class InvalidMoveException < StandardError
   def initialize(msg, move)
     @move = move

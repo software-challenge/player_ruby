@@ -3,6 +3,7 @@ require_relative 'board'
 require_relative 'client_interface'
 require_relative 'network'
 
+# Klasse zum Starten einer neue Verbindung zum Spielserver und Verarbeiten der Nachrichten des Servers.
 class Runner
   include Logging
 

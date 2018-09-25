@@ -1,31 +1,29 @@
 # encoding: utf-8
 require_relative 'debug_hint'
 
-# A move that can be performed in Piranhas.
+# Ein Spielzug. Er ist definiert durch das Koordinatenpaar des Ausgangsfeldes (ein Fisch des Spielers, der den Zug machen will) und eine Bewegungsrichtung.
 class Move
   # @!attribute [r] x
-  #
-  # @return [Integer] X-coordinate of the piranha to move. Column of the the
-  # board. Leftmost column is 0, rightmost column is 9.
+  # @return [Integer] X-Koordinate des Fisches, der bewegt werden soll. Die Spalte ganz links auf dem Spielbrett hat X-Koordinate 0, die ganz rechts 9.
   attr_reader :x
 
   # @!attribute [r] y
-  #
-  # @return [Integer] Y-coordinate of the piranha to move. Row of the the board.
-  # Lower row is 0, upper row is 9.
+  # @return [Integer] Y-Koordinate des Fisches, der bewegt werden soll. Die Zeile ganz unten auf dem Spielbrett hat Y-Koordinate 0, die ganz oben 9.
   attr_reader :y
 
   # @!attribute [r] direction
   #
-  # @return [Direction] Direction in which to move.
+  # @return [Direction] Die Richtung, in die bewegt werden soll.
   attr_reader :direction
 
   # @!attribute [r] hints
-  # @return [Array<DebugHint>] the move's hints
+  # @return [Array<DebugHint>] Hinweise, die an den Zug angeheftet werden sollen. Siehe {DebugHint}.
   attr_reader :hints
 
-  # Initializer
-  #
+  # Erstellt einen neuen Zug.
+  # @param x [Integer]
+  # @param y [Integer]
+  # @param direction [Direction]
   def initialize(x, y, direction)
     @x = x
     @y = y
@@ -33,8 +31,7 @@ class Move
     @hints = []
   end
 
-  # adds a hint to the move
-  # @param hint [DebugHint] the added hint
+  # @param hint [DebugHint]
   def add_hint(hint)
     @hints.push(hint)
   end
@@ -47,14 +44,20 @@ class Move
     "Move: (#{x},#{y}) #{direction}"
   end
 
+  # @return [Coordinates] Die Koordinaten des Ausgangsfeldes des Zuges als Koordinatenpaar.
   def from_field
     Coordinates.new(x, y)
   end
 
+  # Überprüft, ob der Zug in dem gegebenen Spielzustand regelkonform ausgeführt werden kann.
+  # @param gamestate [GameState]
+  # @return [Boolean]
   def valid?(gamestate)
     GameRuleLogic.valid_move(self, gamestate.board)
   end
 
+  # Führt den Zug in dem gegebenen Spielzustand aus. Sollte dabei gegen Spielregeln verstossen werden, wird eine InvalidMoveException geworfen.
+  # @param gamestate [GameState]
   def perform!(gamestate)
     if GameRuleLogic.valid_move(self, gamestate.board)
       type = gamestate.board.field(x, y).type
@@ -70,24 +73,11 @@ class Move
     gamestate.switch_current_player
   end
 
+
+  # Ermittelt die Koordinaten des Zielfeldes des Zuges mit einer gegebenen Zugweite.
+  # @param speed [Integer] Die Zugweite. Entspricht normalerweise der Anzahl der Fische auf der Bewegungslinie.
+  # @return [Coordinates] Koordinaten des Zielfeldes. Eventuell ausserhalb des Spielbrettes.
   def target_field(speed)
-    case direction
-    when Direction::UP
-      Coordinates.new(x, y + speed)
-    when Direction::UP_RIGHT
-      Coordinates.new(x + speed, y + speed)
-    when Direction::RIGHT
-      Coordinates.new(x + speed, y)
-    when Direction::DOWN_RIGHT
-      Coordinates.new(x + speed, y - speed)
-    when Direction::DOWN
-      Coordinates.new(x, y - speed)
-    when Direction::DOWN_LEFT
-      Coordinates.new(x - speed, y - speed)
-    when Direction::LEFT
-      Coordinates.new(x - speed, y)
-    when Direction::UP_LEFT
-      Coordinates.new(x - speed, y + speed)
-    end
+    direction.translate(from_field, speed)
   end
 end

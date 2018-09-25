@@ -1,6 +1,12 @@
 # encoding: utf-8
 
 require 'typesafe_enum'
+# Ausrichtung einer Linie auf dem Spielbrett. Mögliche Werte sind:
+# - HORIZONTAL
+# - VERTICAL
+# - RISING_DIAGONAL
+# - FALLING_DIAGONAL
+
 class LineDirection < TypesafeEnum::Base
   new :HORIZONTAL
   new :VERTICAL
