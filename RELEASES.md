@@ -1,3 +1,11 @@
+= 19.0.1
+
+- fixed bug in swarm size calculation (thanks to wollw!)
+
+= 19.0.0
+
+First version for game "Piranhas"
+
 = 1.2.1
 
 - fixed a bug which could lead to an infinite loop in the possible_move method

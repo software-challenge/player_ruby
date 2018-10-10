@@ -91,4 +91,24 @@ RSpec.describe GameRuleLogic do
     expect(subject.swarm_size(gamestate.board, PlayerColor::BLUE)).to eq(10)
   end
 
+  it 'calculates correct swarm size with very few fishes' do
+    # this is an edge case to capture Issue #12
+    field =
+      <<~FIELD
+          ~ R ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ O ~ ~ ~ ~
+          ~ ~ ~ ~ ~ O ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+        FIELD
+    state_from_string!(field, gamestate)
+    expect(subject.swarm_size(gamestate.board, PlayerColor::RED)).to eq(1)
+    expect(subject.swarm_size(gamestate.board, PlayerColor::BLUE)).to eq(0)
+  end
+
 end

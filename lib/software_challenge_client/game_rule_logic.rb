@@ -196,8 +196,9 @@ class GameRuleLogic
   # @param current_biggest_swarm [Set<Field>] Aktuell größte zusammenhängende Feldmenge. Für rekursiven Aufruf.
   # @return [Set<Field>]
   def self.greatest_swarm_from_fields(board, fields_to_check, current_biggest_swarm = Set.new)
-    # stop searching when the size of the current found biggest set is bigger than the rest of the fields
-    return current_biggest_swarm if current_biggest_swarm.size > fields_to_check.size
+    # stop searching when the size of the current found biggest set is bigger
+    # than the rest of the fields or if there are no more fields to check
+    return current_biggest_swarm if current_biggest_swarm.size > fields_to_check.size || fields_to_check.empty?
 
     # start a new set of adjacent fields with the first field in fields_to_check
     current_swarm = Set.new
