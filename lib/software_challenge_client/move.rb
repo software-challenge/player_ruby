@@ -53,13 +53,13 @@ class Move
   # @param gamestate [GameState]
   # @return [Boolean]
   def valid?(gamestate)
-    GameRuleLogic.valid_move(self, gamestate.board)
+    GameRuleLogic.valid_move?(self, gamestate.board, gamestate.current_player_color)
   end
 
   # Führt den Zug in dem gegebenen Spielzustand aus. Sollte dabei gegen Spielregeln verstossen werden, wird eine InvalidMoveException geworfen.
   # @param gamestate [GameState]
   def perform!(gamestate)
-    if GameRuleLogic.valid_move(self, gamestate.board)
+    if GameRuleLogic.valid_move?(self, gamestate.board, gamestate.current_player_color)
       type = gamestate.board.field(x, y).type
       gamestate.board.change_field(x, y, FieldType::EMPTY)
       target = GameRuleLogic.move_target(self, gamestate.board)
