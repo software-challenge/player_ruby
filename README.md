@@ -139,8 +139,8 @@ which executes `bundle exec rake release` in a suitable docker container.
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at
-https://github.com/CAU-Kiel-Tech-Inf/socha_ruby_client. This project
-is intended to be a safe, welcoming space for collaboration, and
-contributors are expected to adhere to the
-[code of conduct](CODE_OF_CONDUCT.md) (from
-[Contributor Covenant](http://contributor-covenant.org)).
+https://github.com/CAU-Kiel-Tech-Inf/socha_ruby_client. This project is intended
+to be a safe, welcoming space for collaboration, and contributors are expected
+to adhere to the [code of
+conduct](https://github.com/CAU-Kiel-Tech-Inf/socha-client-ruby/blob/master/CODE_OF_CONDUCT.md)
+(from [Contributor Covenant](http://contributor-covenant.org)).
