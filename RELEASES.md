@@ -1,3 +1,7 @@
+= 19.0.2
+
+- fixed bug in Move#perform! (thanks to wollw!)
+
 = 19.0.1
 
 - fixed bug in swarm size calculation (thanks to wollw!)
