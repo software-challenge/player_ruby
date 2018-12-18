@@ -6,3 +6,5 @@ AllCops:
 #require: rubocop-rspec
 Style/AsciiComments:
   Enabled: false # we use german comments to document relevant methods for the pupils
+Metrics/BlockLength:
+  ExcludedMethods: ['describe', 'context'] # RSpec uses a DSL where large blocks are okay, see https://stackoverflow.com/questions/40934345/rubocop-25-line-block-size-and-rspec-tests

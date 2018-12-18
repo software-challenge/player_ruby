@@ -61,8 +61,8 @@ class Move
   def perform!(gamestate)
     if GameRuleLogic.valid_move?(self, gamestate.board, gamestate.current_player_color)
       type = gamestate.board.field(x, y).type
-      gamestate.board.change_field(x, y, FieldType::EMPTY)
       target = GameRuleLogic.move_target(self, gamestate.board)
+      gamestate.board.change_field(x, y, FieldType::EMPTY)
       gamestate.board.change_field(target.x, target.y, type)
     else
       raise InvalidMoveException.new('Invalid move', self)

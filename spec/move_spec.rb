@@ -41,11 +41,23 @@ RSpec.describe Move do
     end
 
     it 'is possible to perform a valid move' do
-      expect{move.perform!(gamestate)}.not_to raise_error
+      expect { move.perform!(gamestate) }.not_to raise_error
     end
 
     it 'raises an exception to perform an invalid move' do
-      expect{invalid_move.perform!(gamestate)}.to raise_error(InvalidMoveException)
+      expect { invalid_move.perform!(gamestate) }
+        .to raise_error(InvalidMoveException)
+    end
+
+    it 'changes the gamestates source and target field' do
+      target = GameRuleLogic.move_target(move, gamestate.board)
+      expect { move.perform!(gamestate) }
+        .to change { gamestate.board.field(move.x, move.y).type }
+        .from(FieldType::RED)
+        .to(FieldType::EMPTY)
+        .and change { gamestate.board.field(target.x, target.y).type }
+        .from(FieldType::EMPTY)
+        .to(FieldType::RED)
     end
   end
 end
