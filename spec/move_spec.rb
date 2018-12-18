@@ -15,7 +15,7 @@ RSpec.describe Move do
     expect(move).to eq(other)
   end
 
-  context 'in a game' do
+  context 'with a gamestate' do
     before do
       field =
         <<~FIELD
@@ -31,33 +31,45 @@ RSpec.describe Move do
           ~ R R R R R R R R ~
         FIELD
       state_from_string!(field, gamestate)
+      gamestate.add_player(Player.new(PlayerColor::RED, 'red player'))
+      gamestate.add_player(Player.new(PlayerColor::BLUE, 'blue player'))
     end
 
     let(:gamestate) { GameState.new }
-    let(:invalid_move) { Move.new(1, 0, Direction::DOWN) }
 
     it 'is possible to check validity of move instance' do
       expect(move.valid?(gamestate)).to be true
     end
 
-    it 'is possible to perform a valid move' do
-      expect { move.perform!(gamestate) }.not_to raise_error
-    end
+    describe '#perform!' do
+      subject { move.perform!(gamestate) }
 
-    it 'raises an exception to perform an invalid move' do
-      expect { invalid_move.perform!(gamestate) }
-        .to raise_error(InvalidMoveException)
-    end
+      context 'when valid' do
+        it { expect { subject }.not_to raise_error }
 
-    it 'changes the gamestates source and target field' do
-      target = GameRuleLogic.move_target(move, gamestate.board)
-      expect { move.perform!(gamestate) }
-        .to change { gamestate.board.field(move.x, move.y).type }
-        .from(FieldType::RED)
-        .to(FieldType::EMPTY)
-        .and change { gamestate.board.field(target.x, target.y).type }
-        .from(FieldType::EMPTY)
-        .to(FieldType::RED)
+        it do
+          target = GameRuleLogic.move_target(move, gamestate.board)
+          expect { subject }
+            .to change { gamestate.board.field(move.x, move.y).type }
+            .from(FieldType::RED)
+            .to(FieldType::EMPTY)
+            .and change { gamestate.board.field(target.x, target.y).type }
+            .from(FieldType::EMPTY)
+            .to(FieldType::RED)
+        end
+
+        it do
+          expect { subject }
+            .to change { gamestate.current_player }
+            .from(gamestate.red)
+            .to(gamestate.blue)
+        end
+      end
+
+      context 'when invalid' do
+        let(:move) { Move.new(1, 0, Direction::DOWN) } # this is an invalid move
+        it { expect { subject }.to raise_error(InvalidMoveException) }
+      end
     end
   end
 end
