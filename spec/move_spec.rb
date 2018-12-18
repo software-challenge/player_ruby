@@ -64,6 +64,18 @@ RSpec.describe Move do
             .from(gamestate.red)
             .to(gamestate.blue)
         end
+
+        it do
+          expect { subject }
+            .to change { gamestate.last_move }
+            .to(move)
+        end
+
+        it do
+          expect { subject }
+            .to change { gamestate.turn }
+            .by(1)
+        end
       end
 
       context 'when invalid' do
