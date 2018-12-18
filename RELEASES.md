@@ -1,3 +1,7 @@
+= 19.0.3
+
+- fixed another bug in in Move#perform! (thanks to wollw!)
+
 = 19.0.2
 
 - fixed bug in Move#perform! (thanks to wollw!)
