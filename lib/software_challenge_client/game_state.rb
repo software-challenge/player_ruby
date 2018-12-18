@@ -1,4 +1,6 @@
 # encoding: utf-8
+# frozen_string_literal: true
+
 require_relative './util/constants'
 require_relative 'player'
 require_relative 'board'
@@ -6,18 +8,22 @@ require_relative 'move'
 require_relative 'condition'
 require_relative 'field_type'
 
-# Ein Spielzustand. Wird vom Server an die Computerspieler übermittelt und enthält alles, was der Computerspieler wissen muss, um einen Zug zu machen.
+# Ein Spielzustand. Wird vom Server an die Computerspieler übermittelt und
+# enthält alles, was der Computerspieler wissen muss, um einen Zug zu machen.
 #
-# Um eine Liste der gerade möglichen Züge zu bekommen, gibt es die Methode {GameState#possible_moves}.
+# Um eine Liste der gerade möglichen Züge zu bekommen, gibt es die Methode
+# {GameState#possible_moves}.
 class GameState
   # @!attribute [rw] turn
   # @return [Integer] Aktuelle Zugnummer (von 0 beginnend)
   attr_accessor :turn
   # @!attribute [rw] start_player_color
-  # @return [PlayerColor] Die Farbe des Spielers, der den ersten Zug im Spiel machen darf.
+  # @return [PlayerColor] Die Farbe des Spielers, der den ersten Zug im Spiel
+  #                       machen darf.
   attr_accessor :start_player_color
   # @!attribute [rw] current_player_color
-  # @return [PlayerColor] Die Farbe des Spielers, der den nächsten Zug machen darf, der also gerade an der Reihe ist.
+  # @return [PlayerColor] Die Farbe des Spielers, der den nächsten Zug machen
+  #                       darf, der also gerade an der Reihe ist.
   attr_accessor :current_player_color
   # @!attribute [r] red
   # @return [Player] Der rote Spieler
@@ -29,10 +35,12 @@ class GameState
   # @return [Board] Das aktuelle Spielbrett
   attr_accessor :board
   # @!attribute [rw] last_move
-  # @return [Move] Der zuletzt gemachte Zug (ist nil vor dem ersten Zug, also bei turn == 0)
+  # @return [Move] Der zuletzt gemachte Zug (ist nil vor dem ersten Zug, also
+  #                bei turn == 0)
   attr_accessor :last_move
   # @!attribute [rw] condition
-  # @return [Condition] Gewinner und Gewinngrund, falls das Spiel bereits entschieden ist, sonst nil.
+  # @return [Condition] Gewinner und Gewinngrund, falls das Spiel bereits
+  #                     entschieden ist, sonst nil.
   attr_accessor :condition
 
   # Zugriff auf ein Feld des Spielbrettes. Siehe {Board#field}.
@@ -81,32 +89,38 @@ class GameState
     turn / 2
   end
 
-  # Führt einen Zug auf dem Spielzustand aus. Das Spielbrett wird entsprechend modifiziert.
+  # Führt einen Zug auf dem Spielzustand aus. Das Spielbrett wird entsprechend
+  # modifiziert.
   #
   # @param move [Move] Der auszuführende Zug.
   def perform!(move)
     move.perform!(self)
   end
 
-  # @return [Boolean] true, falls das Spiel bereits geendet hat, false bei noch laufenden Spielen.
+  # @return [Boolean] true, falls das Spiel bereits geendet hat, false bei noch
+  #                   laufenden Spielen.
   def game_ended?
     !condition.nil?
   end
 
-  # @return [Player] Der Spieler, der das Spiel gewonnen hat, falls dies schon entschieden ist. Sonst false.
+  # @return [Player] Der Spieler, der das Spiel gewonnen hat, falls dies schon
+  #                  entschieden ist. Sonst false.
   def winner
     condition.nil? ? nil : condition.winner
   end
 
-  # @return [String] Der Grund, warum das Spiel beendet wurde, nil falls das Spiel noch läuft.
+  # @return [String] Der Grund, warum das Spiel beendet wurde, nil falls das
+  #                  Spiel noch läuft.
   def winning_reason
     condition.nil? ? nil : condition.reason
   end
 
-  # Ermittelt die Punkte eines Spielers. Wenn das Spiel durch Erreichen des Rundenlimits beendet wird, hat der Spieler mit den meisten Punkten gewonnen.
+  # Ermittelt die Punkte eines Spielers. Wenn das Spiel durch Erreichen des
+  # Rundenlimits beendet wird, hat der Spieler mit den meisten Punkten gewonnen.
   #
   # @param player [Player] Der Spieler, dessen Punkte berechnet werden sollen.
-  # @return [Integer] Die Punkte des Spielers, entspricht der Anzahl der Fische im größten Schwarm des Spielers.
+  # @return [Integer] Die Punkte des Spielers, entspricht der Anzahl der Fische
+  #                   im größten Schwarm des Spielers.
   def points_for_player(player)
     GameRuleLogic.swarm_size(board, player)
   end
@@ -122,7 +136,9 @@ class GameState
         condition == other.condition
   end
 
-  # Erzeugt eine Kopie des Spielzustandes. Änderungen an dieser Kopie beeinflussen den originalen Spielzustand nicht. Die Kopie kann also zum testen von Spielzügen genutzt werden.
+  # Erzeugt eine Kopie des Spielzustandes. Änderungen an dieser Kopie
+  # beeinflussen den originalen Spielzustand nicht. Die Kopie kann also zum
+  # testen von Spielzügen genutzt werden.
   def deep_clone
     Marshal.load(Marshal.dump(self))
   end
