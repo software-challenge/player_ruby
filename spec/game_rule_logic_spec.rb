@@ -111,4 +111,48 @@ RSpec.describe GameRuleLogic do
     expect(subject.swarm_size(gamestate.board, PlayerColor::BLUE)).to eq(0)
   end
 
+  describe '#winning_condition' do
+    before do
+      field =
+        <<~FIELD
+          ~ R R R ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ O ~ ~ ~ ~
+          ~ ~ ~ ~ ~ O ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+        FIELD
+      state_from_string!(field, gamestate)
+    end
+
+    context 'when red has only one swarm and blue made it\'s turn after that already' do
+      before do
+        # red made the swarm complete in turn 0, blue made a turn (1), round is
+        # complete and it's red's turn again (turn 2)
+        gamestate.turn = 2
+      end
+
+      it 'declares red as the winner' do
+        expect(subject.winning_condition(gamestate)).not_to be_nil
+        expect(subject.winning_condition(gamestate).winner).to eq(PlayerColor::RED)
+      end
+    end
+
+    context 'when red has only one swarm and blue has not made it\'s turn after that' do
+      before do
+        # red made the swarm complete in turn 0, blue can make a turn (1) before
+        # the round is complete
+        gamestate.turn = 1
+      end
+
+      it 'declares no winner' do
+        gamestate.turn = 1
+        expect(subject.winning_condition(gamestate)).to be_nil
+      end
+    end
+  end
 end

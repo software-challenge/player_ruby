@@ -228,4 +228,16 @@ class GameRuleLogic
       )
     end
   end
+
+  # Prueft, ob ein Spieler im gegebenen GameState gewonnen hat.
+  # @param gamestate [GameState] Der zu untersuchende GameState.
+  # @return [Condition] nil, if the game is not won or a Condition indicating the winning player
+  def self.winning_condition(gamestate)
+    winner_by_single_swarm = [PlayerColor::RED, PlayerColor::BLUE].select do |player_color|
+      GameRuleLogic.swarm_size(gamestate.board, player_color) ==
+        gamestate.board.fields_of_type(PlayerColor.field_type(player_color)).size
+    end
+    return nil if winner_by_single_swarm.empty?
+    return Condition.new(winner_by_single_swarm.first)
+  end
 end
