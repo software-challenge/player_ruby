@@ -78,6 +78,38 @@ RSpec.describe Move do
         end
       end
 
+      context 'with a winning move' do
+        before do
+          field =
+            <<~FIELD
+              ~ R R R ~ ~ ~ ~ ~ ~
+              ~ ~ ~ ~ ~ ~ ~ R ~ ~
+              ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+              ~ ~ ~ B ~ ~ ~ ~ ~ ~
+              ~ ~ ~ B ~ ~ ~ ~ ~ ~
+              ~ ~ ~ B ~ ~ ~ ~ ~ ~
+              ~ ~ ~ B ~ O ~ ~ ~ ~
+              ~ ~ ~ ~ B O ~ ~ ~ ~
+              ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+              ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+            FIELD
+          state_from_string!(field, gamestate)
+          gamestate.add_player(Player.new(PlayerColor::RED, 'red player'))
+          gamestate.add_player(Player.new(PlayerColor::BLUE, 'blue player'))
+          gamestate.turn = 5
+          gamestate.current_player_color = PlayerColor::BLUE
+        end
+
+        let(:move) { Move.new(4, 2, Direction::LEFT) }
+
+        it 'indicates a win' do
+          expect { subject }
+            .to change { gamestate.condition&.winner }
+            .from(nil)
+            .to(PlayerColor::BLUE)
+        end
+      end
+
       context 'when invalid' do
         let(:move) { Move.new(1, 0, Direction::DOWN) } # this is an invalid move
         it { expect { subject }.to raise_error(InvalidMoveException) }

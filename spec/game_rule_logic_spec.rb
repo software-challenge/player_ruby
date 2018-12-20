@@ -154,5 +154,30 @@ RSpec.describe GameRuleLogic do
         expect(subject.winning_condition(gamestate)).to be_nil
       end
     end
+
+    context 'when no player has united it\s swarm but the round limit is reached' do
+      before do
+        field =
+          <<~FIELD
+          ~ R R R ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ R ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ O ~ ~ ~ ~
+          ~ ~ ~ ~ ~ O ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+        FIELD
+        state_from_string!(field, gamestate)
+        gamestate.turn = 60 # last turn is by blue at turn == 59 (starts from 0)
+      end
+
+      it 'declares the player with biggest swarm as winner' do
+        expect(subject.winning_condition(gamestate)).not_to be_nil
+        expect(subject.winning_condition(gamestate).winner).to eq(PlayerColor::BLUE)
+      end
+    end
   end
 end

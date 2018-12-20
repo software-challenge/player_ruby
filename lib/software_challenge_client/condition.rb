@@ -12,4 +12,8 @@ class Condition
   def initialize(winner)
     @winner = winner
   end
+
+  def draw?
+    @winner.nil?
+  end
 end

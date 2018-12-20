@@ -71,6 +71,7 @@ class Move
     gamestate.last_move = self
     gamestate.turn += 1
     gamestate.switch_current_player
+    gamestate.condition = GameRuleLogic.winning_condition(gamestate)
   end
 
 

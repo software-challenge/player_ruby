@@ -45,5 +45,31 @@ RSpec.describe Board do
       expect(board.field(8, 0).type).to eq(FieldType::RED)
       expect(board.field(5, 3).type).to eq(FieldType::OBSTRUCTED)
     end
+
+    it 'counts red and blue fish correctly' do
+      field =
+        <<~FIELD
+          ~ R R R ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ R ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ ~ ~ ~ ~ ~
+          ~ ~ ~ B ~ O ~ ~ ~ ~
+          ~ ~ ~ ~ B O ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+        FIELD
+      state_from_string!(field, gamestate)
+
+      gamestate.add_player(Player.new(PlayerColor::RED, 'red player'))
+      gamestate.add_player(Player.new(PlayerColor::BLUE, 'blue player'))
+      gamestate.turn = 5
+      gamestate.current_player_color = PlayerColor::BLUE
+      Move.new(4, 2, Direction::LEFT).perform!(gamestate)
+
+      expect(board.fields_of_type(FieldType::RED).size).to be 4
+      expect(board.fields_of_type(FieldType::BLUE).size).to be 5
+    end
   end
 end
