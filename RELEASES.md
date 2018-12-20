@@ -1,3 +1,7 @@
+= 19.1.0
+
+- winning condition is now set when changing a gamestate with Move#perform!
+
 = 19.0.4
 
 - fixed one more bug in in Move#perform! (thanks to wollw!)
