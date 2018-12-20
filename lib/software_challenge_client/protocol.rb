@@ -85,6 +85,7 @@ class Protocol
       if attrs['class'] == 'result'
         logger.info 'Got game result'
         @network.disconnect
+        @gamestate.condition = Condition.new(nil, '')
       end
     when 'state'
       logger.debug 'new gamestate'
@@ -128,8 +129,10 @@ class Protocol
       @gamestate.last_move = Move.new(x, y, direction)
     when 'winner'
       winning_player = parsePlayer(attrs)
-      @gamestate.condition = Condition.new(winning_player)
-      @context[:player] = winning_player
+      @gamestate.condition = Condition.new(winning_player, @gamestate.condition.reason)
+    when 'score'
+      # there are two score tags in the result, but reason attribute should be equal on both
+      @gamestate.condition = Condition.new(@gamestate.condition.winner, attrs['reason'])
     when 'left'
       logger.debug 'got left event, terminating'
       @network.disconnect

@@ -139,6 +139,7 @@ RSpec.describe GameRuleLogic do
       it 'declares red as the winner' do
         expect(subject.winning_condition(gamestate)).not_to be_nil
         expect(subject.winning_condition(gamestate).winner).to eq(PlayerColor::RED)
+        expect(subject.winning_condition(gamestate).reason).to eq "Schwarm wurde vereint."
       end
     end
 
@@ -177,6 +178,7 @@ RSpec.describe GameRuleLogic do
       it 'declares the player with biggest swarm as winner' do
         expect(subject.winning_condition(gamestate)).not_to be_nil
         expect(subject.winning_condition(gamestate).winner).to eq(PlayerColor::BLUE)
+        expect(subject.winning_condition(gamestate).reason).to eq "Rundenlimit erreicht, Schwarm mit den meisten Fischen gewinnt."
       end
     end
   end

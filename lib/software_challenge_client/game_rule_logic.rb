@@ -238,13 +238,13 @@ class GameRuleLogic
         gamestate.board.fields_of_type(PlayerColor.field_type(player_color)).size
     end
     if winner_by_single_swarm.any? && gamestate.turn.even?
-      return Condition.new(nil) if winner_by_single_swarm.size == 2
-      return Condition.new(winner_by_single_swarm.first)
+      return Condition.new(nil, "Unentschieden.") if winner_by_single_swarm.size == 2
+      return Condition.new(winner_by_single_swarm.first, "Schwarm wurde vereint.")
     end
     player_with_biggest_swarm = [PlayerColor::RED, PlayerColor::BLUE].sort_by do |player_color|
       GameRuleLogic.swarm_size(gamestate.board, player_color)
     end.reverse.first
-    return Condition.new(player_with_biggest_swarm) if gamestate.turn == 60
+    return Condition.new(player_with_biggest_swarm, "Rundenlimit erreicht, Schwarm mit den meisten Fischen gewinnt.") if gamestate.turn == 60
     nil
   end
 end

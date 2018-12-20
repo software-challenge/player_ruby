@@ -72,6 +72,7 @@ RSpec.describe Protocol do
         </data>
       XML
       expect(subject.gamestate.condition.winner.name).to eq("Winning Player")
+      expect(subject.gamestate.condition.reason).to eq("R2")
     end
   end
 
