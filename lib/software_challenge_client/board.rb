@@ -24,6 +24,13 @@ class Board
       end
     end
   end
+  
+  def Debug(verbose = false)
+    
+      puts self.inspect; puts "verbose" if verbose
+    
+       return nil
+  end
 
   # Vergleicht zwei Spielbretter. Gleichheit besteht, wenn zwei Spielbretter die
   # gleichen Felder enthalten.
