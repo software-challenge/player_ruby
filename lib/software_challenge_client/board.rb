@@ -26,8 +26,9 @@ class Board
   end
 
   def Debug(verbose = false)
-    puts inspect; puts 'verbose' if verbose
-
+    puts inspect
+    puts 'verbose' if verbose
+    
     nil
   end
 
