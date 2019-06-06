@@ -32,11 +32,11 @@ class Field
       x == other.x &&
       y == other.y
   end
-  
+
   def someFunc(a)
-      puts a
-    puts "Hallo"; puts " Welt"
-    [1,2,3].each do |e | puts e.inspect end
+    puts a
+    puts 'Hallo'; puts ' Welt'
+    [1, 2, 3].each { |e| puts e.inspect }
   end
 
   # @return [Coordinates] Die Koordinaten des Feldes als Koordinatenpaar.
