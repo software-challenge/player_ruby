@@ -1,8 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
 
-require_relative 'field_type'
-require_relative 'line'
 require_relative './util/constants'
 
 # Methoden, welche die Spielregeln von Piranhas abbilden.

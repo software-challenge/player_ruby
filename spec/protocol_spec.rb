@@ -2,7 +2,7 @@
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
-RSpec.describe Protocol do
+RSpec.xdescribe Protocol do
   let(:client) { instance_double('Client') }
   let(:network) { instance_double('Network') }
 

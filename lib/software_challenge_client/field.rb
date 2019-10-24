@@ -1,28 +1,29 @@
 # encoding: UTF-8
-require_relative 'field_type'
 
 # Ein Feld des Spielfelds. Ein Spielfeld ist durch die Koordinaten eindeutig identifiziert.
 # Das type Attribut gibt an, um welchen Feldtyp es sich handelt
 class Field
-  # @!attribute [rw] type
-  # @return [FieldType] der Typ des Feldes
-  attr_accessor :type
-  # @!attribute [r] x
-  # @return [Integer] die X-Koordinate des Feldes (0 bis 9, 0 ist ganz links, 9 ist ganz rechts)
-  attr_reader :x
-  # @!attribute [r] y
-  # @return [Integer] die Y-Koordinate des Feldes (0 bis 9, 0 ist ganz unten, 9 ist ganz oben)
-  attr_reader :y
+  # @!attribute [rw] pieces
+  # @return [Array<Piece>] Spielsteine auf dem Feld, beginnend beim untersten Stein
+  attr_accessor :pieces
+  # @!attribute [r] coordinates
+  # @return [CubeCoordinates] die Cube-Coordinates des Feldes
+  attr_reader :coordinates
+  # @!attribute [r] obstructed
+  # @return [Boolean] ob das Feld durch eine Brombeere blockiert ist
+  attr_reader :obstructed
 
   # Konstruktor
   #
   # @param type [FieldType] Feldtyp
   # @param x [Integer] X-Koordinate
   # @param y [Integer] Y-Koordinate
-  def initialize(x, y, type)
-    @type = type
-    @x = x
-    @y = y
+  # @param pieces [Array<Piece>] Spielsteine auf dem Feld
+  # @param obstructed [Boolean] Ob das Feld blockiert ist (Brombeere)
+  def initialize(x, y, pieces = [], obstructed = false)
+    @pieces = pieces
+    @coordinates = CubeCoordinates.new(x, y)
+    @obstructed = obstructed
   end
 
   # Vergleicht zwei Felder. Felder sind gleich, wenn sie gleiche Koordinaten und gleichen Typ haben.
@@ -33,13 +34,24 @@ class Field
       y == other.y
   end
 
-  # @return [Coordinates] Die Koordinaten des Feldes als Koordinatenpaar.
-  def coordinates
-    Coordinates.new(x, y)
+  def x
+    coordinates.x
+  end
+
+  def y
+    coordinates.y
+  end
+
+  def z
+    coordinates.z
+  end
+
+  def empty?
+    pieces.empty?
   end
 
   # @return [String] Textuelle Darstellung des Feldes.
   def to_s
-    "Feld (#{x},#{y}), Typ = #{type}"
+    "Feld #{coordinates}, Steine = #{pieces.inpect}"
   end
 end

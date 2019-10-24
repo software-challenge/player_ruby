@@ -6,7 +6,6 @@ require_relative 'player'
 require_relative 'board'
 require_relative 'move'
 require_relative 'condition'
-require_relative 'field_type'
 
 # Ein Spielzustand. Wird vom Server an die Computerspieler übermittelt und
 # enthält alles, was der Computerspieler wissen muss, um einen Zug zu machen.

@@ -8,7 +8,8 @@ module SoftwareChallengeClient
   require 'software_challenge_client/condition'
   require 'software_challenge_client/debug_hint'
   require 'software_challenge_client/field'
-  require 'software_challenge_client/field_type'
+  require 'software_challenge_client/piece'
+  require 'software_challenge_client/piece_type'
   require 'software_challenge_client/game_state'
   require 'software_challenge_client/move'
   require 'software_challenge_client/network'
@@ -18,6 +19,5 @@ module SoftwareChallengeClient
   require 'software_challenge_client/runner'
   require 'software_challenge_client/game_rule_logic'
   require 'software_challenge_client/direction'
-  require 'software_challenge_client/line_direction'
-  require 'software_challenge_client/coordinates'
+  require 'software_challenge_client/cube_coordinates'
 end

@@ -3,7 +3,6 @@
 
 require_relative './util/constants'
 require_relative 'game_state'
-require_relative 'field_type'
 require_relative 'field'
 
 # Ein Spielbrett bestehend aus 10x10 Feldern.
@@ -14,15 +13,35 @@ class Board
   #   seiner Koordinaten im Array gespeichert.
   attr_reader :fields
 
+  BOARD_SIZE = 11
+  SHIFT = ((BOARD_SIZE - 1) / 2)
+
+  def self.field_amount(radius)
+    return 1 if radius == 1
+    (radius - 1) * 6 + Board.field_amount(radius - 1)
+  end
+
+  FIELD_AMOUNT = Board.field_amount((BOARD_SIZE + 1)/2)
+
   # Erstellt ein neues leeres Spielbrett.
-  def initialize
-    @fields = []
-    (0..9).to_a.each do |y|
-      @fields[y] = []
-      (0..9).to_a.each do |x|
-        @fields[y][x] = Field.new(x, y, FieldType::EMPTY)
+  def initialize(fields = [])
+    @fields = Board.empty_game_field
+    fields.each{ |f| add_field(f) }
+  end
+
+  def self.empty_game_field
+    fields = []
+    (-SHIFT..SHIFT).to_a.each do |x|
+      fields[x + SHIFT] ||= []
+      ([-SHIFT, -x-SHIFT].max..[SHIFT, -x+SHIFT].min).to_a.each do |y|
+        fields[x + SHIFT][y + SHIFT] = Field.new(x, y)
       end
     end
+    fields
+  end
+
+  def field_list
+    @fields.flatten.select{ |e| !e.nil? }
   end
 
   # Vergleicht zwei Spielbretter. Gleichheit besteht, wenn zwei Spielbretter die
@@ -40,7 +59,7 @@ class Board
   #
   # @param field [Field] Das einzufügende Feld.
   def add_field(field)
-    @fields[field.y][field.x] = field
+    @fields[field.y + SHIFT][field.x + SHIFT] = field
   end
 
   # Ändert den Typ eines bestimmten Feldes des Spielbrettes.
@@ -54,13 +73,12 @@ class Board
 
   # Zugriff auf die Felder des Spielfeldes
   #
-  # @param x [Integer] Die X-Koordinate des Feldes. 0..9, wobei Spalte 0 ganz links und Spalte 9 ganz rechts liegt.
-  # @param y [Integer] Die Y-Koordinate des Feldes. 0..9, wobei Zeile 0 ganz unten und Zeile 9 ganz oben liegt.
-  # @return [Field] Das Feld mit den gegebenen Koordinaten. Falls das Feld nicht
-  #   exisitert (weil die Koordinaten ausserhalb von (0,0)..(9,9) liegen), wird nil zurückgegeben.
+  # @param x [Integer] Die X-Koordinate des Feldes.
+  # @param y [Integer] Die Y-Koordinate des Feldes.
+  # @return [Field] Das Feld mit den gegebenen Koordinaten. Falls das Feld nicht exisitert, wird nil zurückgegeben.
   def field(x, y)
-    return nil if x.negative? || y.negative?
-    fields.dig(y, x) # NOTE that #dig requires ruby 2.3+
+    return nil if (x < -SHIFT) || (y < -SHIFT)
+    fields.dig(x + SHIFT, y + SHIFT) # NOTE that #dig requires ruby 2.3+
   end
 
   # Zugriff auf die Felder des Spielfeldes über ein Koordinaten-Paar.
@@ -85,9 +103,7 @@ class Board
   # einen roten Fisch, B für einen blauen, ~ für ein leeres Feld und O für ein
   # Kraken-Feld.
   def to_s
-    fields.reverse.map do |row|
-      row.map { |f| f.type.value }.join(' ')
-    end.join("\n")
+    field_list.map{ |f| f.obstructed ? 'OO' : f.empty? ? '--' : f.pieces.first.to_s }.join
   end
 
 end

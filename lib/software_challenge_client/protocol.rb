@@ -40,7 +40,12 @@ class Protocol
   # @param text [String] the xml-string that will be parsed
   def process_string(text)
     logger.debug "Parse XML:\n#{text}\n----END XML"
-    REXML::Document.parse_stream(text, self)
+    begin
+      REXML::Document.parse_stream(text, self)
+    rescue REXML::ParseException => e
+      # to parse incomplete xml, ignore missing end tag exceptions
+      raise e unless e.message =~ /Missing end tag/
+    end
   end
 
 

@@ -8,7 +8,11 @@ RSpec.describe Board do
   let(:gamestate) { GameState.new }
   subject(:board) { gamestate.board }
 
-  context 'method field' do
+  it 'should have fields initialized' do
+    expect(board.field_list.size).to eq(Board::FIELD_AMOUNT)
+  end
+
+  xcontext 'method field' do
     before do
       field =
         <<~FIELD

@@ -7,29 +7,26 @@ module GameStateHelpers
 
   def state_from_string!(string, gamestate)
     board = Board.new
-    string.lines.each_with_index do |row, y|
-      row.split(/\s+/).each_with_index do |field, x|
-        if field.length > 1
-          raise boardformaterror,
-                "too many identifiers for field (#{x},#{y}): '#{field}'"
-        end
-        type =
-          case field
-          when '~'
-            FieldType::EMPTY
-          when 'R'
-            FieldType::RED
-          when 'B'
-            FieldType::BLUE
-          when 'O'
-            FieldType::OBSTRUCTED
-          else
-            raise boardformaterror,
-                  "unknown identifier for field (#{x},#{y}): '#{field}'"
-          end
-        board.add_field(Field.new(x, Constants::SIZE - 1 - y, type))
-      end
+    fields = Board.new.field_list.sort do |a, b|
+      cmp_z = a.coordinates.z <=> b.coordinates.z
+      cmp_z == 0 ? a.coordinates.x <=> b.coordinates.x : cmp_z
+    end.map{ |f| {x: f.coordinates.x, y: f.coordinates.y} }
+    fieldDescriptors = string.gsub(/\s/, '')
+    boardFields = []
+    fields.each_with_index do |c, i|
+      boardFields << case fieldDescriptors[i * 2]
+                     when 'R'
+                       Field.new(c[:x], c[:y], [Piece.new(PlayerColor::RED, PieceType.find_by_value(fieldDescriptors[i * 2 + 1]))])
+                     when 'B'
+                       Field.new(c[:x], c[:y], [Piece.new(PlayerColor::BLUE, PieceType.find_by_value(fieldDescriptors[i * 2 + 1]))])
+                     when 'O'
+                       Field.new(c[:x], c[:y], [], true)
+                     when '-'
+                       Field.new(c[:x], c[:y])
+                     else
+                       throw BoardFormatError.new("Unknown field type")
+                     end
     end
-    gamestate.board = board
+    gamestate.board = Board.new(boardFields)
   end
 end
