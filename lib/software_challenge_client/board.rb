@@ -83,7 +83,9 @@ class Board
 
   # Zugriff auf die Felder des Spielfeldes über ein Koordinaten-Paar.
   #
-  # @param coordinates [Coordinates] X- und Y-Koordinate als Paar, sonst wie bei {Board#field}.
+  # @param coordinates [CubeCoordinates] X- und Y-Koordinate als Paar, sonst wie
+  # bei {Board#field}.
+  #
   # @return [Field] Wie bei {Board#field}.
   #
   # @see #field
