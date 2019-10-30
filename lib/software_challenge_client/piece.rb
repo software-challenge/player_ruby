@@ -20,4 +20,8 @@ class Piece
   def to_s
     color.value + type.value
   end
+
+  def inspect
+    to_s
+  end
 end

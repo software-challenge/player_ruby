@@ -47,7 +47,7 @@ class Field
   end
 
   def empty?
-    pieces.empty?
+    pieces.empty? && !obstructed
   end
 
   def add_piece(piece)
@@ -64,6 +64,11 @@ class Field
 
   # @return [String] Textuelle Darstellung des Feldes.
   def to_s
-    "Feld #{coordinates}, Steine = #{pieces.inpect}"
+    s = "Feld #{coordinates}, "
+    if obstructed?
+      s += 'blockiert'
+    else
+      s += "Steine: #{pieces.inpect}"
+    end
   end
 end

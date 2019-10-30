@@ -42,5 +42,12 @@ module GameStateHelpers
                       end
     end
     gamestate.board = Board.new(board_fields)
+    PlayerColor.each do |color|
+      gamestate.board.field_list.map{ |f| f.pieces.select{ |p| p.color == color } }.flatten.each do |p|
+        up = gamestate.undeployed_pieces(color)
+        i = up.find_index(p)
+        up.delete_at(i) unless i.nil?
+      end
+    end
   end
 end

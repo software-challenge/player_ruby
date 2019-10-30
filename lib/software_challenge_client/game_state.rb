@@ -23,12 +23,15 @@ class GameState
   # @return [PlayerColor] Die Farbe des Spielers, der den nächsten Zug machen
   #                       darf, der also gerade an der Reihe ist.
   attr_accessor :current_player_color
-  # @!attribute [r] red
-  # @return [Player] Der rote Spieler
-  attr_reader :red
-  # @!attribute [r] blue
-  # @return [Player] Der blaue Spieler
-  attr_reader :blue
+
+  # @!attribute [r] undeployed_red_pieces
+  # @return [Player] Die nicht gesetzten Spielsteine des roten Spielers
+  attr_reader :undeployed_red_pieces
+
+  # @!attribute [r] undeployed_blue_pieces
+  # @return [Player] Die nicht gesetzten Spielsteine des roten Spielers
+  attr_reader :undeployed_blue_pieces
+
   # @!attribute [rw] board
   # @return [Board] Das aktuelle Spielbrett
   attr_accessor :board
@@ -45,13 +48,30 @@ class GameState
   def field(x, y)
     board.field(x, y)
   end
+  def self.parse_pieces_string(string, color)
+    string.chars.map do |c|
+      case c
+      when 'Q'
+        Piece.new(color, PieceType::BEE)
+      when 'S'
+        Piece.new(color, PieceType::SPIDER)
+      when 'G'
+        Piece.new(color, PieceType::GRASSHOPPER)
+      when 'B'
+        Piece.new(color, PieceType::BEETLE)
+      when 'A'
+        Piece.new(color, PieceType::ANT)
+      end
+    end
+  end
 
-  # Erstellt einen neuen Spielzustand.
   def initialize
     @current_player_color = PlayerColor::RED
     @start_player_color = PlayerColor::RED
     @board = Board.new
     @turn = 0
+    @undeployed_red_pieces = GameState.parse_pieces_string(Constants::STARTING_PIECES, PlayerColor::RED)
+    @undeployed_blue_pieces = GameState.parse_pieces_string(Constants::STARTING_PIECES, PlayerColor::BLUE)
   end
 
   # Fügt einen Spieler zum Spielzustand hinzu.
@@ -87,6 +107,14 @@ class GameState
     turn / 2
   end
 
+  def undeployed_pieces(color)
+    case color
+    when PlayerColor::RED
+      undeployed_red_pieces
+    when PlayerColor::BLUE
+      undeployed_blue_pieces
+    end
+  end
   # Führt einen Zug auf dem Spielzustand aus. Das Spielbrett wird entsprechend
   # modifiziert.
   #

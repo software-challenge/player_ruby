@@ -67,4 +67,26 @@ RSpec.describe GameStateHelpers do
     c = CubeCoordinates.new(-2, 1)
     expect(gamestate.board.field_at(c).coordinates).to eq(c)
   end
+
+  it 'should update undeployed pieces' do
+    board =
+      <<~BOARD
+            ------------
+           --------------
+          ----------------
+         ------------------
+        --------RB----------
+       --------BARQRG--------
+        ----------BS--------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+    # QSSSGGBBAAA
+    state_from_string!(board, gamestate)
+    expect(gamestate.undeployed_red_pieces).to match_array(GameState.parse_pieces_string('SSSGBAAA', PlayerColor::RED))
+    expect(gamestate.undeployed_blue_pieces).to match_array(GameState.parse_pieces_string('QSSGGBBAA', PlayerColor::BLUE))
+  end
+
 end
