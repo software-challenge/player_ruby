@@ -4,7 +4,6 @@
 require_relative './util/constants'
 require_relative 'player'
 require_relative 'board'
-require_relative 'move'
 require_relative 'condition'
 
 # Ein Spielzustand. Wird vom Server an die Computerspieler übermittelt und
@@ -138,7 +137,7 @@ class GameState
   # Erzeugt eine Kopie des Spielzustandes. Änderungen an dieser Kopie
   # beeinflussen den originalen Spielzustand nicht. Die Kopie kann also zum
   # testen von Spielzügen genutzt werden.
-  def deep_clone
+  def clone
     Marshal.load(Marshal.dump(self))
   end
 
@@ -149,9 +148,7 @@ class GameState
 
   # @return [Array<Field>] Alle Felder mit Fischen des Spielers, der gerade an der Reihe ist.
   def own_fields
-    board.fields_of_type(
-      PlayerColor.field_type(current_player_color)
-    )
+    board.fields_of_color(current_player_color)
   end
 
   # @return [Array<Move>] Alle regelkonformen Züge, die der aktuelle Spieler gerade machen könnte.

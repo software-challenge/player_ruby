@@ -2,24 +2,20 @@
 
 require 'typesafe_enum'
 
-# Die acht möglichen Bewegungsrichtungen auf dem Spielbrett. Die Richtungen sind:
+# Die sechs möglichen Bewegungsrichtungen auf dem Spielbrett. Die Richtungen sind:
 #
-# - UP
 # - UP_RIGHT
 # - RIGHT
 # - DOWN_RIGHT
-# - DOWN
 # - DOWN_LEFT
 # - LEFT
 # - UP_LEFT
 #
 # Zugriff erfolgt z.B. durch Direction::UP_RIGHT.
 class Direction < TypesafeEnum::Base
-  new :UP
   new :UP_RIGHT
   new :RIGHT
   new :DOWN_RIGHT
-  new :DOWN
   new :DOWN_LEFT
   new :LEFT
   new :UP_LEFT
@@ -28,26 +24,32 @@ class Direction < TypesafeEnum::Base
   # entsprechende Richtung. Der resultierende Punkt kann ausserhalb des
   # Spielbrettes liegen. Dies kann mit {GameRuleLogic#inside_bounds?} geprüft
   # werden.
-  # @param coordinates [Coordinates] Das zu verschiebende Koordinatenpaar.
+  # @param coordinates [CubeCoordinates] Das zu verschiebende Koordinatenpaar.
   # @param distance [Integer] Um wieviele Felder in die Richtung verschoben werden soll.
-  def translate(coordinates, distance = 1)
-    case key
-    when :UP
-      Coordinates.new(coordinates.x, coordinates.y + distance)
-    when :UP_RIGHT
-      Coordinates.new(coordinates.x + distance, coordinates.y + distance)
+  def translate(start, distance = 1)
+    shiftX = start.x
+    shiftY = start.y
+    shiftZ = start.z
+    case self.key
     when :RIGHT
-      Coordinates.new(coordinates.x + distance, coordinates.y)
-    when :DOWN_RIGHT
-      Coordinates.new(coordinates.x + distance, coordinates.y - distance)
-    when :DOWN
-      Coordinates.new(coordinates.x, coordinates.y - distance)
-    when :DOWN_LEFT
-      Coordinates.new(coordinates.x - distance, coordinates.y - distance)
+      shiftX = start.x + distance
+      shiftY = start.y - distance
     when :LEFT
-      Coordinates.new(coordinates.x - distance, coordinates.y)
+      shiftX = start.x - distance
+      shiftY = start.y + distance
+    when :UP_RIGHT
+      shiftX = start.x + distance
+      shiftZ = start.z - distance
     when :UP_LEFT
-      Coordinates.new(coordinates.x - distance, coordinates.y + distance)
+      shiftY = start.y + distance
+      shiftZ = start.z - distance
+    when :DOWN_RIGHT
+      shiftY = start.y - distance
+      shiftZ = start.z + distance
+    when :DOWN_LEFT
+      shiftX = start.x - distance
+      shiftZ = start.z + distance
     end
+    return CubeCoordinates.new(shiftX, shiftY, shiftZ)
   end
 end

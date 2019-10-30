@@ -47,4 +47,24 @@ RSpec.describe GameStateHelpers do
       state_from_string!(board, gamestate)
     end.to raise_error(GameStateHelpers::BoardFormatError)
   end
+
+  it 'should place fields on the right coordinates' do
+    board =
+      <<~BOARD
+            ------------
+           --------------
+          ----------------
+         ------------------
+        --------------------
+       ----------RQ----------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+    state_from_string!(board, gamestate)
+    c = CubeCoordinates.new(-2, 1)
+    expect(gamestate.board.field_at(c).coordinates).to eq(c)
+  end
 end

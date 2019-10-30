@@ -29,9 +29,9 @@ class Field
   # Vergleicht zwei Felder. Felder sind gleich, wenn sie gleiche Koordinaten und gleichen Typ haben.
   # @return [Boolean] true bei Gleichheit, false sonst.
   def ==(other)
-    type == other.type &&
-      x == other.x &&
-      y == other.y
+    coordinates == other.coordinates &&
+      obstructed == other.obstructed &&
+      pieces == other.pieces
   end
 
   def x
@@ -48,6 +48,18 @@ class Field
 
   def empty?
     pieces.empty?
+  end
+
+  def add_piece(piece)
+    pieces.push(piece)
+  end
+
+  def remove_piece
+    pieces.pop
+  end
+
+  def color
+    pieces.last&.color
   end
 
   # @return [String] Textuelle Darstellung des Feldes.

@@ -5,12 +5,12 @@ require_relative './util/constants'
 require_relative 'game_state'
 require_relative 'field'
 
-# Ein Spielbrett bestehend aus 10x10 Feldern.
+# Ein Spielbrett fuer Hive
 class Board
   # @!attribute [r] fields
   # @note Besser über die {#field} Methode auf Felder zugreifen.
   # @return [Array<Array<Field>>] Ein Feld wird an der Position entsprechend
-  #   seiner Koordinaten im Array gespeichert.
+  #   seiner x und y CubeCoordinates im Array gespeichert.
   attr_reader :fields
 
   BOARD_SIZE = 11
@@ -47,19 +47,14 @@ class Board
   # Vergleicht zwei Spielbretter. Gleichheit besteht, wenn zwei Spielbretter die
   # gleichen Felder enthalten.
   def ==(other)
-    fields.each_with_index do |row, y|
-      row.each_with_index do |field, x|
-        return false if field != other.field(x, y)
-      end
-    end
-    true
+    field_list == other.field_list
   end
 
   # Fügt ein Feld dem Spielbrett hinzu. Das übergebene Feld ersetzt das an den Koordinaten bestehende Feld.
   #
   # @param field [Field] Das einzufügende Feld.
   def add_field(field)
-    @fields[field.y + SHIFT][field.x + SHIFT] = field
+    @fields[field.x + SHIFT][field.y + SHIFT] = field
   end
 
   # Ändert den Typ eines bestimmten Feldes des Spielbrettes.
@@ -68,7 +63,7 @@ class Board
   # @param y [Integer] Die Y-Koordinate des zu ändernden Feldes. 0..9, wobei Zeile 0 ganz unten und Zeile 9 ganz oben liegt.
   # @param type [FieldType] Der neue Typ des Feldes.
   def change_field(x, y, type)
-    @fields[y][x].type = type
+    @fields[x][y].type = type
   end
 
   # Zugriff auf die Felder des Spielfeldes
@@ -93,12 +88,16 @@ class Board
     field(coordinates.x, coordinates.y)
   end
 
-  # Liefert alle Felder eines angegebenen Typs des Spielbrettes.
+  # Liefert alle Felder die dem Spieler mit der gegebenen Farbe gehoeren
   #
-  # @param field_type [FieldType] Der Typ, dessen Felder zurückgegeben werden sollen.
-  # @return [Array<Field>] Alle Felder des angegebenen Typs die das Spielbrett enthält.
-  def fields_of_type(field_type)
-    fields.flatten.select{ |f| f.type == field_type }
+  # @param color [PlayerColor] Die Spielerfarbe
+  # @return [Array<Field>] Alle Felder der angegebenen Farbe die das Spielbrett enthält.
+  def fields_of_color(color)
+    field_list.select{ |f| f.color == color }
+  end
+
+  def clone
+    Marshal.load(Marshal.dump(self))
   end
 
   # Gibt eine textuelle Repräsentation des Spielbrettes aus. Hier steht R für

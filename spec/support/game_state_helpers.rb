@@ -38,7 +38,7 @@ module GameStateHelpers
                       when '-'
                         Field.new(c[:x], c[:y])
                       else
-                        throw BoardFormatError.new('Unknown field type')
+                        raise BoardFormatError.new('Unknown field type')
                       end
     end
     gamestate.board = Board.new(board_fields)

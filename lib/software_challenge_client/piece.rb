@@ -13,6 +13,10 @@ class Piece
     @color = color
   end
 
+  def ==(other)
+    type == other.type && color == other.color
+  end
+
   def to_s
     color.value + type.value
   end
