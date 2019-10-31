@@ -7,4 +7,8 @@ class DragMove
     @start = start
     @destination = destination
   end
+
+  def to_s
+    "[Move: Drag from #{start} to #{destination}]"
+  end
 end

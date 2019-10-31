@@ -53,10 +53,6 @@ class GameRuleLogic
     end
   end
 
-  def self.validate_drag_move(gamestate, move)
-    true # todo
-  end
-
   def self.is_on_board(coords)
     shift = (BOARD_SIZE - 1) / 2
     -shift <= coords.x && coords.x <= shift && -shift <= coords.y && coords.y <= shift
@@ -111,6 +107,632 @@ class GameRuleLogic
     end
     true
   end
+
+  def self.validate_drag_move(gamestate, move)
+    unless has_player_placed_bee(gamestate)
+      raise InvalidMoveException.new("You have to place the Bee to be able to perform dragmoves", move)
+    end
+
+    if (!is_on_board(move.destination) || !is_on_board(move.start))
+      raise InvalidMoveException.new("The Move is out of bounds", move)
+    end
+
+    if (gamestate.board.field_at(move.start).pieces.empty?)
+      raise InvalidMoveException.new("There is no piece to move", move)
+    end
+
+    piece_to_drag = gamestate.board.field_at(move.start).pieces.last
+
+    if (piece_to_drag.owner != gamestate.current_player_color)
+      raise InvalidMoveException.new("Trying to move piece of the other player", move)
+    end
+
+    if (move.start == move.destination)
+      raise InvalidMoveException.new("Destination and start are equal", move)
+    end
+
+    if (!gamestate.board.field_at(move.destination).pieces.empty? && piece_to_drag.type != PieceType::BEETLE)
+      raise InvalidMoveException.new("Only beetles are allowed to climb on other Pieces", move)
+    end
+
+    board_without_piece = gamestate.board.clone
+    board_without_piece.field_at(move.start).pieces.pop
+
+    if (!is_swarm_connected(board_without_piece))
+      raise InvalidMoveException.new("Moving piece would disconnect swarm", move)
+    end
+
+    case piece_to_drag.type
+    when PieceType::ANT
+      validate_ant_move(board_without_piece, move)
+    when PieceType::BEE
+      validate_bee_move(board_without_piece, move)
+    when PieceType::BEETLE
+      validate_beetle_move(board_without_piece, move)
+    when PieceType::GRASSHOPPER
+      validate_grasshopper_move(board_without_piece, move)
+    when PieceType::SPIDER
+      validate_spider_move(board_without_piece, move)
+    end
+    true
+  end
+
+  def self.validate_ant_move(board, move)
+    visited_fields = [move.start]
+    index = 0
+    while index < visited_fields.size
+      current_field = visited_fields[index]
+      new_fields = accessible_neighbours_except(board, current_field, move.start).reject { |f| visited_fields.include? f }
+      return true if new_fields.include?(move.destination)
+      visited_fields += new_fields
+      index += 1
+    end
+    raise InvalidMoveException.new("No path found for Ant move", move)
+  end
+
+  def self.is_swarm_connected(board)
+    board_fields = board.field_list.select{ |f| !f.pieces.empty? }
+    return true if board_fields.empty?
+    visited_fields = board_fields.take 1
+    total_pieces = board.pieces.size
+    index = 0
+    while index < visited_fields.size
+      current_field = visited_fields[index]
+      occupied_neighbours =
+        get_neighbours(board, current_field.coordinates)
+          .filter { |f| !f.pieces.empty? }
+      occupied_neighbours -= visited_fields
+      visited_fields += occupied_neighbours
+      return true if visited_fields.sum{ |f| f.pieces.size } == total_pieces
+      index += 1
+    end
+    false
+  end
+
+=begin
+    @JvmStatic
+    fun getAccessibleNeighbours(board: Board, start: CubeCoordinates) =
+            getNeighbours(board, start).filter { neighbour ->
+                neighbour.isEmpty && canMoveBetween(board, start, neighbour)
+            }
+
+    @JvmStatic
+    fun getAccessibleNeighboursExcept(board: Board, start: CubeCoordinates, except: CubeCoordinates) =
+            getNeighbours(board, start).filter { neighbour ->
+                neighbour.isEmpty && canMoveBetweenExcept(board, start, neighbour, except) && neighbour.coordinates != except
+            }
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateBeeMove(board: Board, move: DragMove) {
+        validateDestinationNextToStart(move)
+        if (!canMoveBetween(board, move.start, move.destination))
+            raise InvalidMoveException.new("There is no path to your destination", move)
+    }
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateBeetleMove(board: Board, move: DragMove) {
+        validateDestinationNextToStart(move)
+        if ((sharedNeighboursOfTwoCoords(board, move.start, move.destination) + board.getField(move.destination) + board.getField(move.start)).all { it.pieces.isEmpty() })
+            raise InvalidMoveException.new("Beetle has to move along swarm", move)
+    }
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateGrasshopperMove(board: Board, move: DragMove) {
+        if (!twoFieldsOnOneStraight(move.start, move.destination)) {
+            raise InvalidMoveException.new("Grasshopper can only move straight lines", move)
+        }
+        if (isNeighbour(move.start, move.destination)) {
+            raise InvalidMoveException.new("Grasshopper has to jump over at least one piece", move)
+        }
+        if (getLineBetweenCoords(board, move.start, move.destination).any { it.isEmpty }) {
+            raise InvalidMoveException.new("Grasshopper can only jump over occupied fields, not empty ones", move)
+        }
+    }
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateSpiderMove(board: Board, move: DragMove): Boolean {
+        /*
+        // Ich lass das mal noch hier, da dass der evtl. performantere Ansatz ist
+        val paths: Deque<Array<CubeCoordinates>> = ArrayDeque()
+        paths.add(arrayOf(move.start))
+        do {
+            val currentPath = paths.removeFirst()
+            val newFields = getAccessibleNeighboursExcept(board, currentPath.last(), move.start).filterNot { it in currentPath }
+            if (currentPath.size < 3)
+                paths.addAll(newFields.map { currentPath + it })
+            else if (move.destination in newFields)
+                return true
+        } while (paths.isNotEmpty())
+         */
+        val found = getAccessibleNeighbours(board, move.start).any { depth1 ->
+            getAccessibleNeighboursExcept(board, depth1, move.start).any { depth2 ->
+                getAccessibleNeighboursExcept(board, depth2, move.start).filterNot { it.coordinates == depth1 }.any { move.destination == it }
+            }
+        }
+        if (found)
+            return true
+        raise InvalidMoveException.new("No path found for Spider move", move)
+    }
+
+    @Raises(IndexOutOfBoundsException::class)
+    @JvmStatic
+    fun getLineBetweenCoords(board: Board, start: CubeCoordinates, destination: CubeCoordinates): List<Field> {
+        if (!twoFieldsOnOneStraight(start, destination)) {
+            raise IndexOutOfBoundsException("destination is not in line with start")
+        }
+
+        val dX = start.x - destination.x
+        val dY = start.y - destination.y
+        val dZ = start.z - destination.z
+        val d = if (dX == 0) abs(dY) else abs(dX)
+
+        return (1 until d).map { i ->
+            board.getField(CubeCoordinates(
+                    destination.x + i * if (dX > 0) 1 else if (dX < 0) -1 else 0,
+                    destination.y + i * if (dY > 0) 1 else if (dY < 0) -1 else 0,
+                    destination.z + i * if (dZ > 0) 1 else if (dZ < 0) -1 else 0
+            ))
+        }
+    }
+
+    @JvmStatic
+    fun canMoveBetween(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates): Boolean {
+        return sharedNeighboursOfTwoCoords(board, coords1, coords2).let { shared ->
+            (shared.size == 1 || shared.any { it.isEmpty && !it.isObstructed }) && shared.any { it.pieces.isNotEmpty() }
+        }
+    }
+
+    @JvmStatic
+    fun canMoveBetweenExcept(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates, except: CubeCoordinates): Boolean {
+        return sharedNeighboursOfTwoCoords(board, coords1, coords2).filterNot { it.pieces.size == 1 && except == it.coordinates }.let { shared ->
+            (shared.size == 1 || shared.any { it.isEmpty && !it.isObstructed }) && shared.any { it.pieces.isNotEmpty() }
+        }
+    }
+
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateDestinationNextToStart(move: DragMove) {
+        if (!this.isNeighbour(move.start, move.destination))
+            raise InvalidMoveException.new("Destination field is not next to start field", move)
+    }
+
+    @JvmStatic
+    fun isNeighbour(start: CubeCoordinates, destination: CubeCoordinates): Boolean {
+        return Direction.values().map {
+            it.shift(start)
+        }.contains(destination)
+    }
+
+    @JvmStatic
+    fun twoFieldsOnOneStraight(coords1: CubeCoordinates, coords2: CubeCoordinates): Boolean {
+        return coords1.x == coords2.x || coords1.y == coords2.y || coords1.z == coords2.z
+    }
+
+    @JvmStatic
+    fun sharedNeighboursOfTwoCoords(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates): ArrayList<Field> {
+        val neighbours = getNeighbours(board, coords1)
+        neighbours.retainAll(getNeighbours(board, coords2))
+        return neighbours
+    }
+
+    @JvmStatic
+    fun hasPlayerPlacedBee(gamestate: GameState) =
+            gamestate.getDeployedPieces(gamestate.currentPlayerColor).any { it.type == PieceType.BEE }
+
+    @JvmStatic
+    fun boardIsEmpty(board: Board): Boolean =
+            board.fields.none { it.pieces.isNotEmpty() }
+
+     nless has_player_placed_bee(gamestate)
+        raise InvalidMoveException.new("You have to place the Bee to be able to perform dragmoves", move)
+
+        if (!isOnBoard(move.destination) || !isOnBoard(move.start))
+          raise InvalidMoveException.new("The Move is out of bounds", move)
+
+          if (gamestate.board.getField(move.start).pieces.size == 0)
+            raise InvalidMoveException.new("There is no piece to move", move)
+
+            val pieceToDrag = gamestate.board.getField(move.start).pieces.peek()
+
+            if (pieceToDrag.owner !== gamestate.currentPlayerColor)
+              raise InvalidMoveException.new("Trying to move piece of the other player", move)
+
+              if (move.start == move.destination)
+                raise InvalidMoveException.new("Destination and start are equal", move)
+
+                if (gamestate.board.getField(move.destination).pieces.isNotEmpty() && pieceToDrag.type !== PieceType.BEETLE)
+                  raise InvalidMoveException.new("Only beetles are allowed to climb on other Pieces", move)
+
+                  val boardWithoutPiece = Board(gamestate.board.fields.map {
+                                                  if (it == move.start) Field(it).apply { pieces.pop() } else it
+                                                })
+                  if (!isSwarmConnected(boardWithoutPiece))
+                    raise InvalidMoveException.new("Moving piece would disconnect swarm", move)
+
+                  when (pieceToDrag.type) {
+                         PieceType.ANT -> validateAntMove(boardWithoutPiece, move)
+                         PieceType.BEE -> validateBeeMove(boardWithoutPiece, move)
+                         PieceType.BEETLE -> validateBeetleMove(boardWithoutPiece, move)
+                         PieceType.GRASSHOPPER -> validateGrasshopperMove(boardWithoutPiece, move)
+                         PieceType.SPIDER -> validateSpiderMove(boardWithoutPiece, move)
+                       }
+                    }
+
+                     @Raises(InvalidMoveException::class)
+                     @JvmStatic
+                     fun validateAntMove(board: Board, move: DragMove): Boolean {
+                       val visitedFields: MutableList<CubeCoordinates> = arrayListOf(move.start)
+                       var index = 0
+        do {
+val currentField = visitedFields[index]
+val newFields = getAccessibleNeighboursExcept(board, currentField, move.start).filterNot { it in visitedFields }
+if (move.destination in newFields)
+  return true
+  visitedFields.addAll(newFields)
+} while (++index < visitedFields.size)
+          raise InvalidMoveException.new("No path found for Ant move", move)
+                     }
+
+                     @JvmStatic
+                     fun isSwarmConnected(board: Board): Boolean {
+                       val visitedFields = arrayListOf(board.fields.firstOrNull { it.pieces.isNotEmpty() } ?: return true)
+                       val totalPieces = board.getPieces().size
+                       var index = 0
+        do {
+val currentField = visitedFields[index]
+val occupiedNeighbours = getNeighbours(board, currentField.coordinates)
+                           .filterTo(ArrayList()) { it.pieces.isNotEmpty() }
+occupiedNeighbours.removeAll(visitedFields)
+visitedFields.addAll(occupiedNeighbours)
+if (visitedFields.sumBy { it.pieces.size } == totalPieces)
+  return true
+} while (++index < visitedFields.size)
+          return false
+                     }
+
+                     @JvmStatic
+                     fun getAccessibleNeighbours(board: Board, start: CubeCoordinates) =
+                         getNeighbours(board, start).filter { neighbour ->
+                                                                        neighbour.isEmpty && canMoveBetween(board, start, neighbour)
+                     }
+
+                     @JvmStatic
+                     fun getAccessibleNeighboursExcept(board: Board, start: CubeCoordinates, except: CubeCoordinates) =
+                         getNeighbours(board, start).filter { neighbour ->
+                                                                        neighbour.isEmpty && canMoveBetweenExcept(board, start, neighbour, except) && neighbour.coordinates != except
+                     }
+
+                     @Raises(InvalidMoveException::class)
+                     @JvmStatic
+                     fun validateBeeMove(board: Board, move: DragMove) {
+                       validateDestinationNextToStart(move)
+                       if (!canMoveBetween(board, move.start, move.destination))
+                         raise InvalidMoveException.new("There is no path to your destination", move)
+                     }
+
+                     @Raises(InvalidMoveException::class)
+                     @JvmStatic
+                     fun validateBeetleMove(board: Board, move: DragMove) {
+                       validateDestinationNextToStart(move)
+                       if ((sharedNeighboursOfTwoCoords(board, move.start, move.destination) + board.getField(move.destination) + board.getField(move.start)).all { it.pieces.isEmpty() })
+                         raise InvalidMoveException.new("Beetle has to move along swarm", move)
+                     }
+
+                     @Raises(InvalidMoveException::class)
+                     @JvmStatic
+                     fun validateGrasshopperMove(board: Board, move: DragMove) {
+                       if (!twoFieldsOnOneStraight(move.start, move.destination)) {
+                            raise InvalidMoveException.new("Grasshopper can only move straight lines", move)
+                          }
+                         if (isNeighbour(move.start, move.destination)) {
+                              raise InvalidMoveException.new("Grasshopper has to jump over at least one piece", move)
+                            }
+                           if (getLineBetweenCoords(board, move.start, move.destination).any { it.isEmpty }) {
+                                raise InvalidMoveException.new("Grasshopper can only jump over occupied fields, not empty ones", move)
+                              }
+                     }
+
+                     @Raises(InvalidMoveException::class)
+                     @JvmStatic
+                     fun validateSpiderMove(board: Board, move: DragMove): Boolean {
+                       /*
+        // Ich lass das mal noch hier, da dass der evtl. performantere Ansatz ist
+                       val paths: Deque<Array<CubeCoordinates>> = ArrayDeque()
+                       paths.add(arrayOf(move.start))
+        do {
+val currentPath = paths.removeFirst()
+val newFields = getAccessibleNeighboursExcept(board, currentPath.last(), move.start).filterNot { it in currentPath }
+if (currentPath.size < 3)
+  paths.addAll(newFields.map { currentPath + it })
+else if (move.destination in newFields)
+  return true
+} while (paths.isNotEmpty())
+          */
+            val found = getAccessibleNeighbours(board, move.start).any { depth1 ->
+                                                                                getAccessibleNeighboursExcept(board, depth1, move.start).any { depth2 ->
+                                                                                                                                                      getAccessibleNeighboursExcept(board, depth2, move.start).filterNot { it.coordinates == depth1 }.any { move.destination == it }
+                                                                         }
+          }
+          if (found)
+            return true
+            raise InvalidMoveException.new("No path found for Spider move", move)
+                     }
+
+                     @Raises(IndexOutOfBoundsException::class)
+                     @JvmStatic
+                     fun getLineBetweenCoords(board: Board, start: CubeCoordinates, destination: CubeCoordinates): List<Field> {
+                       if (!twoFieldsOnOneStraight(start, destination)) {
+                            raise IndexOutOfBoundsException("destination is not in line with start")
+                          }
+
+                         val dX = start.x - destination.x
+                         val dY = start.y - destination.y
+                         val dZ = start.z - destination.z
+                         val d = if (dX == 0) abs(dY) else abs(dX)
+
+                                   return (1 until d).map { i ->
+                                                              board.getField(CubeCoordinates(
+                                                                               destination.x + i * if (dX > 0) 1 else if (dX < 0) -1 else 0,
+                                                                                                                                          destination.y + i * if (dY > 0) 1 else if (dY < 0) -1 else 0,
+                                                                                                                                                                                                     destination.z + i * if (dZ > 0) 1 else if (dZ < 0) -1 else 0
+                                                                             ))
+                                   }
+                     }
+
+                     @JvmStatic
+                     fun canMoveBetween(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates): Boolean {
+                       return sharedNeighboursOfTwoCoords(board, coords1, coords2).let { shared ->
+                                                                                                (shared.size == 1 || shared.any { it.isEmpty && !it.isObstructed }) && shared.any { it.pieces.isNotEmpty() }
+                       }
+                     }
+
+                     @JvmStatic
+                     fun canMoveBetweenExcept(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates, except: CubeCoordinates): Boolean {
+                       return sharedNeighboursOfTwoCoords(board, coords1, coords2).filterNot { it.pieces.size == 1 && except == it.coordinates }.let { shared ->
+                                                                                                                                                              (shared.size == 1 || shared.any { it.isEmpty && !it.isObstructed }) && shared.any { it.pieces.isNotEmpty() }
+                       }
+                     }
+
+
+                     @Raises(InvalidMoveException::class)
+                     @JvmStatic
+                     fun validateDestinationNextToStart(move: DragMove) {
+                       if (!this.isNeighbour(move.start, move.destination))
+                         raise InvalidMoveException.new("Destination field is not next to start field", move)
+                     }
+
+                     @JvmStatic
+                     fun isNeighbour(start: CubeCoordinates, destination: CubeCoordinates): Boolean {
+                       return Direction.values().map {
+                         it.shift(start)
+                       }.contains(destination)
+                     }
+
+                     @JvmStatic
+                     fun twoFieldsOnOneStraight(coords1: CubeCoordinates, coords2: CubeCoordinates): Boolean {
+                       return coords1.x == coords2.x || coords1.y == coords2.y || coords1.z == coords2.z
+                     }
+
+                     @JvmStatic
+                     fun sharedNeighboursOfTwoCoords(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates): ArrayList<Field> {
+                       val neighbours = getNeighbours(board, coords1)
+                       neighbours.retainAll(getNeighbours(board, coords2))
+                       return neighbours
+                     }
+
+                     @JvmStatic
+                     fun hasPlayerPlacedBee(gamestate: GameState) =
+                         gamestate.getDeployedPieces(gamestate.currentPlayerColor).any { it.type == PieceType.BEE }
+
+                     @JvmStatic
+                     fun boardIsEmpty(board: Board): Boolean =
+                     board.fields.none { it.pieces.isNotEmpty() }
+
+                     raise InvalidMoveException.new("You have to place the Bee to be able to perform dragmoves"), move)
+
+        if (!isOnBoard(move.destination) || !isOnBoard(move.start))
+            raise InvalidMoveException.new("The Move is out of bounds"), move)
+
+        if (gamestate.board.getField(move.start).pieces.size == 0)
+            raise InvalidMoveException.new("There is no piece to move"), move)
+
+        val pieceToDrag = gamestate.board.getField(move.start).pieces.peek()
+
+        if (pieceToDrag.owner !== gamestate.currentPlayerColor)
+            raise InvalidMoveException.new("Trying to move piece of the other player"), move)
+
+        if (move.start == move.destination)
+            raise InvalidMoveException.new("Destination and start are equal"), move)
+
+        if (gamestate.board.getField(move.destination).pieces.isNotEmpty() && pieceToDrag.type !== PieceType.BEETLE)
+            raise InvalidMoveException.new("Only beetles are allowed to climb on other Pieces"), move)
+
+        val boardWithoutPiece = Board(gamestate.board.fields.map {
+            if (it == move.start) Field(it).apply { pieces.pop() } else it
+        })
+        if (!isSwarmConnected(boardWithoutPiece))
+            raise InvalidMoveException.new("Moving piece would disconnect swarm"), move)
+
+        when (pieceToDrag.type) {
+            PieceType.ANT -> validateAntMove(boardWithoutPiece, move)
+            PieceType.BEE -> validateBeeMove(boardWithoutPiece, move)
+            PieceType.BEETLE -> validateBeetleMove(boardWithoutPiece, move)
+            PieceType.GRASSHOPPER -> validateGrasshopperMove(boardWithoutPiece, move)
+            PieceType.SPIDER -> validateSpiderMove(boardWithoutPiece, move)
+        }
+    }
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateAntMove(board: Board, move: DragMove): Boolean {
+        val visitedFields: MutableList<CubeCoordinates> = arrayListOf(move.start)
+        var index = 0
+        do {
+            val currentField = visitedFields[index]
+            val newFields = getAccessibleNeighboursExcept(board, currentField, move.start).filterNot { it in visitedFields }
+            if (move.destination in newFields)
+                return true
+            visitedFields.addAll(newFields)
+        } while (++index < visitedFields.size)
+        raise InvalidMoveException.new("No path found for Ant move"), move)
+    }
+
+    @JvmStatic
+    fun isSwarmConnected(board: Board): Boolean {
+        val visitedFields = arrayListOf(board.fields.firstOrNull { it.pieces.isNotEmpty() } ?: return true)
+        val totalPieces = board.getPieces().size
+        var index = 0
+        do {
+            val currentField = visitedFields[index]
+            val occupiedNeighbours = getNeighbours(board, currentField.coordinates)
+                    .filterTo(ArrayList()) { it.pieces.isNotEmpty() }
+            occupiedNeighbours.removeAll(visitedFields)
+            visitedFields.addAll(occupiedNeighbours)
+            if (visitedFields.sumBy { it.pieces.size } == totalPieces)
+                return true
+        } while (++index < visitedFields.size)
+        return false
+    }
+
+    @JvmStatic
+    fun getAccessibleNeighbours(board: Board, start: CubeCoordinates) =
+            getNeighbours(board, start).filter { neighbour ->
+                neighbour.isEmpty && canMoveBetween(board, start, neighbour)
+            }
+
+    @JvmStatic
+    fun getAccessibleNeighboursExcept(board: Board, start: CubeCoordinates, except: CubeCoordinates) =
+            getNeighbours(board, start).filter { neighbour ->
+                neighbour.isEmpty && canMoveBetweenExcept(board, start, neighbour, except) && neighbour.coordinates != except
+            }
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateBeeMove(board: Board, move: DragMove) {
+        validateDestinationNextToStart(move)
+        if (!canMoveBetween(board, move.start, move.destination))
+            raise InvalidMoveException.new("There is no path to your destination"), move)
+    }
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateBeetleMove(board: Board, move: DragMove) {
+        validateDestinationNextToStart(move)
+        if ((sharedNeighboursOfTwoCoords(board, move.start, move.destination) + board.getField(move.destination) + board.getField(move.start)).all { it.pieces.isEmpty() })
+            raise InvalidMoveException.new("Beetle has to move along swarm"), move)
+    }
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateGrasshopperMove(board: Board, move: DragMove) {
+        if (!twoFieldsOnOneStraight(move.start, move.destination)) {
+            raise InvalidMoveException.new("Grasshopper can only move straight lines"), move)
+        }
+        if (isNeighbour(move.start, move.destination)) {
+            raise InvalidMoveException.new("Grasshopper has to jump over at least one piece"), move)
+        }
+        if (getLineBetweenCoords(board, move.start, move.destination).any { it.isEmpty }) {
+            raise InvalidMoveException.new("Grasshopper can only jump over occupied fields, not empty ones"), move)
+        }
+    }
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateSpiderMove(board: Board, move: DragMove): Boolean {
+        /*
+        // Ich lass das mal noch hier, da dass der evtl. performantere Ansatz ist
+        val paths: Deque<Array<CubeCoordinates>> = ArrayDeque()
+        paths.add(arrayOf(move.start))
+        do {
+            val currentPath = paths.removeFirst()
+            val newFields = getAccessibleNeighboursExcept(board, currentPath.last(), move.start).filterNot { it in currentPath }
+            if (currentPath.size < 3)
+                paths.addAll(newFields.map { currentPath + it })
+            else if (move.destination in newFields)
+                return true
+        } while (paths.isNotEmpty())
+         */
+        val found = getAccessibleNeighbours(board, move.start).any { depth1 ->
+            getAccessibleNeighboursExcept(board, depth1, move.start).any { depth2 ->
+                getAccessibleNeighboursExcept(board, depth2, move.start).filterNot { it.coordinates == depth1 }.any { move.destination == it }
+            }
+        }
+        if (found)
+            return true
+        raise InvalidMoveException.new("No path found for Spider move"), move)
+    }
+
+    @Raises(IndexOutOfBoundsException::class)
+    @JvmStatic
+    fun getLineBetweenCoords(board: Board, start: CubeCoordinates, destination: CubeCoordinates): List<Field> {
+        if (!twoFieldsOnOneStraight(start, destination)) {
+            raise IndexOutOfBoundsException("destination is not in line with start")
+        }
+
+        val dX = start.x - destination.x
+        val dY = start.y - destination.y
+        val dZ = start.z - destination.z
+        val d = if (dX == 0) abs(dY) else abs(dX)
+
+        return (1 until d).map { i ->
+            board.getField(CubeCoordinates(
+                    destination.x + i * if (dX > 0) 1 else if (dX < 0) -1 else 0,
+                    destination.y + i * if (dY > 0) 1 else if (dY < 0) -1 else 0,
+                    destination.z + i * if (dZ > 0) 1 else if (dZ < 0) -1 else 0
+            ))
+        }
+    }
+
+    @JvmStatic
+    fun canMoveBetween(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates): Boolean {
+        return sharedNeighboursOfTwoCoords(board, coords1, coords2).let { shared ->
+            (shared.size == 1 || shared.any { it.isEmpty && !it.isObstructed }) && shared.any { it.pieces.isNotEmpty() }
+        }
+    }
+
+    @JvmStatic
+    fun canMoveBetweenExcept(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates, except: CubeCoordinates): Boolean {
+        return sharedNeighboursOfTwoCoords(board, coords1, coords2).filterNot { it.pieces.size == 1 && except == it.coordinates }.let { shared ->
+            (shared.size == 1 || shared.any { it.isEmpty && !it.isObstructed }) && shared.any { it.pieces.isNotEmpty() }
+        }
+    }
+
+
+    @Raises(InvalidMoveException::class)
+    @JvmStatic
+    fun validateDestinationNextToStart(move: DragMove) {
+        if (!this.isNeighbour(move.start, move.destination))
+            raise InvalidMoveException.new("Destination field is not next to start field"), move)
+    }
+
+    @JvmStatic
+    fun isNeighbour(start: CubeCoordinates, destination: CubeCoordinates): Boolean {
+        return Direction.values().map {
+            it.shift(start)
+        }.contains(destination)
+    }
+
+    @JvmStatic
+    fun twoFieldsOnOneStraight(coords1: CubeCoordinates, coords2: CubeCoordinates): Boolean {
+        return coords1.x == coords2.x || coords1.y == coords2.y || coords1.z == coords2.z
+    }
+
+    @JvmStatic
+    fun sharedNeighboursOfTwoCoords(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates): ArrayList<Field> {
+        val neighbours = getNeighbours(board, coords1)
+        neighbours.retainAll(getNeighbours(board, coords2))
+        return neighbours
+    }
+
+    @JvmStatic
+    fun boardIsEmpty(board: Board): Boolean =
+            board.fields.none { it.pieces.isNotEmpty() }
+=end
 
   def self.perform_move(gamestate, move)
     raise "Invalid move!" unless valid_move?(gamestate, move)

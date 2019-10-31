@@ -95,8 +95,12 @@ class Board
     field_list.select{ |f| f.color == color }
   end
 
+  def pieces
+    field_list.map(&:pieces).flatten
+  end
+
   def deployed_pieces(color)
-    field_list.map(&:pieces).flatten.select { |p| p.color == color }
+    pieces.select { |p| p.color == color }
   end
 
   def clone

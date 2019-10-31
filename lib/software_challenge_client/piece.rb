@@ -17,6 +17,10 @@ class Piece
     type == other.type && color == other.color
   end
 
+  def owner
+    color
+  end
+
   def to_s
     color.value + type.value
   end

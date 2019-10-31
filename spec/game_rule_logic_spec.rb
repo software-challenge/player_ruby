@@ -92,6 +92,7 @@ RSpec.describe GameRuleLogic do
               ------------
       BOARD
       state_from_string!(board, gamestate)
+      gamestate.current_player_color = PlayerColor::BLUE
       move = DragMove.new(CubeCoordinates.new(-1, 4), CubeCoordinates.new(0, 4))
       GameRuleLogic.perform_move(gamestate, move)
       expect(GameRuleLogic.is_bee_blocked(gamestate.board, PlayerColor::RED)).to be true
@@ -268,4 +269,26 @@ RSpec.describe GameRuleLogic do
       expect(GameRuleLogic.valid_move?(gamestate, set_bee)).to be true
     end
 
+    it 'validates that there is an actual piece to drag' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          RQ--------------
+         ------------------
+        --------------------
+       ----------------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+
+      BOARD
+      state_from_string!(board, gamestate)
+      move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(0, 1))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, move)
+      end.to raise_error(InvalidMoveException, /no piece to move/)
+    end
 end
