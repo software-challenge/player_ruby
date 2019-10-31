@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require_relative './util/constants'
+require_relative 'invalid_move_exception'
 
 # Methoden, welche die Spielregeln von Piranhas abbilden.
 #
@@ -27,7 +28,7 @@ class GameRuleLogic
   end
 
   def self.get_neighbours(board, coordinates)
-    Direction.map { |d| get_neighbour_in_direction(board, coordinates, d) }.reject { |f| f.nil? }
+    Direction.map { |d| get_neighbour_in_direction(board, coordinates, d) }.compact
   end
 
   def self.is_bee_blocked(board, color)
@@ -48,7 +49,7 @@ class GameRuleLogic
     when DragMove
       validate_drag_move(gamestate, move)
     when SkipMove
-      validate_skip_move(gamestate)
+      validate_skip_move(gamestate, move)
     end
   end
 
@@ -56,36 +57,59 @@ class GameRuleLogic
     true # todo
   end
 
+  def self.is_on_board(coords)
+    shift = (BOARD_SIZE - 1) / 2
+    -shift <= coords.x && coords.x <= shift && -shift <= coords.y && coords.y <= shift
+  end
+
+  def self.has_player_placed_bee(gamestate)
+    gamestate.deployed_pieces(gamestate.current_player_color).any? { |p| p.type == PieceType::BEE }
+  end
+
   def self.validate_set_move(gamestate, move)
-    raise InvalidMoveException("Piece has to be placed on board. Destination ${move.destination} is out of bounds.") unless is_on_board(move.destination)
-    raise InvalidMoveException("Set destination is not empty!") unless gamestate.board.field_at(move.destination).isEmpty
+    unless is_on_board(move.destination)
+      raise InvalidMoveException.new("Piece has to be placed on board. Destination ${move.destination} is out of bounds.", move)
+    end
+    unless gamestate.board.field_at(move.destination).empty?
+      raise InvalidMoveException.new("Set destination is not empty!", move)
+    end
 
-    owned_fields = gamestate.board.field_of_color(gamestate.current_player_color)
+    owned_fields = gamestate.board.fields_of_color(gamestate.current_player_color)
     if owned_fields.empty?
-      other_player_fields = gameState.board.fields_of_color(gamestate.other_player_color)
+      other_player_fields = gamestate.board.fields_of_color(gamestate.other_player_color)
       if !other_player_fields.empty?
-        if other_player_fields.map{ |of| get_neighbours(gamestate.board, of.coordinates).map{ |n| n.coordinates } }.flatten.include?(move.destination)
-          raise InvalidMoveException("Piece has to be placed next to other players piece")
-        end
-      else
-        if gamestate.round == 3 && !has_player_placed_bee(gamestate) && move.piece.type != PieceType::BEE
-          raise InvalidMoveException("The bee must be placed in fourth round latest")
-        end
-
-        if !gamestate.get_undeployed_pieces(gamestate.current_player_color).include?(move.piece)
-          raise InvalidMoveException("Piece is not a undeployed piece of the current player")
-        end
-
-        destination_neighbours = getNeighbours(gamestate.board, move.destination)
-        if !destination_neighbours.any? { |f| f.color == gamestate.current_player_color }
-          throw InvalidMoveException("A newly placed piece must touch an own piece")
-        end
-        if destination_neighbours.any? { |f| f.color == gamestate.other_player_color }
-          throw InvalidMoveException("A newly placed is not allowed to touch an opponent's piece")
+        unless other_player_fields.map{ |of| get_neighbours(gamestate.board, of.coordinates).map{ |n| n.coordinates } }.flatten.include?(move.destination)
+          raise InvalidMoveException.new("Piece has to be placed next to other players piece", move)
         end
       end
+    else
+      if gamestate.round == 3 && !has_player_placed_bee(gamestate) && move.piece.type != PieceType::BEE
+        raise InvalidMoveException.new("The bee must be placed in fourth round latest", move)
+      end
+
+      if !gamestate.undeployed_pieces(gamestate.current_player_color).include?(move.piece)
+        raise InvalidMoveException.new("Piece is not a undeployed piece of the current player", move)
+      end
+
+      destination_neighbours = get_neighbours(gamestate.board, move.destination)
+      if !destination_neighbours.any? { |f| f.color == gamestate.current_player_color }
+        raise InvalidMoveException.new("A newly placed piece must touch an own piece", move)
+      end
+      if destination_neighbours.any? { |f| f.color == gamestate.other_player_color }
+        raise InvalidMoveException.new("A newly placed is not allowed to touch an opponent's piece", move)
+      end
     end
-    return true
+    true
+  end
+
+  def self.validate_skip_move(gamestate, move)
+    if !possible_moves(gamestate).empty?
+      raise InvalidMoveException.new("Skipping a turn is only allowed when no other moves can be made.", move)
+    end
+    if gamestate.round == 3 && !has_player_placed_bee(gamestate)
+      raise InvalidMoveException.new("The bee must be placed in fourth round latest", move)
+    end
+    true
   end
 
   def self.perform_move(gamestate, move)
@@ -100,6 +124,80 @@ class GameRuleLogic
     end
     gamestate.turn += 1
     gamestate.last_move = move
+  end
+
+  # all possible moves, but will *not* return the skip move if no other moves are possible!
+  def self.possible_moves(gamestate)
+    possible_set_moves(gamestate) + possible_drag_moves(gamestate)
+  end
+
+  def self.possible_drag_moves(gamestate)
+    gamestate.board.fields_of_color(gamestate.current_player_color).flat_map do |start_field|
+      edge_targets = empty_fields_connected_to_swarm(gamestate.board)
+      additional_targets =
+        if start_field.pieces.last.type == PieceType::BEETLE
+          get_neighbours(gamestate.board, start_field).uniq
+        else
+          []
+        end
+      edge_targets + additional_targets.map do |destination|
+        move = DragMove.new(start_field, destination)
+        begin
+          valid_move?(gamestate, move)
+          move
+        rescue InvalidMoveException
+          null
+        end
+      end.compact
+    end
+  end
+
+  def self.empty_fields_connected_to_swarm(board)
+    board.field_list
+      .filter { |f| f.has_owner }
+      .flat_map { |f| get_neighbours(board, f).filter { f.empty? } }
+      .uniq
+  end
+
+  def self.possible_set_move_destinations(board, owner)
+    board.fields_of_color(owner)
+      .flat_map { |f| get_neighbours(board, f).filter { |f| f.empty? } }
+      .uniq
+      .filter { |f| get_neighbours(board, f).all? { |n| n.color != owner.opponent } }
+  end
+
+  def self.possible_set_moves(gamestate)
+    undeployed = gamestate.undeployed_pieces(gamestate.current_player_color)
+    set_destinations =
+      if (undeployed.size == STARTING_PIECES.size)
+        # current player has not placed any pieces yet (first or second turn)
+        if (gamestate.undeployed_pieces(gamestate.other_player_color).size == STARTING_PIECES.size)
+          # other player also has not placed any pieces yet (first turn, all destinations allowed (except obstructed)
+          gamestate.board.field_list.filter { |f| f.empty? }
+        else
+          # other player placed a piece already
+          gamestate.board
+            .fields_of_color(gamestate.other_player_color)
+            .flat_map do |f|
+              GameRuleLogic.get_neighbours(gamestate.board, f).filter(&:empty?)
+            end
+        end
+      else
+        possible_set_move_destinations(gamestate.board, gamestate.current_player_color)
+      end
+
+    possible_piece_types =
+      if (!has_player_placed_bee(gamestate) && gamestate.turn > 5)
+        [PieceType::BEE]
+      else
+        undeployed.map(&:type).uniq
+      end
+    set_destinations
+      .flat_map do |d|
+        possible_piece_types.map do |u|
+          SetMove.new(Piece.new(gamestate.current_player_color, u), d)
+        end
+    end
   end
 
   # Prueft, ob ein Spieler im gegebenen GameState gewonnen hat.

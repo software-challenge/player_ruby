@@ -79,17 +79,17 @@ RSpec.describe GameRuleLogic do
     it 'should detect if a bee is surrounded on the edge' do
       board =
         <<~BOARD
-                                                        RQBQ--------
-                                                       BB------------
-                                                      --BB------------
-                                                     ------------------
-                                                    --------------------
-                                                   ----------------------
-                                                    --------------------
-                                                     ------------------
-                                                      ----------------
-                                                       --------------
-                                                        ------------)
+              RQBQ--------
+             BB------------
+            --BB------------
+           ------------------
+          --------------------
+         ----------------------
+          --------------------
+           ------------------
+            ----------------
+             --------------
+              ------------
       BOARD
       state_from_string!(board, gamestate)
       move = DragMove.new(CubeCoordinates.new(-1, 4), CubeCoordinates.new(0, 4))
@@ -100,178 +100,172 @@ RSpec.describe GameRuleLogic do
     it 'should validate set move on empty board' do
       board =
         <<~BOARD
-                                                        RQBQ--------
-                                                       BB------------
-                                                      --BB------------
-                                                     ------------------
-                                                    --------------------
-                                                   ----------------------
-                                                    --------------------
-                                                     ------------------
-                                                      ----------------
-                                                       --------------
-                                                        ------------)
+            ------------
+           --------------
+          ----------------
+         ------------------
+        --------------------
+       ----------------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
       BOARD
       state_from_string!(board, gamestate)
-      move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED)[0], CubeCoordinates.new(0, 0))
+      move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(0, 0))
       expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
     end
 
 
-=begin
-    @Test
-    fun setMoveOutsideOfBoard() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  ------------------" +
-                    " --------------------" +
-                    "----------------------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val move = SetMove(state.getUndeployedPieces(PlayerColor.RED)[0], CubeCoordinates(8, 0))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, move) }
-        }
-    }
+    it 'should not validate a set move outside of the board' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         ------------------
+        --------------------
+       ----------------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(8, 0))
+      expect { GameRuleLogic.valid_move?(gamestate, move) }.to raise_error(InvalidMoveException, /is out of bounds/)
+    end
 
-    @Test
-    fun validSetMoveTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  --BG--------------" +
-                    " --------------------" +
-                    "----------------------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val move = SetMove(state.getUndeployedPieces(PlayerColor.RED)[0], CubeCoordinates(0, 0))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, move) }
-        }
-    }
+    it 'should be valid to set a piece next to opponents one on second turn' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         --BG--------------
+        --------------------
+       ----------------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(0, 0))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, move)
+      end.to raise_error(InvalidMoveException, /has to be placed next to other players piece/)
+    end
 
-    @Test
-    fun setMoveOfUnavailablePieceTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  RGBG--------------" +
-                    " --------------------" +
-                    "----------------------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            state.getUndeployedPieces(PlayerColor.RED).clear()
-            val move = SetMove(Piece(PlayerColor.RED, PieceType.ANT), CubeCoordinates(-4, 4))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, move) }
-        }
-    }
+    it 'should not validate setting a piece that is not available undeployed' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         RGBG--------------
+        --------------------
+       ----------------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      gamestate.undeployed_pieces(PlayerColor::RED).clear
+      move = SetMove.new(Piece.new(PlayerColor::RED, PieceType::ANT), CubeCoordinates.new(-4, 4))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, move)
+      end.to raise_error(InvalidMoveException, /Piece is not a undeployed piece/)
+    end
 
-    @Test
-    fun setMoveConnectionToSwarmTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  RGBG--------------" +
-                    " --------------------" +
-                    "----------------------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val invalid1 = SetMove(state.getUndeployedPieces(PlayerColor.RED)[0], CubeCoordinates(0, 0))
-            assertThrows(InvalidMoveException::class.java) {
-                GameRuleLogic.validateMove(state, invalid1)
-                val invalid2 = SetMove(state.getUndeployedPieces(PlayerColor.RED)[0], CubeCoordinates(-3, 0))
-                assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid2) }
-            }
-            val valid1 = SetMove(state.getUndeployedPieces(PlayerColor.RED)[0], CubeCoordinates(-4, 5))
-            assertTrue(GameRuleLogic.validateMove(state, valid1))
-        }
-    }
+    it 'should validate that a set piece is connected to the swarm and doesnt touch opponent' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         RGBG--------------
+        --------------------
+       ----------------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      invalid1 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(0, 0))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, invalid1)
+      end.to raise_error(InvalidMoveException, /must touch an own piece/)
+      invalid2 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-3, 4))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, invalid2)
+      end.to raise_error(InvalidMoveException, /not allowed to touch an opponent/)
+      valid1 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-4, 5))
+      expect(GameRuleLogic.valid_move?(gamestate, valid1)).to be true
+    end
 
-    @Test
-    fun setMoveNextToOpponentTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  RGBG--------------" +
-                    " --------------------" +
-                    "----------------------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val invalid = SetMove(state.getUndeployedPieces(PlayerColor.RED)[0], CubeCoordinates(-2, 4))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid) }
-        }
-    }
+    it 'should validate that setting on obstructed fields is not allowed' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         RGBGOO------------
+        --------------------
+       ----------------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
 
-    @Test
-    fun setMoveBlockedFieldTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  RGBGOO------------" +
-                    " --------------------" +
-                    "----------------------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val invalid1 = SetMove(state.getUndeployedPieces(PlayerColor.RED)[0], CubeCoordinates(-3, 4))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid1) }
-            val invalid2 = SetMove(state.getUndeployedPieces(PlayerColor.RED)[0], CubeCoordinates(-1, 2))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid2) }
-        }
-    }
+      BOARD
+      state_from_string!(board, gamestate)
+      invalid1 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-1, 3))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, invalid1)
+      end.to raise_error(InvalidMoveException, /destination is not empty/)
+      invalid2 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-1, 2))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, invalid2)
+      end.to raise_error(InvalidMoveException, /must touch an own piece/)
+    end
 
-    @Test
-    fun setMoveForceBeeTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  RGRGRG------------" +
-                    " --------------------" +
-                    "----------------------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            state.turn = 6
-            val setAnt = SetMove(Piece(PlayerColor.RED, PieceType.ANT), CubeCoordinates(-4, 5))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, setAnt) }
-            val skip = SkipMove
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, skip) }
-            val setBee = SetMove(Piece(PlayerColor.RED, PieceType.BEE), CubeCoordinates(-4, 5))
-            assertTrue(GameRuleLogic.validateMove(state, setBee))
-        }
-    }
+    it 'validates that bee has to be placed on fourth turn' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         RGRGRG------------
+        --------------------
+       ----------------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
 
-=end
+      BOARD
+      state_from_string!(board, gamestate)
+      gamestate.turn = 6
+      set_ant = SetMove.new(Piece.new(PlayerColor::RED, PieceType::ANT), CubeCoordinates.new(-4, 5))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, set_ant)
+      end.to raise_error(InvalidMoveException, /bee must be placed/)
+      skip = SkipMove.new
+      expect do
+        GameRuleLogic.valid_move?(gamestate, skip)
+      end.to raise_error(InvalidMoveException, /other moves can be made/)
+      set_bee = SetMove.new(Piece.new(PlayerColor::RED, PieceType::BEE), CubeCoordinates.new(-4, 5))
+      expect(GameRuleLogic.valid_move?(gamestate, set_bee)).to be true
+    end
+
 end

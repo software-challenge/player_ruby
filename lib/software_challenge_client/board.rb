@@ -7,14 +7,13 @@ require_relative 'field'
 
 # Ein Spielbrett fuer Hive
 class Board
+
+  include Constants
   # @!attribute [r] fields
   # @note Besser über die {#field} Methode auf Felder zugreifen.
   # @return [Array<Array<Field>>] Ein Feld wird an der Position entsprechend
   #   seiner x und y CubeCoordinates im Array gespeichert.
   attr_reader :fields
-
-  BOARD_SIZE = 11
-  SHIFT = ((BOARD_SIZE - 1) / 2)
 
   def self.field_amount(radius)
     return 1 if radius == 1
@@ -94,6 +93,10 @@ class Board
   # @return [Array<Field>] Alle Felder der angegebenen Farbe die das Spielbrett enthält.
   def fields_of_color(color)
     field_list.select{ |f| f.color == color }
+  end
+
+  def deployed_pieces(color)
+    field_list.map(&:pieces).flatten.select { |p| p.color == color }
   end
 
   def clone

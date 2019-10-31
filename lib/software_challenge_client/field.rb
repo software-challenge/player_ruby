@@ -62,6 +62,10 @@ class Field
     pieces.last&.color
   end
 
+  def has_owner
+    !color.nil?
+  end
+
   # @return [String] Textuelle Darstellung des Feldes.
   def to_s
     s = "Feld #{coordinates}, "

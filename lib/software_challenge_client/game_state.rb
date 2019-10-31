@@ -115,6 +115,11 @@ class GameState
       undeployed_blue_pieces
     end
   end
+
+  def deployed_pieces(color)
+    board.deployed_pieces(color)
+  end
+
   # Führt einen Zug auf dem Spielzustand aus. Das Spielbrett wird entsprechend
   # modifiziert.
   #

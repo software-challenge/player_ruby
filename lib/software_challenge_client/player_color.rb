@@ -18,4 +18,8 @@ class PlayerColor < TypesafeEnum::Base
     end
   end
 
+  def opponent
+    PlayerColor.opponent_color(self)
+  end
+
 end

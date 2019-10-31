@@ -2,7 +2,7 @@
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
-RSpec.xdescribe Protocol do
+RSpec.describe Protocol do
   let(:client) { instance_double('Client') }
   let(:network) { instance_double('Network') }
 
@@ -13,6 +13,8 @@ RSpec.xdescribe Protocol do
   def server_message(xml)
     subject.process_string xml
   end
+
+=begin
 
   context 'when getting a new game state' do
     it 'updates the game state' do
@@ -216,4 +218,6 @@ RSpec.xdescribe Protocol do
 </data>
     XML
   end
+
+=end
 end
