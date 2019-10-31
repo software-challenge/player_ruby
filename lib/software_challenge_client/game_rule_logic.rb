@@ -189,6 +189,41 @@ class GameRuleLogic
     false
   end
 
+  def self.validate_beetle_move(board, move)
+    validate_destination_next_to_start(move)
+    if ((shared_neighbours_of_two_coords(board, move.start, move.destination) + [board.field_at(move.destination), board.field_at(move.start)]).all? { |f| f.pieces.empty? })
+      raise InvalidMoveException.new("Beetle has to move along swarm", move)
+    end
+  end
+
+  def self.validate_destination_next_to_start(move)
+    if (!is_neighbour(move.start, move.destination))
+      raise InvalidMoveException.new("Destination field is not next to start field", move)
+    end
+  end
+
+  def self.is_neighbour(start, destination)
+    Direction.map do |d|
+      d.translate(start)
+    end.include?(destination)
+  end
+
+  def self.shared_neighbours_of_two_coords(board, first_coords, second_coords)
+    get_neighbours(board, first_coords) & get_neighbours(board, second_coords)
+  end
+
+  def self.validate_bee_move(board, move)
+    validate_destination_next_to_start(move)
+    if (!can_move_between(board, move.start, move.destination))
+      raise InvalidMoveException.new("There is no path to your destination", move)
+    end
+  end
+
+  def self.can_move_between(board, coords1, coords2)
+    shared = shared_neighbours_of_two_coords(board, coords1, coords2)
+    (shared.size == 1 || shared.any? { |n| n.empty? && !n.obstructed }) && shared.any? { |n| !n.pieces.empty? }
+  end
+
 =begin
     @JvmStatic
     fun getAccessibleNeighbours(board: Board, start: CubeCoordinates) =
@@ -201,22 +236,6 @@ class GameRuleLogic
             getNeighbours(board, start).filter { neighbour ->
                 neighbour.isEmpty && canMoveBetweenExcept(board, start, neighbour, except) && neighbour.coordinates != except
             }
-
-    @Raises(InvalidMoveException::class)
-    @JvmStatic
-    fun validateBeeMove(board: Board, move: DragMove) {
-        validateDestinationNextToStart(move)
-        if (!canMoveBetween(board, move.start, move.destination))
-            raise InvalidMoveException.new("There is no path to your destination", move)
-    }
-
-    @Raises(InvalidMoveException::class)
-    @JvmStatic
-    fun validateBeetleMove(board: Board, move: DragMove) {
-        validateDestinationNextToStart(move)
-        if ((sharedNeighboursOfTwoCoords(board, move.start, move.destination) + board.getField(move.destination) + board.getField(move.start)).all { it.pieces.isEmpty() })
-            raise InvalidMoveException.new("Beetle has to move along swarm", move)
-    }
 
     @Raises(InvalidMoveException::class)
     @JvmStatic
@@ -280,13 +299,6 @@ class GameRuleLogic
     }
 
     @JvmStatic
-    fun canMoveBetween(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates): Boolean {
-        return sharedNeighboursOfTwoCoords(board, coords1, coords2).let { shared ->
-            (shared.size == 1 || shared.any { it.isEmpty && !it.isObstructed }) && shared.any { it.pieces.isNotEmpty() }
-        }
-    }
-
-    @JvmStatic
     fun canMoveBetweenExcept(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates, except: CubeCoordinates): Boolean {
         return sharedNeighboursOfTwoCoords(board, coords1, coords2).filterNot { it.pieces.size == 1 && except == it.coordinates }.let { shared ->
             (shared.size == 1 || shared.any { it.isEmpty && !it.isObstructed }) && shared.any { it.pieces.isNotEmpty() }
@@ -294,30 +306,9 @@ class GameRuleLogic
     }
 
 
-    @Raises(InvalidMoveException::class)
-    @JvmStatic
-    fun validateDestinationNextToStart(move: DragMove) {
-        if (!this.isNeighbour(move.start, move.destination))
-            raise InvalidMoveException.new("Destination field is not next to start field", move)
-    }
-
-    @JvmStatic
-    fun isNeighbour(start: CubeCoordinates, destination: CubeCoordinates): Boolean {
-        return Direction.values().map {
-            it.shift(start)
-        }.contains(destination)
-    }
-
     @JvmStatic
     fun twoFieldsOnOneStraight(coords1: CubeCoordinates, coords2: CubeCoordinates): Boolean {
         return coords1.x == coords2.x || coords1.y == coords2.y || coords1.z == coords2.z
-    }
-
-    @JvmStatic
-    fun sharedNeighboursOfTwoCoords(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates): ArrayList<Field> {
-        val neighbours = getNeighbours(board, coords1)
-        neighbours.retainAll(getNeighbours(board, coords2))
-        return neighbours
     }
 
     @JvmStatic
@@ -710,23 +701,10 @@ else if (move.destination in newFields)
             raise InvalidMoveException.new("Destination field is not next to start field"), move)
     }
 
-    @JvmStatic
-    fun isNeighbour(start: CubeCoordinates, destination: CubeCoordinates): Boolean {
-        return Direction.values().map {
-            it.shift(start)
-        }.contains(destination)
-    }
 
     @JvmStatic
     fun twoFieldsOnOneStraight(coords1: CubeCoordinates, coords2: CubeCoordinates): Boolean {
         return coords1.x == coords2.x || coords1.y == coords2.y || coords1.z == coords2.z
-    }
-
-    @JvmStatic
-    fun sharedNeighboursOfTwoCoords(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates): ArrayList<Field> {
-        val neighbours = getNeighbours(board, coords1)
-        neighbours.retainAll(getNeighbours(board, coords2))
-        return neighbours
     }
 
     @JvmStatic
