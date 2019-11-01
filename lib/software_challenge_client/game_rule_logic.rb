@@ -110,7 +110,7 @@ class GameRuleLogic
 
   def self.validate_drag_move(gamestate, move)
     unless has_player_placed_bee(gamestate)
-      raise InvalidMoveException.new("You have to place the Bee to be able to perform dragmoves", move)
+      raise InvalidMoveException.new("You have to place the bee to be able to perform dragmoves", move)
     end
 
     if (!is_on_board(move.destination) || !is_on_board(move.start))
@@ -163,7 +163,7 @@ class GameRuleLogic
     while index < visited_fields.size
       current_field = visited_fields[index]
       new_fields = accessible_neighbours_except(board, current_field, move.start).reject { |f| visited_fields.include? f }
-      return true if new_fields.include?(move.destination)
+      return true if new_fields.map(&:coordinates).include?(move.destination)
       visited_fields += new_fields
       index += 1
     end
@@ -224,6 +224,54 @@ class GameRuleLogic
     (shared.size == 1 || shared.any? { |n| n.empty? && !n.obstructed }) && shared.any? { |n| !n.pieces.empty? }
   end
 
+  def self.validate_grasshopper_move(board, move)
+    if (!two_fields_on_one_straight(move.start, move.destination))
+      raise InvalidMoveException.new("Grasshopper can only move straight lines", move)
+    end
+    if (is_neighbour(move.start, move.destination))
+      raise InvalidMoveException.new("Grasshopper has to jump over at least one piece", move)
+    end
+    if (get_line_between_coords(board, move.start, move.destination).any? { |f| f.empty? })
+      raise InvalidMoveException.new("Grasshopper can only jump over occupied fields, not empty ones", move)
+    end
+  end
+
+  def self.two_fields_on_one_straight(coords1, coords2)
+    return coords1.x == coords2.x || coords1.y == coords2.y || coords1.z == coords2.z
+  end
+
+  def self.get_line_between_coords(board, start, destination)
+    if (!two_fields_on_one_straight(start, destination))
+      raise InvalidMoveException.new("destination is not in line with start")
+    end
+
+    # TODO use Direction shift
+    dX = start.x - destination.x
+    dY = start.y - destination.y
+    dZ = start.z - destination.z
+    d = (dX == 0) ? dY.abs : dX.abs
+    (1..(d-1)).to_a.map do |i|
+      board.field_at(
+        CubeCoordinates.new(
+          destination.x + i * (dX <=> 0),
+          destination.y + i * (dY <=> 0),
+          destination.z + i * (dZ <=> 0)
+        )
+      )
+    end
+  end
+  def self.accessible_neighbours_except(board, start, except)
+    get_neighbours(board, start).filter do |neighbour|
+      neighbour.empty? && can_move_between_except(board, start, neighbour, except) && neighbour.coordinates != except
+    end
+  end
+
+  def self.can_move_between_except(board, coords1, coords2, except)
+    shared = shared_neighbours_of_two_coords(board, coords1, coords2).reject do |f|
+      f.pieces.size == 1 && except == f.coordinates
+    end
+    (shared.size == 1 || shared.any? { |s| s.empty? && !s.obstructed }) && shared.any? { |s| !s.pieces.empty? }
+  end
 =begin
     @JvmStatic
     fun getAccessibleNeighbours(board: Board, start: CubeCoordinates) =
@@ -231,25 +279,7 @@ class GameRuleLogic
                 neighbour.isEmpty && canMoveBetween(board, start, neighbour)
             }
 
-    @JvmStatic
-    fun getAccessibleNeighboursExcept(board: Board, start: CubeCoordinates, except: CubeCoordinates) =
-            getNeighbours(board, start).filter { neighbour ->
-                neighbour.isEmpty && canMoveBetweenExcept(board, start, neighbour, except) && neighbour.coordinates != except
-            }
 
-    @Raises(InvalidMoveException::class)
-    @JvmStatic
-    fun validateGrasshopperMove(board: Board, move: DragMove) {
-        if (!twoFieldsOnOneStraight(move.start, move.destination)) {
-            raise InvalidMoveException.new("Grasshopper can only move straight lines", move)
-        }
-        if (isNeighbour(move.start, move.destination)) {
-            raise InvalidMoveException.new("Grasshopper has to jump over at least one piece", move)
-        }
-        if (getLineBetweenCoords(board, move.start, move.destination).any { it.isEmpty }) {
-            raise InvalidMoveException.new("Grasshopper can only jump over occupied fields, not empty ones", move)
-        }
-    }
 
     @Raises(InvalidMoveException::class)
     @JvmStatic
@@ -277,39 +307,9 @@ class GameRuleLogic
         raise InvalidMoveException.new("No path found for Spider move", move)
     }
 
-    @Raises(IndexOutOfBoundsException::class)
-    @JvmStatic
-    fun getLineBetweenCoords(board: Board, start: CubeCoordinates, destination: CubeCoordinates): List<Field> {
-        if (!twoFieldsOnOneStraight(start, destination)) {
-            raise IndexOutOfBoundsException("destination is not in line with start")
-        }
-
-        val dX = start.x - destination.x
-        val dY = start.y - destination.y
-        val dZ = start.z - destination.z
-        val d = if (dX == 0) abs(dY) else abs(dX)
-
-        return (1 until d).map { i ->
-            board.getField(CubeCoordinates(
-                    destination.x + i * if (dX > 0) 1 else if (dX < 0) -1 else 0,
-                    destination.y + i * if (dY > 0) 1 else if (dY < 0) -1 else 0,
-                    destination.z + i * if (dZ > 0) 1 else if (dZ < 0) -1 else 0
-            ))
-        }
-    }
-
-    @JvmStatic
-    fun canMoveBetweenExcept(board: Board, coords1: CubeCoordinates, coords2: CubeCoordinates, except: CubeCoordinates): Boolean {
-        return sharedNeighboursOfTwoCoords(board, coords1, coords2).filterNot { it.pieces.size == 1 && except == it.coordinates }.let { shared ->
-            (shared.size == 1 || shared.any { it.isEmpty && !it.isObstructed }) && shared.any { it.pieces.isNotEmpty() }
-        }
-    }
 
 
-    @JvmStatic
-    fun twoFieldsOnOneStraight(coords1: CubeCoordinates, coords2: CubeCoordinates): Boolean {
-        return coords1.x == coords2.x || coords1.y == coords2.y || coords1.z == coords2.z
-    }
+
 
     @JvmStatic
     fun hasPlayerPlacedBee(gamestate: GameState) =
