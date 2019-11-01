@@ -15,6 +15,7 @@ end
 RSpec::Matchers.define_negated_matcher :not_be_valid_to, :be_valid_to
 
 include GameStateHelpers
+include Constants
 
 RSpec.describe GameRuleLogic do
 
@@ -54,6 +55,10 @@ RSpec.describe GameRuleLogic do
       n = GameRuleLogic.get_neighbours(gamestate.board, CubeCoordinates.new(-2, 1))
       expected = [[-2, 2], [-1, 1], [-1, 0], [-2, 0], [-3, 1], [-3, 2]].map { |c| CubeCoordinates.new(c[0], c[1]) }
       expect(n.map{ |f| f.coordinates }).to match_array(expected)
+    end
+
+    it 'should calculate all possible moves' do
+      expect(GameRuleLogic.possible_moves(gamestate).size).to eq(STARTING_PIECES.chars.uniq.size * Board::FIELD_AMOUNT)
     end
   end
 
