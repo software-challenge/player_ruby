@@ -596,175 +596,180 @@ RSpec.describe GameRuleLogic do
       second_move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(0, -1))
       expect(GameRuleLogic.valid_move?(gamestate, second_move)).to be true
     end
-=begin
 
-    @Test
-    fun dragMoveAntAroundObstacleTest() {
-        TestGameUtil.updateGamestateWithBoard(state, "" +
-                "     ------------" +
-                "    --------------" +
-                "   ----------------" +
-                "  --------OO--------" +
-                " ------RQRA----------" +
-                "--------OO------------" +
-                " --------------------" +
-                "  ------------------" +
-                "   ----------------" +
-                "    --------------" +
-                "     ------------")
-        val move = DragMove(CubeCoordinates(0, 0), CubeCoordinates(0, 1))
-        assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, move) }
-        val move2 = DragMove(CubeCoordinates(0, 0), CubeCoordinates(1, 0))
-        assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, move2) }
-        val move3 = DragMove(CubeCoordinates(0, 0), CubeCoordinates(-1, 0))
-        assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, move3) }
-    }
+    it 'should forbid moving ant around obstructed fields' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         --------OO--------
+        ------RQRA----------
+       --------OO------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(0, 2))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, move)
+      end.to raise_error(InvalidMoveException, /No path found for ant move/)
+      second_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(1, 1))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, second_move)
+      end.to raise_error(InvalidMoveException, /No path found for ant move/)
+      third_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(0, 0))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, third_move)
+      end.to raise_error(InvalidMoveException, /No path found for ant move/)
+    end
 
-    @Test
-    fun dragMoveAntIntoBlockedTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   --------RB------" +
-                    "  ------RABB--BB----" +
-                    " ------BQRBRGBB------" +
-                    "----------RQ----------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val move = DragMove(CubeCoordinates(0, 1), CubeCoordinates(2, -1))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, move) }
-        }
-    }
+    it 'should forbid moving ant into blocked passage' do
+      board =
+        <<~BOARD
+               ------------
+              --------------
+             --------RB------
+            ------RABB--BB----
+           ------BQRBRGBB------
+          ----------RQ----------
+           --------------------
+            ------------------
+             ----------------
+              --------------
+               ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(2, 0))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, move)
+      end.to raise_error(InvalidMoveException, /No path found for ant move/)
+    end
 
-    @Test
-    fun dragMoveAntAroundBorderTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   RARQ------------" +
-                    "  --BQ--------------" +
-                    " --OO----------------" +
-                    "----------------------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val move = DragMove(CubeCoordinates(-2, 5), CubeCoordinates(-4, 5))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, move) }
-            val move2 = DragMove(CubeCoordinates(-2, 5), CubeCoordinates(0, 5))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, move2) }
-            val move3 = DragMove(CubeCoordinates(-2, 5), CubeCoordinates(-2,3))
-            assertTrue(GameRuleLogic.validateMove(state, move3))
-        }
-    }
+    it 'should forbid moving ant around border' do
+      board =
+        <<~BOARD
+           ------------
+          --------------
+         RARQ------------
+        --BQ--------------
+       --OO----------------
+      ----------------------
+       --------------------
+        ------------------
+         ----------------
+          --------------
+           ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      move = DragMove.new(CubeCoordinates.new(-2, 5), CubeCoordinates.new(-4, 5))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, move)
+      end.to raise_error(InvalidMoveException, /No path found for ant move/)
+      second_move = DragMove.new(CubeCoordinates.new(-2, 5), CubeCoordinates.new(-2, 3))
+      expect(GameRuleLogic.valid_move?(gamestate, second_move)).to be true
+    end
 
-    @Test
-    fun dragMoveAntDisconnectFromSwarmTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  ------RABB--------" +
-                    " ------BQRBRG--------" +
-                    "----------RQ----------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val move = DragMove(CubeCoordinates(0, 1), CubeCoordinates(2, 1))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, move) }
-        }
-    }
+    it 'should forbid moving ant when disconnecting the swarm' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         ------RABB--------
+        ------BQ--RG--------
+       ----------RQ----------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(-1, 1))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, move)
+      end.to raise_error(InvalidMoveException, /would disconnect swarm/)
+    end
 
-    @Test
-    fun dragMoveSpiderTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  ----------BB------" +
-                    " --------RS--BS------" +
-                    "--------RBRQBQ--------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val valid1 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(2, 1))
-            assertTrue(GameRuleLogic.validateMove(state, valid1))
-            val valid2 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(-2, 1))
-            assertTrue(GameRuleLogic.validateMove(state, valid2))
-            val invalid1 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(1, 0))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid1) }
-            val invalid2 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(1, 1))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid2) }
-            val invalid3 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(-1, 2))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid3) }
-            val invalid4 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(0, 2))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid4) }
-            val invalid5 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(3, 0))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid5) }
-            val invalid6 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(-1, 0))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid6) }
-        }
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  ------BB--BB------" +
-                    " ------RBRS--BS------" +
-                    "--------RBRQBQ--------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val valid1 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(2, 1))
-            assertTrue(GameRuleLogic.validateMove(state, valid1))
-            val valid2 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(3, 0))
-            assertTrue(GameRuleLogic.validateMove(state, valid2))
-            val valid3 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(1, 2))
-            assertTrue(GameRuleLogic.validateMove(state, valid3))
-            val valid4 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(0, 3))
-            assertTrue(GameRuleLogic.validateMove(state, valid4))
-            val invalid1 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(1, 0))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid1) }
-            val invalid2 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(1, 1))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid2) }
-            val invalid3 = DragMove(CubeCoordinates(0, 1), CubeCoordinates(-1, 2))
-            assertThrows(InvalidMoveException::class.java) { GameRuleLogic.validateMove(state, invalid3) }
-        }
-    }
+    it 'validate spider moves' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         ----------BB------
+        --------RS--BS------
+       --------RBRQBQ--------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      [[2, 1], [-2, 1]].each do |c|
+        valid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
+        expect(GameRuleLogic.valid_move?(gamestate, valid_move)).to be true
+      end
 
-    @Test
-    fun dragMoveEdgeTest() {
-        run {
-            TestGameUtil.updateGamestateWithBoard(state, "" +
-                    "     ------------" +
-                    "    --------------" +
-                    "   ----------------" +
-                    "  --RBRGBGBB--------" +
-                    " RQBGBSRS--BS--------" +
-                    "--RS--RBRABQ----------" +
-                    " --------------------" +
-                    "  ------------------" +
-                    "   ----------------" +
-                    "    --------------" +
-                    "     ------------")
-            val move = DragMove(CubeCoordinates(-4, 5), CubeCoordinates(-3, 5))
-            assertTrue(GameRuleLogic.validateMove(state, move))
-        }
-    }
+      [[1, 0], [1, 1], [-1, 2], [0, 2], [3, 0], [-1, 0]].each do |c|
+        invalid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
+        expect do
+          GameRuleLogic.valid_move?(gamestate, invalid_move)
+        end.to raise_error(InvalidMoveException, /No path found for spider move/)
+      end
+    end
 
-=end
+    it 'validate more spider moves' do
+      board =
+        <<~BOARD
+              ------------
+             --------------
+            ----------------
+           ------BB--BB------
+          ------RBRS--BS------
+         --------RBRQBQ--------
+          --------------------
+           ------------------
+            ----------------
+             --------------
+              ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      [[2, 1], [3, 0], [1, 2], [0, 3]].each do |c|
+        valid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
+        expect(GameRuleLogic.valid_move?(gamestate, valid_move)).to be true
+      end
+
+      [[1, 0, /No path found/], [1, 1, /No path found/], [-1, 2, /allowed to climb/]].each do |c|
+        invalid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
+        expect do
+          GameRuleLogic.valid_move?(gamestate, invalid_move)
+        end.to raise_error(InvalidMoveException, c[2])
+      end
+    end
+
+    it 'valide edge dragging' do
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         --RBRGBGBB--------
+        RQBGBSRS--BS--------
+       --RS--RBRABQ----------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      move = DragMove.new(CubeCoordinates.new(-4, 5), CubeCoordinates.new(-3, 5))
+      expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
+    end
 end

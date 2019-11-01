@@ -8,7 +8,7 @@ class InvalidMoveException < StandardError
     super(msg)
   end
 
-  def message
+  def to_s
     "#{super}: #{@move}"
   end
 end
