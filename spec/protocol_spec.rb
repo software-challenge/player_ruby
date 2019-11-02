@@ -14,28 +14,26 @@ RSpec.describe Protocol do
     subject.process_string xml
   end
 
-=begin
-
   context 'when getting a new game state' do
     it 'updates the game state' do
       server_message <<-XML
   <room roomId="bc65c764-c062-4b06-940c-5c6c39cb2324">
     <data class="memento">
-      <state class="sc.plugin2019.GameState" startPlayerColor="RED" currentPlayerColor="BLUE" turn="2">
-        <red displayName="Roter Spieler" color="RED"/>
-        <blue displayName="Blauer Spieler" color="BLUE"/>
+      <state startPlayerColor="RED" currentPlayerColor="BLUE" turn="3">
+        <red color="RED" displayName=""/>
+        <blue color="BLUE" displayName="aBluePlayer"/>
       XML
-      expect(subject.gamestate.turn).to eq(2)
+      expect(subject.gamestate.turn).to eq(3)
       expect(subject.gamestate.start_player_color).to eq(PlayerColor::RED)
       expect(subject.gamestate.current_player_color).to eq(PlayerColor::BLUE)
       expect(subject.gamestate.current_player).to_not be_nil
-      expect(subject.gamestate.red.name).to eq('Roter Spieler')
-      expect(subject.gamestate.blue.name).to eq('Blauer Spieler')
+      expect(subject.gamestate.red.name).to eq('')
+      expect(subject.gamestate.blue.name).to eq('aBluePlayer')
     end
 
-    it 'updates the last move, if it exists in the gamestate' do
+    xit 'updates the last move, if it exists in the gamestate' do
       server_message <<-XML
-        <state class="state" turn="2" startPlayer="RED" currentPlayer="BLUE">
+        <state turn="2" startPlayer="RED" currentPlayer="BLUE">
           <lastMove class="move" x="8" y="9" direction="DOWN"/>
       XML
       move = Move.new(8,9,Direction::DOWN)
@@ -43,7 +41,7 @@ RSpec.describe Protocol do
     end
   end
 
-  context 'when getting a winning condition from server' do
+  xcontext 'when getting a winning condition from server' do
     it 'closes the connection' do
       expect(network).to receive(:disconnect)
       server_message '<data class="result" />'
@@ -80,144 +78,198 @@ RSpec.describe Protocol do
 
   context 'when receiving a new board' do
     it 'creates the new board in the gamestate' do
+      subject.gamestate.board.clear
       server_message <<-XML
         <board>
           <fields>
-            <field x="0" y="0" state="EMPTY"/>
-            <field x="0" y="1" state="RED"/>
-            <field x="0" y="2" state="RED"/>
-            <field x="0" y="3" state="RED"/>
-            <field x="0" y="4" state="RED"/>
-            <field x="0" y="5" state="RED"/>
-            <field x="0" y="6" state="RED"/>
-            <field x="0" y="7" state="RED"/>
-            <field x="0" y="8" state="RED"/>
-            <field x="0" y="9" state="EMPTY"/>
+            <null/>
+            <null/>
+            <null/>
+            <null/>
+            <null/>
+            <field x="-5" y="0" z="5" isObstructed="false"/>
+            <field x="-5" y="1" z="4" isObstructed="false"/>
+            <field x="-5" y="2" z="3" isObstructed="false"/>
+            <field x="-5" y="3" z="2" isObstructed="false"/>
+            <field x="-5" y="4" z="1" isObstructed="false"/>
+            <field x="-5" y="5" z="0" isObstructed="false"/>
           </fields>
           <fields>
-            <field x="1" y="0" state="BLUE"/>
-            <field x="1" y="1" state="EMPTY"/>
-            <field x="1" y="2" state="EMPTY"/>
-            <field x="1" y="3" state="EMPTY"/>
-            <field x="1" y="4" state="EMPTY"/>
-            <field x="1" y="5" state="EMPTY"/>
-            <field x="1" y="6" state="EMPTY"/>
-            <field x="1" y="7" state="EMPTY"/>
-            <field x="1" y="8" state="EMPTY"/>
-            <field x="1" y="9" state="BLUE"/>
+            <null/>
+            <null/>
+            <null/>
+            <null/>
+            <field x="-4" y="-1" z="5" isObstructed="false"/>
+            <field x="-4" y="0" z="4" isObstructed="false"/>
+            <field x="-4" y="1" z="3" isObstructed="false"/>
+            <field x="-4" y="2" z="2" isObstructed="true"/>
+            <field x="-4" y="3" z="1" isObstructed="false"/>
+            <field x="-4" y="4" z="0" isObstructed="false"/>
+            <field x="-4" y="5" z="-1" isObstructed="false"/>
           </fields>
           <fields>
-            <field x="2" y="0" state="BLUE"/>
-            <field x="2" y="1" state="EMPTY"/>
-            <field x="2" y="2" state="EMPTY"/>
-            <field x="2" y="3" state="EMPTY"/>
-            <field x="2" y="4" state="EMPTY"/>
-            <field x="2" y="5" state="OBSTRUCTED"/>
-            <field x="2" y="6" state="EMPTY"/>
-            <field x="2" y="7" state="EMPTY"/>
-            <field x="2" y="8" state="EMPTY"/>
-            <field x="2" y="9" state="BLUE"/>
+            <null/>
+            <null/>
+            <null/>
+            <field x="-3" y="-2" z="5" isObstructed="false"/>
+            <field x="-3" y="-1" z="4" isObstructed="false"/>
+            <field x="-3" y="0" z="3" isObstructed="false"/>
+            <field x="-3" y="1" z="2" isObstructed="false"/>
+            <field x="-3" y="2" z="1" isObstructed="false"/>
+            <field x="-3" y="3" z="0" isObstructed="false"/>
+            <field x="-3" y="4" z="-1" isObstructed="false"/>
+            <field x="-3" y="5" z="-2" isObstructed="false"/>
           </fields>
           <fields>
-            <field x="3" y="0" state="BLUE"/>
-            <field x="3" y="1" state="EMPTY"/>
-            <field x="3" y="2" state="EMPTY"/>
-            <field x="3" y="3" state="EMPTY"/>
-            <field x="3" y="4" state="EMPTY"/>
-            <field x="3" y="5" state="EMPTY"/>
-            <field x="3" y="6" state="EMPTY"/>
-            <field x="3" y="7" state="EMPTY"/>
-            <field x="3" y="8" state="EMPTY"/>
-            <field x="3" y="9" state="BLUE"/>
+            <null/>
+            <null/>
+            <field x="-2" y="-3" z="5" isObstructed="false"/>
+            <field x="-2" y="-2" z="4" isObstructed="false"/>
+            <field x="-2" y="-1" z="3" isObstructed="false"/>
+            <field x="-2" y="0" z="2" isObstructed="false"/>
+            <field x="-2" y="1" z="1" isObstructed="false"/>
+            <field x="-2" y="2" z="0" isObstructed="false"/>
+            <field x="-2" y="3" z="-1" isObstructed="false"/>
+            <field x="-2" y="4" z="-2" isObstructed="false">
+              <piece owner="BLUE" type="GRASSHOPPER"/>
+            </field>
+            <field x="-2" y="5" z="-3" isObstructed="false"/>
           </fields>
           <fields>
-            <field x="4" y="0" state="BLUE"/>
-            <field x="4" y="1" state="EMPTY"/>
-            <field x="4" y="2" state="EMPTY"/>
-            <field x="4" y="3" state="EMPTY"/>
-            <field x="4" y="4" state="EMPTY"/>
-            <field x="4" y="5" state="EMPTY"/>
-            <field x="4" y="6" state="EMPTY"/>
-            <field x="4" y="7" state="EMPTY"/>
-            <field x="4" y="8" state="EMPTY"/>
-            <field x="4" y="9" state="BLUE"/>
+            <null/>
+            <field x="-1" y="-4" z="5" isObstructed="false"/>
+            <field x="-1" y="-3" z="4" isObstructed="false"/>
+            <field x="-1" y="-2" z="3" isObstructed="false"/>
+            <field x="-1" y="-1" z="2" isObstructed="false"/>
+            <field x="-1" y="0" z="1" isObstructed="false"/>
+            <field x="-1" y="1" z="0" isObstructed="false"/>
+            <field x="-1" y="2" z="-1" isObstructed="false"/>
+            <field x="-1" y="3" z="-2" isObstructed="false"/>
+            <field x="-1" y="4" z="-3" isObstructed="false"/>
+            <field x="-1" y="5" z="-4" isObstructed="false"/>
           </fields>
           <fields>
-            <field x="5" y="0" state="BLUE"/>
-            <field x="5" y="1" state="EMPTY"/>
-            <field x="5" y="2" state="EMPTY"/>
-            <field x="5" y="3" state="EMPTY"/>
-            <field x="5" y="4" state="EMPTY"/>
-            <field x="5" y="5" state="EMPTY"/>
-            <field x="5" y="6" state="EMPTY"/>
-            <field x="5" y="7" state="EMPTY"/>
-            <field x="5" y="8" state="EMPTY"/>
-            <field x="5" y="9" state="BLUE"/>
-          </fields>
-           <fields>
-            <field x="6" y="0" state="BLUE"/>
-            <field x="6" y="1" state="EMPTY"/>
-            <field x="6" y="2" state="EMPTY"/>
-            <field x="6" y="3" state="OBSTRUCTED"/>
-            <field x="6" y="4" state="EMPTY"/>
-            <field x="6" y="5" state="EMPTY"/>
-            <field x="6" y="6" state="EMPTY"/>
-            <field x="6" y="7" state="EMPTY"/>
-            <field x="6" y="8" state="EMPTY"/>
-            <field x="6" y="9" state="BLUE"/>
+            <field x="0" y="-5" z="5" isObstructed="false"/>
+            <field x="0" y="-4" z="4" isObstructed="false"/>
+            <field x="0" y="-3" z="3" isObstructed="false"/>
+            <field x="0" y="-2" z="2" isObstructed="false"/>
+            <field x="0" y="-1" z="1" isObstructed="false"/>
+            <field x="0" y="0" z="0" isObstructed="false">
+              <piece owner="RED" type="ANT"/>
+              <piece owner="BLUE" type="BEE"/>
+            </field>
+            <field x="0" y="1" z="-1" isObstructed="false"/>
+            <field x="0" y="2" z="-2" isObstructed="false"/>
+            <field x="0" y="3" z="-3" isObstructed="false"/>
+            <field x="0" y="4" z="-4" isObstructed="false"/>
+            <field x="0" y="5" z="-5" isObstructed="false"/>
           </fields>
           <fields>
-            <field x="7" y="0" state="BLUE"/>
-            <field x="7" y="1" state="EMPTY"/>
-            <field x="7" y="2" state="EMPTY"/>
-            <field x="7" y="3" state="EMPTY"/>
-            <field x="7" y="4" state="EMPTY"/>
-            <field x="7" y="5" state="EMPTY"/>
-            <field x="7" y="6" state="EMPTY"/>
-            <field x="7" y="7" state="EMPTY"/>
-            <field x="7" y="8" state="EMPTY"/>
-            <field x="7" y="9" state="BLUE"/>
+            <field x="1" y="-5" z="4" isObstructed="false"/>
+            <field x="1" y="-4" z="3" isObstructed="false"/>
+            <field x="1" y="-3" z="2" isObstructed="false"/>
+            <field x="1" y="-2" z="1" isObstructed="false"/>
+            <field x="1" y="-1" z="0" isObstructed="false"/>
+            <field x="1" y="0" z="-1" isObstructed="false"/>
+            <field x="1" y="1" z="-2" isObstructed="false"/>
+            <field x="1" y="2" z="-3" isObstructed="false"/>
+            <field x="1" y="3" z="-4" isObstructed="false"/>
+            <field x="1" y="4" z="-5" isObstructed="false"/>
+            <null/>
           </fields>
           <fields>
-            <field x="8" y="0" state="BLUE"/>
-            <field x="8" y="1" state="EMPTY"/>
-            <field x="8" y="2" state="EMPTY"/>
-            <field x="8" y="3" state="EMPTY"/>
-            <field x="8" y="4" state="EMPTY"/>
-            <field x="8" y="5" state="EMPTY"/>
-            <field x="8" y="6" state="EMPTY"/>
-            <field x="8" y="7" state="EMPTY"/>
-            <field x="8" y="8" state="EMPTY"/>
-            <field x="8" y="9" state="BLUE"/>
+            <field x="2" y="-5" z="3" isObstructed="false"/>
+            <field x="2" y="-4" z="2" isObstructed="false"/>
+            <field x="2" y="-3" z="1" isObstructed="false"/>
+            <field x="2" y="-2" z="0" isObstructed="false"/>
+            <field x="2" y="-1" z="-1" isObstructed="false"/>
+            <field x="2" y="0" z="-2" isObstructed="false"/>
+            <field x="2" y="1" z="-3" isObstructed="false"/>
+            <field x="2" y="2" z="-4" isObstructed="false"/>
+            <field x="2" y="3" z="-5" isObstructed="false"/>
+            <null/>
+            <null/>
           </fields>
           <fields>
-            <field x="9" y="0" state="EMPTY"/>
-            <field x="9" y="1" state="RED"/>
-            <field x="9" y="2" state="RED"/>
-            <field x="9" y="3" state="RED"/>
-            <field x="9" y="4" state="RED"/>
-            <field x="9" y="5" state="RED"/>
-            <field x="9" y="6" state="RED"/>
-            <field x="9" y="7" state="RED"/>
-            <field x="9" y="8" state="RED"/>
-            <field x="9" y="9" state="EMPTY"/>
+            <field x="3" y="-5" z="2" isObstructed="false"/>
+            <field x="3" y="-4" z="1" isObstructed="false"/>
+            <field x="3" y="-3" z="0" isObstructed="false"/>
+            <field x="3" y="-2" z="-1" isObstructed="false"/>
+            <field x="3" y="-1" z="-2" isObstructed="false"/>
+            <field x="3" y="0" z="-3" isObstructed="false"/>
+            <field x="3" y="1" z="-4" isObstructed="false"/>
+            <field x="3" y="2" z="-5" isObstructed="false"/>
+            <null/>
+            <null/>
+            <null/>
+          </fields>
+          <fields>
+            <field x="4" y="-5" z="1" isObstructed="false"/>
+            <field x="4" y="-4" z="0" isObstructed="false"/>
+            <field x="4" y="-3" z="-1" isObstructed="false"/>
+            <field x="4" y="-2" z="-2" isObstructed="false"/>
+            <field x="4" y="-1" z="-3" isObstructed="false"/>
+            <field x="4" y="0" z="-4" isObstructed="false"/>
+            <field x="4" y="1" z="-5" isObstructed="false"/>
+            <null/>
+            <null/>
+            <null/>
+            <null/>
+          </fields>
+          <fields>
+            <field x="5" y="-5" z="0" isObstructed="false"/>
+            <field x="5" y="-4" z="-1" isObstructed="false"/>
+            <field x="5" y="-3" z="-2" isObstructed="false"/>
+            <field x="5" y="-2" z="-3" isObstructed="false"/>
+            <field x="5" y="-1" z="-4" isObstructed="false"/>
+            <field x="5" y="0" z="-5" isObstructed="false"/>
+            <null/>
+            <null/>
+            <null/>
+            <null/>
+            <null/>
           </fields>
         </board>
       XML
       board = subject.gamestate.board
-      expect(board.fields.size).to eq(10)
+      expect(board.field_list.size).to eq(Board::FIELD_AMOUNT)
+      expect(board.field(0,0).pieces.size).to eq(2)
+      expect(board.field(-4,2).obstructed).to be true
     end
   end
 
-  it 'converts a move to xml' do
-    move = Move.new(3, 5, Direction::UP_RIGHT)
+  it 'converts a setmove to xml' do
+    move = SetMove.new(Piece.new(PlayerColor::BLUE, PieceType::ANT), CubeCoordinates.new(-2, 0))
     # NOTE that this is brittle because XML formatting (whitespace, attribute
     # order) is arbitrary.
-    expect(subject.move_to_xml(move)).to eq <<-XML
-<data class="move" x="3" y="5" direction="UP_RIGHT">
-</data>
+    expect(subject.move_to_xml(move)).to eq <<~XML
+      <data class="setmove">
+        <piece owner="BLUE" type="ANT"/>
+        <destination x="-2" y="0" z="2"/>
+      </data>
     XML
   end
 
-=end
+  it 'converts a dragmove to xml' do
+    move = DragMove.new(CubeCoordinates.new(3, 1), CubeCoordinates.new(-1, -2))
+    # NOTE that this is brittle because XML formatting (whitespace, attribute
+    # order) is arbitrary.
+    expect(subject.move_to_xml(move)).to eq <<~XML
+      <data class="dragmove">
+        <start x="3" y="1" z="-4"/>
+        <destination x="-1" y="-2" z="3"/>
+      </data>
+    XML
+  end
+
+  it 'converts a skipmove to xml' do
+    move = SkipMove.new()
+    # NOTE that this is brittle because XML formatting (whitespace, attribute
+    # order) is arbitrary.
+    expect(subject.move_to_xml(move)).to eq <<~XML
+      <data class="skipmove">
+      </data>
+    XML
+  end
+
 end

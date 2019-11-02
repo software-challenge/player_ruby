@@ -32,6 +32,12 @@ class GameState
   # @return [Player] Die nicht gesetzten Spielsteine des roten Spielers
   attr_reader :undeployed_blue_pieces
 
+  # @!attribute [r] red
+  # @return [Player] Der rote Spieler
+  attr_reader :red
+  # @!attribute [r] blue
+  # @return [Player] Der blaue Spieler
+  attr_reader :blue
   # @!attribute [rw] board
   # @return [Board] Das aktuelle Spielbrett
   attr_accessor :board
@@ -153,7 +159,8 @@ class GameState
   # @return [Integer] Die Punkte des Spielers, entspricht der Anzahl der Fische
   #                   im größten Schwarm des Spielers.
   def points_for_player(player)
-    GameRuleLogic.swarm_size(board, player)
+    # TODO
+    -1
   end
 
   def ==(other)

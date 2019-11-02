@@ -123,25 +123,32 @@ class Protocol
       @context[:current_tile_index] = nil
       @context[:current_tile_direction] = nil
     when 'field'
-      type = FieldType.find_by_key(attrs['state'].to_sym)
       x = attrs['x'].to_i
       y = attrs['y'].to_i
-      raise "unexpected field type: #{attrs['type']}. Known types are #{FieldType.map { |t| t.key.to_s }}" if type.nil?
-      @gamestate.board.add_field(Field.new(x, y, type))
+      obstructed = attrs['isObstructed'] == 'true'
+      field = Field.new(x, y, [], obstructed)
+      @gamestate.board.add_field(field)
+      @context[:field] = field
+    when 'piece'
+      owner = PlayerColor.find_by_key(attrs['owner'].to_sym)
+      type = PieceType.find_by_key(attrs['type'].to_sym)
+      @context[:field].add_piece(Piece.new(owner, type))
     when 'lastMove'
-      direction = Direction.find_by_key(attrs['direction'].to_sym)
-      x = attrs['x'].to_i
-      y = attrs['y'].to_i
-      raise "unexpected direction: #{attrs['direction']}. Known directions are #{Direction.map { |d| d.key.to_s }}" if direction.nil?
-      @gamestate.last_move = Move.new(x, y, direction)
+      # TODO
+      #@gamestate.last_move = move
     when 'winner'
-      winning_player = parsePlayer(attrs)
-      @gamestate.condition = Condition.new(winning_player, @gamestate.condition.reason)
+    # TODO
+      #winning_player = parsePlayer(attrs)
+      #@gamestate.condition = Condition.new(winning_player, @gamestate.condition.reason)
     when 'score'
+      # TODO
       # there are two score tags in the result, but reason attribute should be equal on both
-      @gamestate.condition = Condition.new(@gamestate.condition.winner, attrs['reason'])
+      #@gamestate.condition = Condition.new(@gamestate.condition.winner, attrs['reason'])
     when 'left'
       logger.debug 'got left event, terminating'
+      @network.disconnect
+    when 'sc.protocol.responses.CloseConnection'
+      logger.debug 'got left close connection event, terminating'
       @network.disconnect
     end
   end
@@ -187,9 +194,31 @@ class Protocol
     # class interface to supply a method which returns the XML
     # because XML-generation should be decoupled from internal data
     # structures.
-    builder.data(class: 'move', x: move.x, y: move.y, direction: move.direction.key) do |data|
-      move.hints.each do |hint|
-        data.hint(content: hint.content)
+    case move
+    when SetMove
+      builder.data(class: 'setmove') do |data|
+        data.piece(owner: move.piece.owner.key, type: move.piece.type.key)
+        d = move.destination
+        data.destination(x: d.x, y: d.y, z: d.z)
+        move.hints.each do |hint|
+          data.hint(content: hint.content)
+        end
+      end
+    when DragMove
+      builder.data(class: 'dragmove') do |data|
+        s = move.start
+        data.start(x: s.x, y: s.y, z: s.z)
+        d = move.destination
+        data.destination(x: d.x, y: d.y, z: d.z)
+        move.hints.each do |hint|
+          data.hint(content: hint.content)
+        end
+      end
+    when SkipMove
+      builder.data(class: 'skipmove') do |data|
+        move.hints.each do |hint|
+          data.hint(content: hint.content)
+        end
       end
     end
     builder.target!

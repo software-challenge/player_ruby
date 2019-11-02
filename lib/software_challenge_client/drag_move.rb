@@ -1,4 +1,8 @@
+require_relative 'has_hints'
+
 class DragMove
+
+  include HasHints
 
   attr_reader :start
   attr_reader :destination
@@ -6,6 +10,7 @@ class DragMove
   def initialize(start, destination)
     @start = start
     @destination = destination
+    @hints = []
   end
 
   def to_s

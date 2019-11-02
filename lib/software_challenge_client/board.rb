@@ -39,6 +39,10 @@ class Board
     fields
   end
 
+  def clear
+    @fields = []
+  end
+
   def field_list
     @fields.flatten.select{ |e| !e.nil? }
   end

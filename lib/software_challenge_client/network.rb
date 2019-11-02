@@ -68,14 +68,12 @@ class Network
     sock_msg = ''
 
     line = ''
-    logger.debug 'reading'
     @socket.each_char do |char|
       line += char
       sock_msg += char
       line = '' if ['\n', ' '].include? char
       break if ['</room>', '</protocol>'].include? line
     end
-    logger.debug 'ended reading'
     if sock_msg != ''
       @receive_buffer.concat(sock_msg)
 
