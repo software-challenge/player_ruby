@@ -60,15 +60,6 @@ class Board
     @fields[field.x + SHIFT][field.y + SHIFT] = field
   end
 
-  # Ändert den Typ eines bestimmten Feldes des Spielbrettes.
-  #
-  # @param x [Integer] Die X-Koordinate des zu ändernden Feldes. 0..9, wobei Spalte 0 ganz links und Spalte 9 ganz rechts liegt.
-  # @param y [Integer] Die Y-Koordinate des zu ändernden Feldes. 0..9, wobei Zeile 0 ganz unten und Zeile 9 ganz oben liegt.
-  # @param type [FieldType] Der neue Typ des Feldes.
-  def change_field(x, y, type)
-    @fields[x][y].type = type
-  end
-
   # Zugriff auf die Felder des Spielfeldes
   #
   # @param x [Integer] Die X-Koordinate des Feldes.
