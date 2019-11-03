@@ -59,6 +59,38 @@ RSpec.describe GameRuleLogic do
 
     it 'should calculate all possible moves' do
       expect(GameRuleLogic.possible_moves(gamestate).size).to eq(STARTING_PIECES.chars.uniq.size * Board::FIELD_AMOUNT)
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         ------------------
+        ------BQ------------
+       ----------------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      expect(GameRuleLogic.possible_moves(gamestate).size).to eq(STARTING_PIECES.chars.uniq.size * 6)
+      board =
+        <<~BOARD
+            ------------
+           --------------
+          ----------------
+         ------------------
+        ------BGRG----------
+       ----------------------
+        --------------------
+         ------------------
+          ----------------
+           --------------
+            ------------
+      BOARD
+      state_from_string!(board, gamestate)
+      expect(GameRuleLogic.possible_moves(gamestate).size).to eq(STARTING_PIECES.chars.uniq.size * 3)
     end
   end
 

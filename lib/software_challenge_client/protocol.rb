@@ -120,8 +120,6 @@ class Protocol
     when 'board'
       logger.debug 'new board'
       @gamestate.board = Board.new
-      @context[:current_tile_index] = nil
-      @context[:current_tile_direction] = nil
     when 'field'
       x = attrs['x'].to_i
       y = attrs['y'].to_i

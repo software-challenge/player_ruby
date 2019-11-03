@@ -191,11 +191,4 @@ class GameState
     board.fields_of_color(current_player_color)
   end
 
-  # @return [Array<Move>] Alle regelkonformen Züge, die der aktuelle Spieler gerade machen könnte.
-  def possible_moves
-    own_fields.map do |f|
-      GameRuleLogic.possible_moves(board, f, current_player_color)
-    end.flatten
-  end
-
 end

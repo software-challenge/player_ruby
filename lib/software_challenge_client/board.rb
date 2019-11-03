@@ -115,7 +115,7 @@ class Board
   # einen roten Fisch, B für einen blauen, ~ für ein leeres Feld und O für ein
   # Kraken-Feld.
   def to_s
-    field_list.map{ |f| f.obstructed ? 'OO' : f.empty? ? '--' : f.pieces.first.to_s }.join
+    field_list.sort_by(&:z).map{ |f| f.obstructed ? 'OO' : f.empty? ? '--' : f.pieces.last.to_s }.join
   end
 
 end
