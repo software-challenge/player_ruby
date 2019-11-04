@@ -126,14 +126,48 @@ class Protocol
       obstructed = attrs['isObstructed'] == 'true'
       field = Field.new(x, y, [], obstructed)
       @gamestate.board.add_field(field)
+      @context[:piece_target] = :field
       @context[:field] = field
     when 'piece'
       owner = PlayerColor.find_by_key(attrs['owner'].to_sym)
       type = PieceType.find_by_key(attrs['type'].to_sym)
-      @context[:field].add_piece(Piece.new(owner, type))
+      piece = Piece.new(owner, type)
+      case @context[:piece_target]
+      when :field
+        @context[:field].add_piece(piece)
+      when :undeployed_red_pieces
+        @gamestate.undeployed_red_pieces << piece
+      when :undeployed_blue_pieces
+        @gamestate.undeployed_blue_pieces << piece
+      when :last_move
+        @context[:last_move_piece] = piece
+      else
+        raise "unknown piece target #{@context[:piece_target]}"
+      end
+    when 'undeployedRedPieces'
+      @context[:piece_target] = :undeployed_red_pieces
+      @gamestate.undeployed_red_pieces = []
+    when 'undeployedBluePieces'
+      @context[:piece_target] = :undeployed_blue_pieces
+      @gamestate.undeployed_blue_pieces = []
     when 'lastMove'
-      # TODO
-      #@gamestate.last_move = move
+      type = attrs['class']
+      if type == 'skipmove'
+        @gamestate.last_move = SkipMove.new
+      else
+        @context[:last_move_type] = type
+        @context[:piece_target] = :last_move
+      end
+    when 'start'
+      @context[:last_move_start] = CubeCoordinates.new(attrs['x'].to_i, attrs['y'].to_i, attrs['z'].to_i)
+    when 'destination'
+      destination = CubeCoordinates.new(attrs['x'].to_i, attrs['y'].to_i, attrs['z'].to_i)
+      case @context[:last_move_type]
+      when 'setmove'
+        @gamestate.last_move = SetMove.new(@context[:last_move_piece], destination)
+      when 'dragmove'
+        @gamestate.last_move = SetMove.new(@context[:last_move_start], destination)
+      end
     when 'winner'
     # TODO
       #winning_player = parsePlayer(attrs)

@@ -26,11 +26,11 @@ class GameState
 
   # @!attribute [r] undeployed_red_pieces
   # @return [Player] Die nicht gesetzten Spielsteine des roten Spielers
-  attr_reader :undeployed_red_pieces
+  attr_accessor :undeployed_red_pieces
 
   # @!attribute [r] undeployed_blue_pieces
   # @return [Player] Die nicht gesetzten Spielsteine des roten Spielers
-  attr_reader :undeployed_blue_pieces
+  attr_accessor :undeployed_blue_pieces
 
   # @!attribute [r] red
   # @return [Player] Der rote Spieler
