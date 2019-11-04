@@ -234,7 +234,14 @@ RSpec.describe Protocol do
       board = subject.gamestate.board
       expect(board.field_list.size).to eq(Board::FIELD_AMOUNT)
       expect(board.field(0,0).pieces.size).to eq(2)
+      expect(board.field(0,0).pieces).to eq([Piece.new(PlayerColor::RED, PieceType::ANT), Piece.new(PlayerColor::BLUE, PieceType::BEE)])
+      expect(board.field(-2,4).pieces).to eq([Piece.new(PlayerColor::BLUE, PieceType::GRASSHOPPER)])
       expect(board.field(-4,2).obstructed).to be true
+      board.field_list.each do |f|
+        unless [[0,0], [-2, 4], [-4, 2]].include? [f.coordinates.x, f.coordinates.y]
+          expect(f).to be_empty
+        end
+      end
     end
   end
 
