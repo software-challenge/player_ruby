@@ -1,3 +1,7 @@
+= 20.2.0
+
+First version for game "Hive"
+
 = 19.1.0
 
 - winning condition is now set when changing a gamestate with Move#perform!
