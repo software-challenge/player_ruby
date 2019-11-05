@@ -50,6 +50,10 @@ class Field
     pieces.empty? && !obstructed
   end
 
+  def obstructed?
+    obstructed
+  end
+
   def add_piece(piece)
     pieces.push(piece)
   end
@@ -72,7 +76,7 @@ class Field
     if obstructed?
       s += 'blockiert'
     else
-      s += "Steine: #{pieces.inpect}"
+      s += "Steine: #{pieces.map(&:to_s).join(', ')}"
     end
   end
 end

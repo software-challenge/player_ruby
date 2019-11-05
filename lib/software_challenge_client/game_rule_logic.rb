@@ -331,7 +331,7 @@ class GameRuleLogic
           valid_move?(gamestate, move)
           move
         rescue InvalidMoveException
-          null
+          nil
         end
       end.compact
     end
