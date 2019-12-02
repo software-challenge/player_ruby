@@ -46,6 +46,13 @@ RSpec.describe GameState do
     expect(gamestate.own_fields.size).to eq(1)
   end
 
+  it 'performs moves' do
+    expect do
+      move = SkipMove.new
+      gamestate.perform!(move)
+    end.not_to raise_error(NoMethodError)
+  end
+
 =begin
   it 'calculates all possible moves' do
     expect(gamestate.possible_moves.size).to eq(16 * 3)

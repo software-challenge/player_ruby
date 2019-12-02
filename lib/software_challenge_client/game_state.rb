@@ -131,7 +131,7 @@ class GameState
   #
   # @param move [Move] Der auszuführende Zug.
   def perform!(move)
-    move.perform!(self)
+    GameRuleLogic.perform_move(self, move)
   end
 
   # @return [Boolean] true, falls das Spiel bereits geendet hat, false bei noch
