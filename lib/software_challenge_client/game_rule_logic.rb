@@ -301,7 +301,11 @@ class GameRuleLogic
     raise "Invalid move!" unless valid_move?(gamestate, move)
     case move
     when SetMove
-      gamestate.undeployed_pieces(move.piece.color).remove(move.piece)
+      # delete first occurrence of piece
+      gamestate.undeployed_pieces(move.piece.color).delete_at(
+        gamestate.undeployed_pieces(move.piece.color).index(move.piece) ||
+        gamestate.undeployed_pieces(move.piece.color).length
+      )
       gamestate.board.field_at(move.destination).add_piece(move.piece)
     when DragMove
       piece_to_move = gamestate.board.field_at(move.start).remove_piece

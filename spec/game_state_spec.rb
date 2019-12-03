@@ -51,6 +51,15 @@ RSpec.describe GameState do
       move = SkipMove.new
       gamestate.perform!(move)
     end.not_to raise_error(NoMethodError)
+    upr = gamestate.undeployed_pieces(PlayerColor::RED).size
+    expect do
+      move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(1, 0))
+      gamestate.perform!(move)
+    end.not_to raise_error
+    expect do
+      move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(1, -1))
+      gamestate.perform!(move)
+    end.not_to raise_error
   end
 
 =begin
