@@ -1,3 +1,7 @@
+= 20.2.1 & 20.2.2
+
+Bugfixes for performing moves on a gamestate
+
 = 20.2.0
 
 First version for game "Hive"
