@@ -1,3 +1,5 @@
+# CubeCoordinates erleichtern viele Berechnungen auf einem hexagonalen Spielfeld. Siehe
+# https://www.redblobgames.com/grids/hexagons/#coordinates-cube
 class CubeCoordinates
 
   attr_reader :x, :y, :z

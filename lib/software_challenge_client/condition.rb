@@ -12,7 +12,8 @@ class Condition
   attr_reader :reason
 
   # Initializes the winning Condition with a player
-  # @param winer [Player] winning player
+  # @param winner [Player] winning player
+  # @param reason [String] why the player has won
   def initialize(winner, reason)
     @winner = winner
     @reason = reason

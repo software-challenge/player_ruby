@@ -15,11 +15,14 @@ class Board
   #   seiner x und y CubeCoordinates im Array gespeichert.
   attr_reader :fields
 
+  # Anzahl der Felder eines hexagonalen Spielfeldes
+  # @param radius [Integer] Radius des Spielfeldes
   def self.field_amount(radius)
     return 1 if radius == 1
     (radius - 1) * 6 + Board.field_amount(radius - 1)
   end
 
+  # Anzahl der Felder des fuer Hive verwendeten Spielfeldes
   FIELD_AMOUNT = Board.field_amount((BOARD_SIZE + 1)/2)
 
   # Erstellt ein neues leeres Spielbrett.
@@ -28,6 +31,7 @@ class Board
     fields.each{ |f| add_field(f) }
   end
 
+  # @return [Array] leere Felder entsprechend des Spielbrettes angeordnet
   def self.empty_game_field
     fields = []
     (-SHIFT..SHIFT).to_a.each do |x|
@@ -39,10 +43,12 @@ class Board
     fields
   end
 
+  # Entfernt alle Felder des Spielfeldes
   def clear
     @fields = []
   end
 
+  # @return [Array] Liste aller Felder
   def field_list
     @fields.flatten.select{ |e| !e.nil? }
   end
@@ -90,21 +96,23 @@ class Board
     field_list.select{ |f| f.color == color }
   end
 
+  # @return [Array] Liste aller Spielsteine, die auf dem Spielbrett platziert wurden
   def pieces
     field_list.map(&:pieces).flatten
   end
 
+  # @param [PlayerColor] Spielerfarbe
+  # @return [Array] Liste aller Spielsteine eines Spielers, die auf dem Spielbrett platziert wurden
   def deployed_pieces(color)
     pieces.select { |p| p.color == color }
   end
 
+  # @return eine unabhaengige Kopie des Spielbretts
   def clone
     Marshal.load(Marshal.dump(self))
   end
 
-  # Gibt eine textuelle Repräsentation des Spielbrettes aus. Hier steht R für
-  # einen roten Fisch, B für einen blauen, ~ für ein leeres Feld und O für ein
-  # Kraken-Feld.
+  # Gibt eine textuelle Repräsentation des Spielbrettes aus.
   def to_s
     field_list.sort_by(&:z).map{ |f| f.obstructed ? 'OO' : f.empty? ? '--' : f.pieces.last.to_s }.join
   end

@@ -205,7 +205,7 @@ class Protocol
 
   # send a string
   #
-  # @param document [String] The string that will be send to the connected server.
+  # @param string [String] The string that will be send to the connected server.
   def sendString(string)
     @network.sendString("<room roomId=\"#{@roomId}\">#{string}</room>")
   end

@@ -22,9 +22,9 @@ class Direction < TypesafeEnum::Base
 
   # Verschiebt den durch das Koordinatenpaar angegebenen Punkt in die
   # entsprechende Richtung. Der resultierende Punkt kann ausserhalb des
-  # Spielbrettes liegen. Dies kann mit {GameRuleLogic#inside_bounds?} geprüft
+  # Spielbrettes liegen. Dies kann mit {GameRuleLogic.is_on_board} geprüft
   # werden.
-  # @param coordinates [CubeCoordinates] Das zu verschiebende Koordinatenpaar.
+  # @param start [CubeCoordinates] Das zu verschiebende Koordinatenpaar.
   # @param distance [Integer] Um wieviele Felder in die Richtung verschoben werden soll.
   def translate(start, distance = 1)
     shiftX = start.x

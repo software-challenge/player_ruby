@@ -1,7 +1,6 @@
 # encoding: UTF-8
 
 # Ein Feld des Spielfelds. Ein Spielfeld ist durch die Koordinaten eindeutig identifiziert.
-# Das type Attribut gibt an, um welchen Feldtyp es sich handelt
 class Field
   # @!attribute [rw] pieces
   # @return [Array<Piece>] Spielsteine auf dem Feld, beginnend beim untersten Stein
@@ -15,7 +14,6 @@ class Field
 
   # Konstruktor
   #
-  # @param type [FieldType] Feldtyp
   # @param x [Integer] X-Koordinate
   # @param y [Integer] Y-Koordinate
   # @param pieces [Array<Piece>] Spielsteine auf dem Feld
@@ -46,10 +44,12 @@ class Field
     coordinates.z
   end
 
+  # @return [Boolean] true, wenn eine Spielsteine auf dem Feld liegen und es nicht durch eine Brombeere blockiert ist
   def empty?
     pieces.empty? && !obstructed
   end
 
+  # @return [Boolean] true, es nicht durch eine Brombeere blockiert ist
   def obstructed?
     obstructed
   end
@@ -58,10 +58,13 @@ class Field
     pieces.push(piece)
   end
 
+  # Entfernt den obersten Spielstein
+  # @return [Piece] entfernten Spielstein oder nil
   def remove_piece
     pieces.pop
   end
 
+  # @return [PlayerColor] Farbe des Spielers, der den obersten Spielstein kontrolliert. Ohne Spielsteine nil
   def color
     pieces.last&.color
   end
