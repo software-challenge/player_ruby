@@ -1,3 +1,7 @@
+= 20.2.4
+
+Update game name in documentation
+
 = 20.2.3
 
 Improve method documentation
