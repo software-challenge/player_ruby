@@ -4,7 +4,7 @@
 require_relative './util/constants'
 require_relative 'invalid_move_exception'
 
-# Methoden, welche die Spielregeln von Piranhas abbilden.
+# Methoden, welche die Spielregeln von Hive abbilden.
 #
 # Es gibt hier viele Helfermethoden, die von den beiden Hauptmethoden {GameRuleLogic#valid_move?} und {GameRuleLogic.possible_moves} benutzt werden.
 class GameRuleLogic
