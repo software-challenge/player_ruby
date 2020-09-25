@@ -73,7 +73,7 @@ Computerspieler zu haben (`client.rb` im Beispielprojekt):
       end
 
       def best_move
-        gamestate.possible_moves.sample
+        GameRuleLogic.possible_moves(gamestate).sample
       end
     end
 
