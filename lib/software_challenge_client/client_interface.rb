@@ -1,4 +1,5 @@
 # encoding: utf-8
+# frozen_string_literal: true
 
 # Das Interface sollte von einem Client implementiert werden, damit er über das
 # Gem an einem Spiel teilnehmen kann.

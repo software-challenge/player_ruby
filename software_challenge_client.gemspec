@@ -1,10 +1,11 @@
 # coding: utf-8
+# frozen_string_literal: true
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'software_challenge_client/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "software_challenge_client"
+  spec.name          = 'software_challenge_client'
   spec.version       = SoftwareChallengeClient::VERSION
   spec.authors       = File.readlines('AUTHORS').select { |l| l[' <'] }.map { |l| l.match(/^(.*) *</)[1] }
   spec.email         = File.readlines('AUTHORS').select { |l| l[' <'] }.map { |l| l.match(/<(.*)>/)[1] }
@@ -14,9 +15,9 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'http://www.software-challenge.de'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.bindir        = "exe"
+  spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
+  spec.require_paths = ['lib']
 
   spec.required_ruby_version = '>= 2.3'
   spec.add_dependency 'typesafe_enum'

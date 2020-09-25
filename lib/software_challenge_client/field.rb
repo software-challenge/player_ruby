@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 
 # Ein Feld des Spielfelds. Ein Spielfeld ist durch die Koordinaten eindeutig identifiziert.
 class Field
@@ -76,10 +77,10 @@ class Field
   # @return [String] Textuelle Darstellung des Feldes.
   def to_s
     s = "Feld #{coordinates}, "
-    if obstructed?
-      s += 'blockiert'
-    else
-      s += "Steine: #{pieces.map(&:to_s).join(', ')}"
-    end
+    s += if obstructed?
+           'blockiert'
+         else
+           "Steine: #{pieces.map(&:to_s).join(', ')}"
+         end
   end
 end

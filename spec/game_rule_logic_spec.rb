@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
@@ -18,7 +19,6 @@ include GameStateHelpers
 include Constants
 
 RSpec.describe GameRuleLogic do
-
   subject { GameRuleLogic }
   let(:gamestate) { GameState.new }
 
@@ -54,7 +54,7 @@ RSpec.describe GameRuleLogic do
     it 'should get neighbours' do
       n = GameRuleLogic.get_neighbours(gamestate.board, CubeCoordinates.new(-2, 1))
       expected = [[-2, 2], [-1, 1], [-1, 0], [-2, 0], [-3, 1], [-3, 2]].map { |c| CubeCoordinates.new(c[0], c[1]) }
-      expect(n.map{ |f| f.coordinates }).to match_array(expected)
+      expect(n.map(&:coordinates)).to match_array(expected)
     end
 
     it 'should calculate all possible moves' do
@@ -94,9 +94,9 @@ RSpec.describe GameRuleLogic do
     end
   end
 
-    it 'should detect if a bee is surrounded' do
-      board =
-        <<~BOARD
+  it 'should detect if a bee is surrounded' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -109,13 +109,13 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      expect(GameRuleLogic.is_bee_blocked(gamestate.board, PlayerColor::RED)).to be true
-    end
+    state_from_string!(board, gamestate)
+    expect(GameRuleLogic.is_bee_blocked(gamestate.board, PlayerColor::RED)).to be true
+  end
 
-    it 'should detect if a bee is surrounded on the edge' do
-      board =
-        <<~BOARD
+  it 'should detect if a bee is surrounded on the edge' do
+    board =
+      <<~BOARD
               RQBQ--------
              BB------------
             --BB------------
@@ -128,16 +128,16 @@ RSpec.describe GameRuleLogic do
              --------------
               ------------
       BOARD
-      state_from_string!(board, gamestate)
-      gamestate.current_player_color = PlayerColor::BLUE
-      move = DragMove.new(CubeCoordinates.new(-1, 4), CubeCoordinates.new(0, 4))
-      GameRuleLogic.perform_move(gamestate, move)
-      expect(GameRuleLogic.is_bee_blocked(gamestate.board, PlayerColor::RED)).to be true
-    end
+    state_from_string!(board, gamestate)
+    gamestate.current_player_color = PlayerColor::BLUE
+    move = DragMove.new(CubeCoordinates.new(-1, 4), CubeCoordinates.new(0, 4))
+    GameRuleLogic.perform_move(gamestate, move)
+    expect(GameRuleLogic.is_bee_blocked(gamestate.board, PlayerColor::RED)).to be true
+  end
 
-    it 'should validate set move on empty board' do
-      board =
-        <<~BOARD
+  it 'should validate set move on empty board' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -150,15 +150,14 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(0, 0))
-      expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
-    end
+    state_from_string!(board, gamestate)
+    move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(0, 0))
+    expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
+  end
 
-
-    it 'should not validate a set move outside of the board' do
-      board =
-        <<~BOARD
+  it 'should not validate a set move outside of the board' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -171,14 +170,14 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(8, 0))
-      expect { GameRuleLogic.valid_move?(gamestate, move) }.to raise_error(InvalidMoveException, /is out of bounds/)
-    end
+    state_from_string!(board, gamestate)
+    move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(8, 0))
+    expect { GameRuleLogic.valid_move?(gamestate, move) }.to raise_error(InvalidMoveException, /is out of bounds/)
+  end
 
-    it 'should be valid to set a piece next to opponents one on second turn' do
-      board =
-        <<~BOARD
+  it 'should be valid to set a piece next to opponents one on second turn' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -191,16 +190,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(0, 0))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /has to be placed next to other players piece/)
-    end
+    state_from_string!(board, gamestate)
+    move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(0, 0))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /has to be placed next to other players piece/)
+  end
 
-    it 'should not validate setting a piece that is not available undeployed' do
-      board =
-        <<~BOARD
+  it 'should not validate setting a piece that is not available undeployed' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -213,17 +212,17 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      gamestate.undeployed_pieces(PlayerColor::RED).clear
-      move = SetMove.new(Piece.new(PlayerColor::RED, PieceType::ANT), CubeCoordinates.new(-4, 4))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /Piece is not a undeployed piece/)
-    end
+    state_from_string!(board, gamestate)
+    gamestate.undeployed_pieces(PlayerColor::RED).clear
+    move = SetMove.new(Piece.new(PlayerColor::RED, PieceType::ANT), CubeCoordinates.new(-4, 4))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /Piece is not a undeployed piece/)
+  end
 
-    it 'should validate that a set piece is connected to the swarm and doesnt touch opponent' do
-      board =
-        <<~BOARD
+  it 'should validate that a set piece is connected to the swarm and doesnt touch opponent' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -236,22 +235,22 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      invalid1 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(0, 0))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, invalid1)
-      end.to raise_error(InvalidMoveException, /must touch an own piece/)
-      invalid2 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-3, 4))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, invalid2)
-      end.to raise_error(InvalidMoveException, /not allowed to touch an opponent/)
-      valid1 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-4, 5))
-      expect(GameRuleLogic.valid_move?(gamestate, valid1)).to be true
-    end
+    state_from_string!(board, gamestate)
+    invalid1 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(0, 0))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, invalid1)
+    end.to raise_error(InvalidMoveException, /must touch an own piece/)
+    invalid2 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-3, 4))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, invalid2)
+    end.to raise_error(InvalidMoveException, /not allowed to touch an opponent/)
+    valid1 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-4, 5))
+    expect(GameRuleLogic.valid_move?(gamestate, valid1)).to be true
+  end
 
-    it 'should validate that setting on obstructed fields is not allowed' do
-      board =
-        <<~BOARD
+  it 'should validate that setting on obstructed fields is not allowed' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -265,20 +264,20 @@ RSpec.describe GameRuleLogic do
             ------------
 
       BOARD
-      state_from_string!(board, gamestate)
-      invalid1 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-1, 3))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, invalid1)
-      end.to raise_error(InvalidMoveException, /destination is not empty/)
-      invalid2 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-1, 2))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, invalid2)
-      end.to raise_error(InvalidMoveException, /must touch an own piece/)
-    end
+    state_from_string!(board, gamestate)
+    invalid1 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-1, 3))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, invalid1)
+    end.to raise_error(InvalidMoveException, /destination is not empty/)
+    invalid2 = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(-1, 2))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, invalid2)
+    end.to raise_error(InvalidMoveException, /must touch an own piece/)
+  end
 
-    it 'validates that bee has to be placed on fourth turn' do
-      board =
-        <<~BOARD
+  it 'validates that bee has to be placed on fourth turn' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -292,23 +291,23 @@ RSpec.describe GameRuleLogic do
             ------------
 
       BOARD
-      state_from_string!(board, gamestate)
-      gamestate.turn = 6
-      set_ant = SetMove.new(Piece.new(PlayerColor::RED, PieceType::ANT), CubeCoordinates.new(-4, 5))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, set_ant)
-      end.to raise_error(InvalidMoveException, /bee must be placed/)
-      skip = SkipMove.new
-      expect do
-        GameRuleLogic.valid_move?(gamestate, skip)
-      end.to raise_error(InvalidMoveException, /other moves can be made/)
-      set_bee = SetMove.new(Piece.new(PlayerColor::RED, PieceType::BEE), CubeCoordinates.new(-4, 5))
-      expect(GameRuleLogic.valid_move?(gamestate, set_bee)).to be true
-    end
+    state_from_string!(board, gamestate)
+    gamestate.turn = 6
+    set_ant = SetMove.new(Piece.new(PlayerColor::RED, PieceType::ANT), CubeCoordinates.new(-4, 5))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, set_ant)
+    end.to raise_error(InvalidMoveException, /bee must be placed/)
+    skip = SkipMove.new
+    expect do
+      GameRuleLogic.valid_move?(gamestate, skip)
+    end.to raise_error(InvalidMoveException, /other moves can be made/)
+    set_bee = SetMove.new(Piece.new(PlayerColor::RED, PieceType::BEE), CubeCoordinates.new(-4, 5))
+    expect(GameRuleLogic.valid_move?(gamestate, set_bee)).to be true
+  end
 
-    it 'validates that there is an actual piece to drag' do
-      board =
-        <<~BOARD
+  it 'validates that there is an actual piece to drag' do
+    board =
+      <<~BOARD
             ------------
            --------------
           RQ--------------
@@ -322,17 +321,16 @@ RSpec.describe GameRuleLogic do
             ------------
 
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(0, 1))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /no piece to move/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(0, 1))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /no piece to move/)
+  end
 
-
-    it 'refuses to drag a sole piece on the board' do
-      board =
-        <<~BOARD
+  it 'refuses to drag a sole piece on the board' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -346,16 +344,16 @@ RSpec.describe GameRuleLogic do
             ------------
 
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(1, -1))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /no path to your destination/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(1, -1))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /no path to your destination/)
+  end
 
-    it 'should not allow dragging pieces on other pieces' do
-      board =
-        <<~BOARD
+  it 'should not allow dragging pieces on other pieces' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -369,16 +367,16 @@ RSpec.describe GameRuleLogic do
             ------------
 
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(1, -1))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /Only beetles are allowed to climb on other/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(1, -1))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /Only beetles are allowed to climb on other/)
+  end
 
-    it 'should require a bee for any drag move' do
-      board =
-        <<~BOARD
+  it 'should require a bee for any drag move' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -391,16 +389,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(0, -1))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /have to place the bee/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(0, -1))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /have to place the bee/)
+  end
 
-    it 'should allow drag moves with bee present' do
-      board =
-        <<~BOARD
+  it 'should allow drag moves with bee present' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -413,14 +411,14 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(-1, 1))
-      expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(-1, 1))
+    expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
+  end
 
-    it 'should not allow moving the bee more than one field' do
-      board =
-        <<~BOARD
+  it 'should not allow moving the bee more than one field' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -433,16 +431,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(-1, 2))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /Destination field is not next to start field/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(-1, 2))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /Destination field is not next to start field/)
+  end
 
-    it 'should not allow moving the beetle more than one field' do
-      board =
-        <<~BOARD
+  it 'should not allow moving the beetle more than one field' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -455,16 +453,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(2, -1))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /Destination field is not next to start field/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(2, -1))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /Destination field is not next to start field/)
+  end
 
-    it 'should check for swarm disconnect on drag move' do
-      board =
-        <<~BOARD
+  it 'should check for swarm disconnect on drag move' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -477,16 +475,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(-1, 2))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /would disconnect swarm/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(-1, 2))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /would disconnect swarm/)
+  end
 
-    it 'should allow move when swarm doesnt disconnect' do
-      board =
-        <<~BOARD
+  it 'should allow move when swarm doesnt disconnect' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -499,14 +497,14 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(-1, 2))
-      expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(-1, 2))
+    expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
+  end
 
-    it 'should check that pieces cant "jump" over cracks' do
-      board =
-        <<~BOARD
+  it 'should check that pieces cant "jump" over cracks' do
+    board =
+      <<~BOARD
             ------------
            --------------
           --------RG------
@@ -519,16 +517,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(3, -1), CubeCoordinates.new(3, 0))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /has to move along swarm/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(3, -1), CubeCoordinates.new(3, 0))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /has to move along swarm/)
+  end
 
-    it 'should allow beetle to climb on other pieces' do
-      board =
-        <<~BOARD
+  it 'should allow beetle to climb on other pieces' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -541,14 +539,14 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(1, 1))
-      expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(1, 1))
+    expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
+  end
 
-    it 'should check grasshopper drag move validity' do
-      board =
-        <<~BOARD
+  it 'should check grasshopper drag move validity' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -561,16 +559,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(1, 0), CubeCoordinates.new(-2, 3))
-      expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
-      second_move = DragMove.new(CubeCoordinates.new(1, 0), CubeCoordinates.new(1, 2))
-      expect(GameRuleLogic.valid_move?(gamestate, second_move)).to be true
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(1, 0), CubeCoordinates.new(-2, 3))
+    expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
+    second_move = DragMove.new(CubeCoordinates.new(1, 0), CubeCoordinates.new(1, 2))
+    expect(GameRuleLogic.valid_move?(gamestate, second_move)).to be true
+  end
 
-    it 'should forbid grasshoppers jumping over empty fields' do
-      board =
-        <<~BOARD
+  it 'should forbid grasshoppers jumping over empty fields' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -583,16 +581,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(1, 0), CubeCoordinates.new(-3, 4))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /can only jump over occupied fields/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(1, 0), CubeCoordinates.new(-3, 4))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /can only jump over occupied fields/)
+  end
 
-    it 'should forbid grasshoppers moving only one field' do
-      board =
-        <<~BOARD
+  it 'should forbid grasshoppers moving only one field' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -605,16 +603,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(1, 0), CubeCoordinates.new(1, -1))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /has to jump over at least one piece/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(1, 0), CubeCoordinates.new(1, -1))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /has to jump over at least one piece/)
+  end
 
-    it 'should check validity of ant moves' do
-      board =
-        <<~BOARD
+  it 'should check validity of ant moves' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -627,16 +625,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(1, 2))
-      expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
-      second_move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(0, -1))
-      expect(GameRuleLogic.valid_move?(gamestate, second_move)).to be true
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(1, 2))
+    expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
+    second_move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(0, -1))
+    expect(GameRuleLogic.valid_move?(gamestate, second_move)).to be true
+  end
 
-    it 'should forbid moving ant around obstructed fields' do
-      board =
-        <<~BOARD
+  it 'should forbid moving ant around obstructed fields' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -649,24 +647,24 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(0, 2))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /No path found for ant move/)
-      second_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(1, 1))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, second_move)
-      end.to raise_error(InvalidMoveException, /No path found for ant move/)
-      third_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(0, 0))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, third_move)
-      end.to raise_error(InvalidMoveException, /No path found for ant move/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(0, 2))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /No path found for ant move/)
+    second_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(1, 1))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, second_move)
+    end.to raise_error(InvalidMoveException, /No path found for ant move/)
+    third_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(0, 0))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, third_move)
+    end.to raise_error(InvalidMoveException, /No path found for ant move/)
+  end
 
-    it 'should forbid moving ant into blocked passage' do
-      board =
-        <<~BOARD
+  it 'should forbid moving ant into blocked passage' do
+    board =
+      <<~BOARD
                ------------
               --------------
              --------RB------
@@ -679,16 +677,16 @@ RSpec.describe GameRuleLogic do
               --------------
                ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(2, 0))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /No path found for ant move/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(2, 0))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /No path found for ant move/)
+  end
 
-    it 'should forbid moving ant around border' do
-      board =
-        <<~BOARD
+  it 'should forbid moving ant around border' do
+    board =
+      <<~BOARD
            ------------
           --------------
          RARQ------------
@@ -701,18 +699,18 @@ RSpec.describe GameRuleLogic do
           --------------
            ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(-2, 5), CubeCoordinates.new(-4, 5))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /No path found for ant move/)
-      second_move = DragMove.new(CubeCoordinates.new(-2, 5), CubeCoordinates.new(-2, 3))
-      expect(GameRuleLogic.valid_move?(gamestate, second_move)).to be true
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(-2, 5), CubeCoordinates.new(-4, 5))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /No path found for ant move/)
+    second_move = DragMove.new(CubeCoordinates.new(-2, 5), CubeCoordinates.new(-2, 3))
+    expect(GameRuleLogic.valid_move?(gamestate, second_move)).to be true
+  end
 
-    it 'should forbid moving ant when disconnecting the swarm' do
-      board =
-        <<~BOARD
+  it 'should forbid moving ant when disconnecting the swarm' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -725,16 +723,16 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(-1, 1))
-      expect do
-        GameRuleLogic.valid_move?(gamestate, move)
-      end.to raise_error(InvalidMoveException, /would disconnect swarm/)
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(0, 2), CubeCoordinates.new(-1, 1))
+    expect do
+      GameRuleLogic.valid_move?(gamestate, move)
+    end.to raise_error(InvalidMoveException, /would disconnect swarm/)
+  end
 
-    it 'validate spider moves' do
-      board =
-        <<~BOARD
+  it 'validate spider moves' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -747,23 +745,23 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      [[2, 1], [-2, 1]].each do |c|
-        valid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
-        expect(GameRuleLogic.valid_move?(gamestate, valid_move)).to be true
-      end
-
-      [[1, 0], [1, 1], [-1, 2], [0, 2], [3, 0], [-1, 0]].each do |c|
-        invalid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
-        expect do
-          GameRuleLogic.valid_move?(gamestate, invalid_move)
-        end.to raise_error(InvalidMoveException, /No path found for spider move/)
-      end
+    state_from_string!(board, gamestate)
+    [[2, 1], [-2, 1]].each do |c|
+      valid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
+      expect(GameRuleLogic.valid_move?(gamestate, valid_move)).to be true
     end
 
-    it 'validate more spider moves' do
-      board =
-        <<~BOARD
+    [[1, 0], [1, 1], [-1, 2], [0, 2], [3, 0], [-1, 0]].each do |c|
+      invalid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, invalid_move)
+      end.to raise_error(InvalidMoveException, /No path found for spider move/)
+    end
+  end
+
+  it 'validate more spider moves' do
+    board =
+      <<~BOARD
               ------------
              --------------
             ----------------
@@ -776,23 +774,23 @@ RSpec.describe GameRuleLogic do
              --------------
               ------------
       BOARD
-      state_from_string!(board, gamestate)
-      [[2, 1], [3, 0], [1, 2], [0, 3]].each do |c|
-        valid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
-        expect(GameRuleLogic.valid_move?(gamestate, valid_move)).to be true
-      end
-
-      [[1, 0, /No path found/], [1, 1, /No path found/], [-1, 2, /allowed to climb/]].each do |c|
-        invalid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
-        expect do
-          GameRuleLogic.valid_move?(gamestate, invalid_move)
-        end.to raise_error(InvalidMoveException, c[2])
-      end
+    state_from_string!(board, gamestate)
+    [[2, 1], [3, 0], [1, 2], [0, 3]].each do |c|
+      valid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
+      expect(GameRuleLogic.valid_move?(gamestate, valid_move)).to be true
     end
 
-    it 'valide edge dragging' do
-      board =
-        <<~BOARD
+    [[1, 0, /No path found/], [1, 1, /No path found/], [-1, 2, /allowed to climb/]].each do |c|
+      invalid_move = DragMove.new(CubeCoordinates.new(0, 1), CubeCoordinates.new(c[0], c[1]))
+      expect do
+        GameRuleLogic.valid_move?(gamestate, invalid_move)
+      end.to raise_error(InvalidMoveException, c[2])
+    end
+  end
+
+  it 'valide edge dragging' do
+    board =
+      <<~BOARD
             ------------
            --------------
           ----------------
@@ -805,8 +803,8 @@ RSpec.describe GameRuleLogic do
            --------------
             ------------
       BOARD
-      state_from_string!(board, gamestate)
-      move = DragMove.new(CubeCoordinates.new(-4, 5), CubeCoordinates.new(-3, 5))
-      expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
-    end
+    state_from_string!(board, gamestate)
+    move = DragMove.new(CubeCoordinates.new(-4, 5), CubeCoordinates.new(-3, 5))
+    expect(GameRuleLogic.valid_move?(gamestate, move)).to be true
+  end
 end

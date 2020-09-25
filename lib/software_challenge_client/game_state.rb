@@ -54,6 +54,7 @@ class GameState
   def field(x, y)
     board.field(x, y)
   end
+
   def self.parse_pieces_string(string, color)
     string.chars.map do |c|
       case c
@@ -158,20 +159,20 @@ class GameState
   # @param player [Player] Der Spieler, dessen Punkte berechnet werden sollen.
   # @return [Integer] Die Punkte des Spielers, entspricht der Anzahl der Fische
   #                   im größten Schwarm des Spielers.
-  def points_for_player(player)
+  def points_for_player(_player)
     # TODO
     -1
   end
 
   def ==(other)
     turn == other.turn &&
-        start_player_color == other.start_player_color &&
-        current_player_color == other.current_player_color &&
-        red == other.red &&
-        blue == other.blue &&
-        board == other.board &&
-        lastMove == other.lastMove &&
-        condition == other.condition
+      start_player_color == other.start_player_color &&
+      current_player_color == other.current_player_color &&
+      red == other.red &&
+      blue == other.blue &&
+      board == other.board &&
+      lastMove == other.lastMove &&
+      condition == other.condition
   end
 
   # Erzeugt eine Kopie des Spielzustandes. Änderungen an dieser Kopie
@@ -190,5 +191,4 @@ class GameState
   def own_fields
     board.fields_of_color(current_player_color)
   end
-
 end

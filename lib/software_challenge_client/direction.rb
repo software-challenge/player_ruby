@@ -1,4 +1,5 @@
 # encoding: utf-8
+# frozen_string_literal: true
 
 require 'typesafe_enum'
 
@@ -30,7 +31,7 @@ class Direction < TypesafeEnum::Base
     shiftX = start.x
     shiftY = start.y
     shiftZ = start.z
-    case self.key
+    case key
     when :RIGHT
       shiftX = start.x + distance
       shiftY = start.y - distance
@@ -50,6 +51,6 @@ class Direction < TypesafeEnum::Base
       shiftX = start.x - distance
       shiftZ = start.z + distance
     end
-    return CubeCoordinates.new(shiftX, shiftY, shiftZ)
+    CubeCoordinates.new(shiftX, shiftY, shiftZ)
   end
 end

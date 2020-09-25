@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 require_relative 'board'
 require_relative 'client_interface'
 require_relative 'network'

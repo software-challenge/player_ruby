@@ -1,8 +1,8 @@
+# frozen_string_literal: true
 require_relative 'has_hints'
 
 # Ein Zug, der einen auf dem Spielbrett befindlichen Spielstein bewegt.
 class DragMove
-
   include HasHints
 
   attr_reader :start

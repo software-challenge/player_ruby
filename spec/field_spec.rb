@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
@@ -6,7 +7,6 @@ include GameStateHelpers
 
 RSpec.describe Field do
   subject(:field) { Field.new(0, 0) }
-
 
   it 'should be possible to add pieces' do
     expect(field.pieces).to be_empty

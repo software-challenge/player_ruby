@@ -1,4 +1,4 @@
-# encoding: UTF-8
+# frozen_string_literal: true
 module SoftwareChallengeClient
   require 'software_challenge_client/version'
   require 'software_challenge_client/logging'

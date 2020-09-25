@@ -1,4 +1,5 @@
 # coding: utf-8
+# frozen_string_literal: true
 require 'logger'
 
 # Dieses Modul kann inkludiert werden, um eine Logausgabe auf der Konsole verwenden zu können.

@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 

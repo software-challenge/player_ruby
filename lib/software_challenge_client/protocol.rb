@@ -50,7 +50,6 @@ class Protocol
     end
   end
 
-
   # called when text is encountered
   def text(text)
     @context[:last_text] = text
@@ -169,13 +168,13 @@ class Protocol
         @gamestate.last_move = SetMove.new(@context[:last_move_start], destination)
       end
     when 'winner'
-    # TODO
-      #winning_player = parsePlayer(attrs)
-      #@gamestate.condition = Condition.new(winning_player, @gamestate.condition.reason)
+      # TODO
+      # winning_player = parsePlayer(attrs)
+      # @gamestate.condition = Condition.new(winning_player, @gamestate.condition.reason)
     when 'score'
       # TODO
       # there are two score tags in the result, but reason attribute should be equal on both
-      #@gamestate.condition = Condition.new(@gamestate.condition.winner, attrs['reason'])
+      # @gamestate.condition = Condition.new(@gamestate.condition.winner, attrs['reason'])
     when 'left'
       logger.debug 'got left event, terminating'
       @network.disconnect
@@ -255,5 +254,4 @@ class Protocol
     end
     builder.target!
   end
-
 end

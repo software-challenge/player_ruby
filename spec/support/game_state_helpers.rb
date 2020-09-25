@@ -9,7 +9,7 @@ module GameStateHelpers
   def state_from_string!(string, gamestate)
     fields = Board.new.field_list.sort do |a, b|
       cmp_z = a.coordinates.z <=> b.coordinates.z
-      cmp_z == 0 ? a.coordinates.x <=> b.coordinates.x : cmp_z
+      cmp_z.zero? ? a.coordinates.x <=> b.coordinates.x : cmp_z
     end.map { |f| { x: f.coordinates.x, y: f.coordinates.y } }
     field_descriptors = string.gsub(/\s/, '')
     board_fields = []
@@ -38,12 +38,12 @@ module GameStateHelpers
                       when '-'
                         Field.new(c[:x], c[:y])
                       else
-                        raise BoardFormatError.new('Unknown field type')
+                        raise BoardFormatError, 'Unknown field type'
                       end
     end
     gamestate.board = Board.new(board_fields)
     PlayerColor.each do |color|
-      gamestate.board.field_list.map{ |f| f.pieces.select{ |p| p.color == color } }.flatten.each do |p|
+      gamestate.board.field_list.map { |f| f.pieces.select { |p| p.color == color } }.flatten.each do |p|
         up = gamestate.undeployed_pieces(color)
         i = up.find_index(p)
         up.delete_at(i) unless i.nil?

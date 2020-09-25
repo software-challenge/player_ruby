@@ -1,5 +1,5 @@
+# frozen_string_literal: true
 class Piece
-
   # @!attribute [r] type
   # @return [PieceType]
   attr_reader :type

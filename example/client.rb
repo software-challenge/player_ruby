@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 require 'software_challenge_client'
 
 # This is an example of a client playing the game using the software challenge
@@ -16,18 +17,18 @@ class Client < ClientInterface
   # gets called, when it's your turn
   def move_requested
     logger.info "Spielstand: #{gamestate.points_for_player(gamestate.current_player)} - #{gamestate.points_for_player(gamestate.other_player)}"
-    logger.debug "Board: #{gamestate.board.to_s}"
+    logger.debug "Board: #{gamestate.board}"
     move = best_move
     logger.debug "Zug gefunden: #{move}" unless move.nil?
     move
   end
 
   def best_move
-    #gamestate.board.add_field(Field.new(5, 0))
-    logger.debug "Berechne zuege fuer Board #{gamestate.board.to_s}"
-    logger.debug "Felder"
+    # gamestate.board.add_field(Field.new(5, 0))
+    logger.debug "Berechne zuege fuer Board #{gamestate.board}"
+    logger.debug 'Felder'
     gamestate.board.field_list.each do |f|
-      if !f.empty?
+      unless f.empty?
         logger.debug "Feld (#{f.x}, #{f.y}) #{f.obstructed ? 'OO' : f.pieces.last.to_s}"
       end
     end

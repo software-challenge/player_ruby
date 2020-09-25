@@ -7,7 +7,6 @@ require_relative 'field'
 
 # Ein Spielbrett fuer Hive
 class Board
-
   include Constants
   # @!attribute [r] fields
   # @note Besser über die {#field} Methode auf Felder zugreifen.
@@ -23,12 +22,12 @@ class Board
   end
 
   # Anzahl der Felder des fuer Hive verwendeten Spielfeldes
-  FIELD_AMOUNT = Board.field_amount((BOARD_SIZE + 1)/2)
+  FIELD_AMOUNT = Board.field_amount((BOARD_SIZE + 1) / 2)
 
   # Erstellt ein neues leeres Spielbrett.
   def initialize(fields = [])
     @fields = Board.empty_game_field
-    fields.each{ |f| add_field(f) }
+    fields.each { |f| add_field(f) }
   end
 
   # @return [Array] leere Felder entsprechend des Spielbrettes angeordnet
@@ -36,7 +35,7 @@ class Board
     fields = []
     (-SHIFT..SHIFT).to_a.each do |x|
       fields[x + SHIFT] ||= []
-      ([-SHIFT, -x-SHIFT].max..[SHIFT, -x+SHIFT].min).to_a.each do |y|
+      ([-SHIFT, -x - SHIFT].max..[SHIFT, -x + SHIFT].min).to_a.each do |y|
         fields[x + SHIFT][y + SHIFT] = Field.new(x, y)
       end
     end
@@ -50,7 +49,7 @@ class Board
 
   # @return [Array] Liste aller Felder
   def field_list
-    @fields.flatten.select{ |e| !e.nil? }
+    @fields.flatten.select { |e| !e.nil? }
   end
 
   # Vergleicht zwei Spielbretter. Gleichheit besteht, wenn zwei Spielbretter die
@@ -93,7 +92,7 @@ class Board
   # @param color [PlayerColor] Die Spielerfarbe
   # @return [Array<Field>] Alle Felder der angegebenen Farbe die das Spielbrett enthält.
   def fields_of_color(color)
-    field_list.select{ |f| f.color == color }
+    field_list.select { |f| f.color == color }
   end
 
   # @return [Array] Liste aller Spielsteine, die auf dem Spielbrett platziert wurden
@@ -114,7 +113,6 @@ class Board
 
   # Gibt eine textuelle Repräsentation des Spielbrettes aus.
   def to_s
-    field_list.sort_by(&:z).map{ |f| f.obstructed ? 'OO' : f.empty? ? '--' : f.pieces.last.to_s }.join
+    field_list.sort_by(&:z).map { |f| f.obstructed ? 'OO' : f.empty? ? '--' : f.pieces.last.to_s }.join
   end
-
 end

@@ -1,4 +1,5 @@
 # encoding: utf-8
+# frozen_string_literal: true
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
@@ -36,7 +37,7 @@ RSpec.describe Protocol do
         <state turn="2" startPlayer="RED" currentPlayer="BLUE">
           <lastMove class="move" x="8" y="9" direction="DOWN"/>
       XML
-      move = Move.new(8,9,Direction::DOWN)
+      move = Move.new(8, 9, Direction::DOWN)
       expect(subject.gamestate.last_move).to eq(move)
     end
   end
@@ -71,8 +72,8 @@ RSpec.describe Protocol do
           <winner displayName="Winning Player" color="BLUE" />
         </data>
       XML
-      expect(subject.gamestate.condition.winner.name).to eq("Winning Player")
-      expect(subject.gamestate.condition.reason).to eq("R2")
+      expect(subject.gamestate.condition.winner.name).to eq('Winning Player')
+      expect(subject.gamestate.condition.reason).to eq('R2')
     end
   end
 
@@ -233,12 +234,12 @@ RSpec.describe Protocol do
       XML
       board = subject.gamestate.board
       expect(board.field_list.size).to eq(Board::FIELD_AMOUNT)
-      expect(board.field(0,0).pieces.size).to eq(2)
-      expect(board.field(0,0).pieces).to eq([Piece.new(PlayerColor::RED, PieceType::ANT), Piece.new(PlayerColor::BLUE, PieceType::BEE)])
-      expect(board.field(-2,4).pieces).to eq([Piece.new(PlayerColor::BLUE, PieceType::GRASSHOPPER)])
-      expect(board.field(-4,2).obstructed).to be true
+      expect(board.field(0, 0).pieces.size).to eq(2)
+      expect(board.field(0, 0).pieces).to eq([Piece.new(PlayerColor::RED, PieceType::ANT), Piece.new(PlayerColor::BLUE, PieceType::BEE)])
+      expect(board.field(-2, 4).pieces).to eq([Piece.new(PlayerColor::BLUE, PieceType::GRASSHOPPER)])
+      expect(board.field(-4, 2).obstructed).to be true
       board.field_list.each do |f|
-        unless [[0,0], [-2, 4], [-4, 2]].include? [f.coordinates.x, f.coordinates.y]
+        unless [[0, 0], [-2, 4], [-4, 2]].include? [f.coordinates.x, f.coordinates.y]
           expect(f).to be_empty
         end
       end
@@ -270,7 +271,7 @@ RSpec.describe Protocol do
   end
 
   it 'converts a skipmove to xml' do
-    move = SkipMove.new()
+    move = SkipMove.new
     # NOTE that this is brittle because XML formatting (whitespace, attribute
     # order) is arbitrary.
     expect(subject.move_to_xml(move)).to eq <<~XML
@@ -278,5 +279,4 @@ RSpec.describe Protocol do
       </data>
     XML
   end
-
 end

@@ -1,4 +1,5 @@
 # encoding: utf-8
+# frozen_string_literal: true
 
 require 'typesafe_enum'
 # Der Typ eines Spielsteins. Es gibt folgende Typen:

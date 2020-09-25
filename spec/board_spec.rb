@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
@@ -27,5 +28,4 @@ RSpec.describe Board do
     c = CubeCoordinates.new(-2, 1)
     expect(board.field_at(c).coordinates).to eq(c)
   end
-
 end

@@ -1,11 +1,11 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
 include GameStateHelpers
 
 RSpec.describe GameState do
-
   subject(:gamestate) { described_class.new }
 
   before do
@@ -62,9 +62,7 @@ RSpec.describe GameState do
     end.not_to raise_error
   end
 
-=begin
-  it 'calculates all possible moves' do
-    expect(gamestate.possible_moves.size).to eq(16 * 3)
-  end
-=end
+  #   it 'calculates all possible moves' do
+  #     expect(gamestate.possible_moves.size).to eq(16 * 3)
+  #   end
 end

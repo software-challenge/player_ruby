@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
@@ -88,5 +89,4 @@ RSpec.describe GameStateHelpers do
     expect(gamestate.undeployed_red_pieces).to match_array(GameState.parse_pieces_string('SSSGBAAA', PlayerColor::RED))
     expect(gamestate.undeployed_blue_pieces).to match_array(GameState.parse_pieces_string('QSSGGBBAA', PlayerColor::BLUE))
   end
-
 end
