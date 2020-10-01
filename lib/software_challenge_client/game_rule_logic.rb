@@ -25,40 +25,47 @@ class GameRuleLogic
   end
 
   def self.is_on_board(coords)
-    shift = (BOARD_SIZE - 1) / 2
-    -shift <= coords.x && coords.x <= shift && -shift <= coords.y && coords.y <= shift
+    coords.x >= 0 && coords.x < BOARD_SIZE && coords.y >= 0 && coords.y < BOARD_SIZE
   end
 
   def self.validate_set_move(gamestate, move)
-    unless is_on_board(move.destination)
-      raise InvalidMoveException.new('Piece has to be placed on board. Destination ${move.destination} is out of bounds.', move)
-    end
-    unless gamestate.board.field_at(move.destination).empty?
-      raise InvalidMoveException.new('Set destination is not empty!', move)
+    owned_fields = gamestate.board.fields_of_color(gamestate.current_player_color)
+    other_player_fields = gamestate.board.fields_of_color(gamestate.other_player_color)
+    corner = false
+
+    unless gamestate.undeployed_pieces(gamestate.current_player_color).include?(move.piece)
+      raise InvalidMoveException.new('Piece is not a undeployed piece of the current player', move)
     end
 
-    owned_fields = gamestate.board.fields_of_color(gamestate.current_player_color)
-    if owned_fields.empty?
-      other_player_fields = gamestate.board.fields_of_color(gamestate.other_player_color)
+    move.piece.shape.each { |coords| 
+      dest = Coordinates.new(coords.x + move.destination.x, coords.y + move.destination.y)
+      unless is_on_board(dest)
+        raise InvalidMoveException.new('Destination ${move.destination} is out of bounds!', move)
+      end
+
+      unless gamestate.board.field_at(dest).empty?
+        raise InvalidMoveException.new('Set destination is not empty!', move)
+      end
+
       unless other_player_fields.empty?
-        unless other_player_fields.map { |of| get_neighbours(gamestate.board, of.coordinates).map(&:coordinates) }.flatten.include?(move.destination)
-          raise InvalidMoveException.new('Piece has to be placed next to other players piece', move)
+        if other_player_fields.map { |of| get_4neighbours(gamestate.board, of.coordinates).map(&:coordinates) }.flatten.include?(move.dest)
+          raise InvalidMoveException.new('Piece can not touch other players pieces!', move)
         end
       end
-    else
-      unless gamestate.undeployed_pieces(gamestate.current_player_color).include?(move.piece)
-        raise InvalidMoveException.new('Piece is not a undeployed piece of the current player', move)
+
+      unless owned_fields.empty?
+        if owned_fields.map { |of| get_4neighbours(gamestate.board, of.coordinates).map(&:coordinates) }.flatten.include?(move.dest)
+          raise InvalidMoveException.new('Piece can not touch your already placed pieces!', move)
+        end
       end
 
-      destination_neighbours = get_neighbours(gamestate.board, move.destination)
-      unless destination_neighbours.any? { |f| f.color == gamestate.current_player_color }
-        raise InvalidMoveException.new('A newly placed piece must touch an own piece', move)
+      if get_8neighbours(gamestate.board, move.destination).any? { |f| f.color == gamestate.current_player_color 
+        && get_4neighbours(gamestate.board, f).all? { |n| f.color == nil } }
+        corner = true
       end
-      if destination_neighbours.any? { |f| f.color == gamestate.other_player_color }
-        raise InvalidMoveException.new("A newly placed is not allowed to touch an opponent's piece", move)
-      end
-    end
-    true
+    }
+
+    corner
   end
 
   def self.validate_skip_move(gamestate, move)
