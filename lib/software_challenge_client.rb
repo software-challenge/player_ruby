@@ -16,10 +16,10 @@ module SoftwareChallengeClient
   require 'software_challenge_client/skip_move'
   require 'software_challenge_client/network'
   require 'software_challenge_client/player'
-  require 'software_challenge_client/player_color'
+  require 'software_challenge_client/color'
   require 'software_challenge_client/protocol'
   require 'software_challenge_client/runner'
   require 'software_challenge_client/game_rule_logic'
   require 'software_challenge_client/direction'
-  require 'software_challenge_client/cube_coordinates'
+  require 'software_challenge_client/coordinates'
 end

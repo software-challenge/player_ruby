@@ -33,9 +33,11 @@ RSpec.describe GameStateHelpers do
       BOARD
     state_from_string!(board, gamestate)
     expect(gamestate.board.field(0, 0)).to be_a(Field)
-    expect(gamestate.board.field(0, 0).pieces.size).to eq(1)
-    expect(gamestate.board.field(0, 0).pieces.first.color).to eq(PlayerColor::RED)
-    expect(gamestate.board.field(0, 0).pieces.first.type).to eq(PieceType::BEE)
+    expect(gamestate.board.field(0, 0).color).to eq(Color::RED)
+    expect(gamestate.board.field(1, 0)).to be_a(Field)
+    expect(gamestate.board.field(1, 0).color).to be_nil
+    expect(gamestate.board.field(19, 0)).to be_a(Field)
+    expect(gamestate.board.field(19, 0).color).to eq(Color::BLUE)
   end
   it 'raises an error on illegal format' do
     board =

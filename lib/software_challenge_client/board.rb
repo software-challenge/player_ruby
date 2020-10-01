@@ -11,18 +11,8 @@ class Board
   # @!attribute [r] fields
   # @note Besser über die {#field} Methode auf Felder zugreifen.
   # @return [Array<Array<Field>>] Ein Feld wird an der Position entsprechend
-  #   seiner x und y CubeCoordinates im Array gespeichert.
+  #   seiner x und y Coordinates im Array gespeichert.
   attr_reader :fields
-
-  # Anzahl der Felder eines hexagonalen Spielfeldes
-  # @param radius [Integer] Radius des Spielfeldes
-  def self.field_amount(radius)
-    return 1 if radius == 1
-    (radius - 1) * 6 + Board.field_amount(radius - 1)
-  end
-
-  # Anzahl der Felder des fuer Hive verwendeten Spielfeldes
-  FIELD_AMOUNT = Board.field_amount((BOARD_SIZE + 1) / 2)
 
   # Erstellt ein neues leeres Spielbrett.
   def initialize(fields = [])
@@ -32,14 +22,11 @@ class Board
 
   # @return [Array] leere Felder entsprechend des Spielbrettes angeordnet
   def self.empty_game_field
-    fields = []
-    (-SHIFT..SHIFT).to_a.each do |x|
-      fields[x + SHIFT] ||= []
-      ([-SHIFT, -x - SHIFT].max..[SHIFT, -x + SHIFT].min).to_a.each do |y|
-        fields[x + SHIFT][y + SHIFT] = Field.new(x, y)
+    (0...BOARD_SIZE).to_a.map do |x|
+      (0...BOARD_SIZE).to_a.map do |y|
+        Field.new(x, y)
       end
     end
-    fields
   end
 
   # Entfernt alle Felder des Spielfeldes
@@ -49,7 +36,7 @@ class Board
 
   # @return [Array] Liste aller Felder
   def field_list
-    @fields.flatten.select { |e| !e.nil? }
+    @fields.flatten.reject(&:nil?)
   end
 
   # Vergleicht zwei Spielbretter. Gleichheit besteht, wenn zwei Spielbretter die
@@ -58,26 +45,27 @@ class Board
     field_list == other.field_list
   end
 
-  # Fügt ein Feld dem Spielbrett hinzu. Das übergebene Feld ersetzt das an den Koordinaten bestehende Feld.
+  # Fügt ein Feld dem Spielbrett hinzu. Das übergebene Feld ersetzt das an den
+  # Koordinaten bestehende Feld.
   #
   # @param field [Field] Das einzufügende Feld.
   def add_field(field)
-    @fields[field.x + SHIFT][field.y + SHIFT] = field
+    @fields[field.x][field.y] = field
   end
 
   # Zugriff auf die Felder des Spielfeldes
   #
   # @param x [Integer] Die X-Koordinate des Feldes.
   # @param y [Integer] Die Y-Koordinate des Feldes.
-  # @return [Field] Das Feld mit den gegebenen Koordinaten. Falls das Feld nicht exisitert, wird nil zurückgegeben.
+  # @return [Field] Das Feld mit den gegebenen Koordinaten. Falls das Feld nicht
+  #                 exisitert, wird nil zurückgegeben.
   def field(x, y)
-    return nil if (x < -SHIFT) || (y < -SHIFT)
-    fields.dig(x + SHIFT, y + SHIFT) # NOTE that #dig requires ruby 2.3+
+    fields.dig(x, y) # NOTE that #dig requires ruby 2.3+
   end
 
   # Zugriff auf die Felder des Spielfeldes über ein Koordinaten-Paar.
   #
-  # @param coordinates [CubeCoordinates] X- und Y-Koordinate als Paar, sonst wie
+  # @param coordinates [Coordinates] X- und Y-Koordinate als Paar, sonst wie
   # bei {Board#field}.
   #
   # @return [Field] Wie bei {Board#field}.
@@ -87,25 +75,6 @@ class Board
     field(coordinates.x, coordinates.y)
   end
 
-  # Liefert alle Felder die dem Spieler mit der gegebenen Farbe gehoeren
-  #
-  # @param color [PlayerColor] Die Spielerfarbe
-  # @return [Array<Field>] Alle Felder der angegebenen Farbe die das Spielbrett enthält.
-  def fields_of_color(color)
-    field_list.select { |f| f.color == color }
-  end
-
-  # @return [Array] Liste aller Spielsteine, die auf dem Spielbrett platziert wurden
-  def pieces
-    field_list.map(&:pieces).flatten
-  end
-
-  # @param [PlayerColor] Spielerfarbe
-  # @return [Array] Liste aller Spielsteine eines Spielers, die auf dem Spielbrett platziert wurden
-  def deployed_pieces(color)
-    pieces.select { |p| p.color == color }
-  end
-
   # @return eine unabhaengige Kopie des Spielbretts
   def clone
     Marshal.load(Marshal.dump(self))
@@ -113,6 +82,10 @@ class Board
 
   # Gibt eine textuelle Repräsentation des Spielbrettes aus.
   def to_s
-    field_list.sort_by(&:z).map { |f| f.obstructed ? 'OO' : f.empty? ? '--' : f.pieces.last.to_s }.join
+    (0...BOARD_SIZE).to_a.map do |x|
+      (0...BOARD_SIZE).to_a.map do |y|
+        @fields[x][y].to_s
+      end.join(' ')
+    end.join("\n")
   end
 end
