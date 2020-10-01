@@ -1,4 +1,3 @@
-# encoding: utf-8
 # frozen_string_literal: true
 
 require_relative './util/constants'
@@ -15,29 +14,36 @@ class GameState
   # @!attribute [rw] turn
   # @return [Integer] Aktuelle Zugnummer (von 0 beginnend)
   attr_accessor :turn
-  # @!attribute [rw] start_player_color
-  # @return [PlayerColor] Die Farbe des Spielers, der den ersten Zug im Spiel
-  #                       machen darf.
-  attr_accessor :start_player_color
-  # @!attribute [rw] current_player_color
-  # @return [PlayerColor] Die Farbe des Spielers, der den nächsten Zug machen
-  #                       darf, der also gerade an der Reihe ist.
-  attr_accessor :current_player_color
-
-  # @!attribute [r] undeployed_red_pieces
-  # @return [Player] Die nicht gesetzten Spielsteine des roten Spielers
-  attr_accessor :undeployed_red_pieces
+  # @!attribute [rw] start_color
+  # @return [Color] Die Farbe, die den ersten Zug im Spiel machen darf.
+  attr_accessor :start_color
+  # @!attribute [rw] current_color
+  # @return [Color] Die Farbe, die den nächsten Zug machen darf, also
+  #                       gerade an der Reihe ist.
+  attr_accessor :current_color
 
   # @!attribute [r] undeployed_blue_pieces
-  # @return [Player] Die nicht gesetzten Spielsteine des roten Spielers
+  # @return [Array<PieceShape>] Die blauen, nicht gesetzten Spielsteine
   attr_accessor :undeployed_blue_pieces
 
-  # @!attribute [r] red
-  # @return [Player] Der rote Spieler
-  attr_reader :red
-  # @!attribute [r] blue
-  # @return [Player] Der blaue Spieler
-  attr_reader :blue
+  # @!attribute [r] undeployed_yellow_pieces
+  # @return [Array<PieceShape>] Die gelben, nicht gesetzten Spielsteine
+  attr_accessor :undeployed_yellow_pieces
+
+  # @!attribute [r] undeployed_red_pieces
+  # @return [Array<PieceShape>] Die roten, nicht gesetzten Spielsteine
+  attr_accessor :undeployed_red_pieces
+
+  # @!attribute [r] undeployed_green_pieces
+  # @return [Array<PieceShape>] Die grünen, nicht gesetzten Spielsteine
+  attr_accessor :undeployed_green_pieces
+
+  # @!attribute [r] player_one
+  # @return [Player] Der erste Spieler
+  attr_reader :player_one
+  # @!attribute [r] player_two
+  # @return [Player] Der zweite Spieler
+  attr_reader :player_two
   # @!attribute [rw] board
   # @return [Board] Das aktuelle Spielbrett
   attr_accessor :board
@@ -55,30 +61,15 @@ class GameState
     board.field(x, y)
   end
 
-  def self.parse_pieces_string(string, color)
-    string.chars.map do |c|
-      case c
-      when 'Q'
-        Piece.new(color, PieceType::BEE)
-      when 'S'
-        Piece.new(color, PieceType::SPIDER)
-      when 'G'
-        Piece.new(color, PieceType::GRASSHOPPER)
-      when 'B'
-        Piece.new(color, PieceType::BEETLE)
-      when 'A'
-        Piece.new(color, PieceType::ANT)
-      end
-    end
-  end
-
   def initialize
-    @current_player_color = PlayerColor::RED
-    @start_player_color = PlayerColor::RED
+    @current_player_color = Color::RED
+    @start_player_color = Color::RED
     @board = Board.new
     @turn = 0
-    @undeployed_red_pieces = GameState.parse_pieces_string(Constants::STARTING_PIECES, PlayerColor::RED)
-    @undeployed_blue_pieces = GameState.parse_pieces_string(Constants::STARTING_PIECES, PlayerColor::BLUE)
+    @undeployed_blue_pieces = PieceShape.to_a
+    @undeployed_yellow_pieces = PieceShape.to_a
+    @undeployed_red_pieces = PieceShape.to_a
+    @undeployed_green_pieces = PieceShape.to_a
   end
 
   # Fügt einen Spieler zum Spielzustand hinzu.
@@ -157,8 +148,7 @@ class GameState
   # Rundenlimits beendet wird, hat der Spieler mit den meisten Punkten gewonnen.
   #
   # @param player [Player] Der Spieler, dessen Punkte berechnet werden sollen.
-  # @return [Integer] Die Punkte des Spielers, entspricht der Anzahl der Fische
-  #                   im größten Schwarm des Spielers.
+  # @return [Integer] Die Punkte des Spielers
   def points_for_player(_player)
     # TODO
     -1
@@ -166,10 +156,12 @@ class GameState
 
   def ==(other)
     turn == other.turn &&
-      start_player_color == other.start_player_color &&
-      current_player_color == other.current_player_color &&
-      red == other.red &&
+      start_color == other.start_color &&
+      current_color == other.current_color &&
       blue == other.blue &&
+      yellow == other.yellow &&
+      red == other.red &&
+      green == other.green &&
       board == other.board &&
       lastMove == other.lastMove &&
       condition == other.condition
