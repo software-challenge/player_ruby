@@ -8,7 +8,7 @@ class Player
   attr_reader :name
 
   # @!attribute [r] color
-  # @return [PlayerColor] die Farbe des Spielers, Rot oder Blau
+  # @return [PlayerColor] die Farbe des Spielers, Rot, Blau, Gelb, Grün
   attr_reader :color
 
   # Konstruktor

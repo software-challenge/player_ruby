@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 class Piece
   # @!attribute [r] type
-  # @return [PieceType]
-  attr_reader :type
+  # @return [PieceShape]
+  attr_reader :shape
 
   # @!attribute [r] color
   # @return [PlayerColor]
   attr_reader :color
 
-  def initialize(color, type)
-    @type = type
+  def initialize(color, shape)
+    @type = shape
     @color = color
   end
 
   def ==(other)
-    type == other.type && color == other.color
+    shape == other.shape && color == other.color
   end
 
   def owner
@@ -22,7 +22,7 @@ class Piece
   end
 
   def to_s
-    color.value + type.value
+    color.value + shape.value
   end
 
   def inspect

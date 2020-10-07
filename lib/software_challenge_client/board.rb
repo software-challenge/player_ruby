@@ -5,7 +5,7 @@ require_relative './util/constants'
 require_relative 'game_state'
 require_relative 'field'
 
-# Ein Spielbrett fuer Hive
+# Ein Spielbrett fuer Blokus
 class Board
   include Constants
   # @!attribute [r] fields
