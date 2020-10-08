@@ -1,6 +1,5 @@
-# encoding: utf-8
 # frozen_string_literal: true
-# piece color constants
+
 require 'typesafe_enum'
 
 # Die Spielsteinfarben. BLUE, YELLOW, RED und GREEN

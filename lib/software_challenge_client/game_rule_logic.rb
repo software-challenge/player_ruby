@@ -37,7 +37,7 @@ class GameRuleLogic
       raise InvalidMoveException.new('Piece is not a undeployed piece of the current player', move)
     end
 
-    move.piece.shape.each { |coords| 
+    move.piece.shape.each { |coords|
       dest = Coordinates.new(coords.x + move.destination.x, coords.y + move.destination.y)
       unless is_on_board(dest)
         raise InvalidMoveException.new('Destination ${move.destination} is out of bounds!', move)
@@ -59,8 +59,13 @@ class GameRuleLogic
         end
       end
 
-      if get_8neighbours(gamestate.board, move.destination).any? { |f| f.color == gamestate.current_player_color 
-        && get_4neighbours(gamestate.board, f).all? { |n| f.color == nil } }
+      if get_8neighbours(
+           gamestate.board,
+           move.destination
+         ).any? {|f|
+           f.color == gamestate.current_player_color &&
+             get_4neighbours(gamestate.board, f).all? { |n| f.color == nil }
+         }
         corner = true
       end
     }
@@ -100,6 +105,7 @@ class GameRuleLogic
       possible_set_moves(gamestate) + SkipMove.new()
     else
       possible_set_moves(gamestate)
+    end
   end
 
   # Gibt alle möglichen lege Züge zurück

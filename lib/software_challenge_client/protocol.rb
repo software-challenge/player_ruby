@@ -3,7 +3,6 @@
 require 'socket'
 require_relative 'board'
 require_relative 'set_move'
-require_relative 'drag_move'
 require_relative 'skip_move'
 require_relative 'player'
 require_relative 'network'

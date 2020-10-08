@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors       = File.readlines('AUTHORS').select { |l| l[' <'] }.map { |l| l.match(/^(.*) *</)[1] }
   spec.email         = File.readlines('AUTHORS').select { |l| l[' <'] }.map { |l| l.match(/<(.*)>/)[1] }
 
-  spec.summary       = 'This gem provides functions to build a client for the coding competition Software-Challenge 2017.'
+  spec.summary       = 'Provides functions to build a client for the coding competition Software-Challenge Germany.'
   spec.description   = ''
   spec.homepage      = 'http://www.software-challenge.de'
 
@@ -20,21 +20,22 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.required_ruby_version = '>= 2.3'
-  spec.add_dependency 'typesafe_enum'
   spec.add_dependency 'builder'
+  spec.add_dependency 'typesafe_enum'
 
   spec.add_development_dependency 'bundler', '>= 1.10'
-  spec.add_development_dependency 'rake', '>= 10.0'
-  spec.add_development_dependency 'yard', '>= 0.8'
-  spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'fuubar'
-  spec.add_development_dependency 'rubocop'
-  spec.add_development_dependency 'rubocop-rspec'
   spec.add_development_dependency 'guard'
   spec.add_development_dependency 'guard-rspec'
   spec.add_development_dependency 'guard-rubocop'
   spec.add_development_dependency 'pry'
-  spec.add_development_dependency 'pry-rescue'
-  spec.add_development_dependency 'pry-coolline'
   spec.add_development_dependency 'pry-byebug'
+  spec.add_development_dependency 'pry-coolline'
+  spec.add_development_dependency 'pry-rescue'
+  spec.add_development_dependency 'rake', '>= 10.0'
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'rubocop-rspec'
+  spec.add_development_dependency 'solargraph'
+  spec.add_development_dependency 'yard', '>= 0.8'
 end

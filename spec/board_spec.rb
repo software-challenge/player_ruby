@@ -26,5 +26,6 @@ RSpec.describe Board do
   it 'should have fields with correct coordinates' do
     c = Coordinates.new(3, 1)
     expect(board.field_at(c).coordinates).to eq(c)
+    expect(board.fields[3][1].coordinates).to eq(c)
   end
 end

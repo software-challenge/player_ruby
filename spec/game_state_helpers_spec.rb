@@ -39,6 +39,7 @@ RSpec.describe GameStateHelpers do
     expect(gamestate.board.field(19, 0)).to be_a(Field)
     expect(gamestate.board.field(19, 0).color).to eq(Color::BLUE)
   end
+
   it 'raises an error on illegal format' do
     board =
       <<~BOARD

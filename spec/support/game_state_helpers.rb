@@ -1,53 +1,35 @@
 # frozen_string_literal: true
 
 require_relative '../../lib/software_challenge_client/util/constants'
+require_relative '../../lib/software_challenge_client/color'
 
 module GameStateHelpers
+  include Constants
+
   class BoardFormatError < StandardError
   end
 
+  def field_from_descriptor(coordinates, descriptor)
+    color = if descriptor == '_'
+              nil
+            else
+              unless Color.to_a.map(&:value).include? descriptor
+                raise BoardFormatError.new("unknown field descriptor #{descriptor}")
+              end
+
+              Color.find_by_value(descriptor)
+            end
+    Field.new(coordinates.x, coordinates.y, color)
+  end
+
+  # NOTE that this currently does not update undeployed pieces!
   def state_from_string!(string, gamestate)
-    fields = Board.new.field_list.sort do |a, b|
-      cmp_z = a.coordinates.z <=> b.coordinates.z
-      cmp_z.zero? ? a.coordinates.x <=> b.coordinates.x : cmp_z
-    end.map { |f| { x: f.coordinates.x, y: f.coordinates.y } }
+    fields = Board.new.field_list
     field_descriptors = string.gsub(/\s/, '')
     board_fields = []
-    fields.each_with_index do |c, i|
-      board_fields << case field_descriptors[i * 2]
-                      when 'R'
-                        Field.new(
-                          c[:x],
-                          c[:y],
-                          [Piece.new(PlayerColor::RED,
-                                     PieceType.find_by_value(
-                                       field_descriptors[i * 2 + 1]
-                                     ))]
-                        )
-                      when 'B'
-                        Field.new(
-                          c[:x],
-                          c[:y],
-                          [Piece.new(PlayerColor::BLUE,
-                                     PieceType.find_by_value(
-                                       field_descriptors[i * 2 + 1]
-                                     ))]
-                        )
-                      when 'O'
-                        Field.new(c[:x], c[:y], [], true)
-                      when '-'
-                        Field.new(c[:x], c[:y])
-                      else
-                        raise BoardFormatError, 'Unknown field type'
-                      end
+    fields.each do |field|
+      board_fields << field_from_descriptor(field.coordinates, field_descriptors[field.y * BOARD_SIZE + field.x])
     end
     gamestate.board = Board.new(board_fields)
-    PlayerColor.each do |color|
-      gamestate.board.field_list.map { |f| f.pieces.select { |p| p.color == color } }.flatten.each do |p|
-        up = gamestate.undeployed_pieces(color)
-        i = up.find_index(p)
-        up.delete_at(i) unless i.nil?
-      end
-    end
   end
 end

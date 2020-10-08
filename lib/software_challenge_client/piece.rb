@@ -1,28 +1,45 @@
 # frozen_string_literal: true
-class Piece
-  # @!attribute [r] type
-  # @return [PieceShape]
-  attr_reader :shape
 
-  # @!attribute [r] color
+# Ein Spielstein mit Ausrichtung, Koordinaten und Farbe
+class Piece
+  # @!attribute [r] Farbe
   # @return [PlayerColor]
   attr_reader :color
 
-  def initialize(color, shape)
-    @type = shape
+  # @!attribute [r] Form
+  # @return [PieceShape]
+  attr_reader :kind
+
+  # @!attribute [r] Drehung
+  # @return [Rotation]
+  attr_reader :rotation
+
+  # @!attribute [r] Ob der Stein an der Y-Achse gespiegelt ist
+  # @return [Boolean]
+  attr_reader :is_flipped
+
+  # @!attribute [r] Koordinaten
+  # @return [Coordinates]
+  attr_reader :position
+
+  def initialize(color, kind, rotation = Rotation::NONE, is_flipped = false, position = Coordinates.origin)
     @color = color
+    @kind = kind
+    @rotation = rotation
+    @is_flipped = is_flipped
+    @position = position
   end
 
   def ==(other)
-    shape == other.shape && color == other.color
-  end
-
-  def owner
-    color
+    color == other.color &&
+      kind == other.kind &&
+      rotation == other.rotation &&
+      is_flipped == other.is_flipped &&
+      position == other.position
   end
 
   def to_s
-    color.value + shape.value
+    "#{color.key} #{kind.key} at #{position} rotation #{rotation.key}#{is_flipped ? ' (flipped)' : ''}"
   end
 
   def inspect

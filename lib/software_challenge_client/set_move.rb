@@ -1,15 +1,19 @@
 # frozen_string_literal: true
+
 require_relative 'has_hints'
 
+# Ein SetMove platziert einen Stein auf dem Spielbrett
 class SetMove
   include HasHints
 
   attr_reader :piece
-  attr_reader :destination
 
-  def initialize(piece, destination)
+  def initialize(piece)
     @piece = piece
-    @destination = destination
     @hints = []
+  end
+
+  def ==(other)
+    piece == other.piece
   end
 end
