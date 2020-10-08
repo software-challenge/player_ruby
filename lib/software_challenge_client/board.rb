@@ -14,6 +14,22 @@ class Board
   #   seiner x und y Coordinates im Array gespeichert.
   attr_reader :fields
 
+  # @!attribute [r] deployed_blue_pieces
+  # @return [Array<PieceShape>] Die blauen, gesetzten Spielsteine
+  attr_accessor :deployed_blue_pieces
+
+  # @!attribute [r] deployed_yellow_pieces
+  # @return [Array<PieceShape>] Die gelben, gesetzten Spielsteine
+  attr_accessor :deployed_yellow_pieces
+
+  # @!attribute [r] deployed_red_pieces
+  # @return [Array<PieceShape>] Die roten, gesetzten Spielsteine
+  attr_accessor :deployed_red_pieces
+
+  # @!attribute [r] deployed_green_pieces
+  # @return [Array<PieceShape>] Die grünen, gesetzten Spielsteine
+  attr_accessor :deployed_green_pieces
+
   # Erstellt ein neues leeres Spielbrett.
   def initialize(fields = [])
     @fields = Board.empty_game_field
@@ -73,6 +89,19 @@ class Board
   # @see #field
   def field_at(coordinates)
     field(coordinates.x, coordinates.y)
+  end
+
+  def deployed_pieces(color)
+    case color
+    when Color::RED
+      deployed_red_pieces
+    when Color::BLUE
+      deployed_blue_pieces
+    when Color::YELLOW
+      deployed_yellow_pieces
+    when Color::GREEN
+      deployed_green_pieces
+    end
   end
 
   # @return eine unabhaengige Kopie des Spielbretts

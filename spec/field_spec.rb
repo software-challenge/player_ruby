@@ -15,4 +15,14 @@ RSpec.describe Field do
     field.color = Color::YELLOW
     expect(field).to_not be_empty
   end
+
+  it 'has coordinates' do
+    expect(field.x).to eq(0)
+    expect(field.y).to eq(0)
+  end
+
+  it 'is comparable' do
+    field.color = Color::RED
+    expect(field).to eq(Field.new(0, 0, Color::RED))
+  end
 end

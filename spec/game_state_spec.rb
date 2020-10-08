@@ -11,35 +11,43 @@ RSpec.describe GameState do
   before do
     board =
       <<~BOARD
-            ------------
-           --------------
-          ----------------
-         ------------------
-        --------------------
-       ----------RQ----------
-        --------------------
-         ------------------
-          ----------------
-           --------------
-            ------------
+        R _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ B B
+        R _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ B
+        R R _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ B
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        G _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ Y
+        G G G _ _ _ _ _ _ _ _ _ _ _ _ _ _ Y Y Y
       BOARD
     state_from_string!(board, gamestate)
   end
 
   it 'holds the board' do
-    expect(subject.field(0, 0)).to eq(Field.new(0, 0, [Piece.new(PlayerColor::RED, PieceType::BEE)], false))
+    expect(subject.field(0, 0)).to eq(Field.new(0, 0, Color::RED))
   end
 
   it 'is clonable' do
     clone = gamestate.clone
     clone.turn += 1
-    clone.board.add_field(Field.new(0, 0, [], true))
-    clone.current_player_color = PlayerColor::BLUE
-    # if clone is not independent, changes should also affect the original
-    # gamestate
+    clone.board.add_field(Field.new(0, 0, Color::BLUE))
+    clone.current_color = Color::BLUE
+    # if clone is independent, changes will not affect the original gamestate
     expect(gamestate.turn).to_not eq(clone.turn)
     expect(gamestate.board.field(0, 0)).to_not eq(clone.board.field(0, 0))
-    expect(gamestate.current_player_color).to_not eq(clone.current_player_color)
+    expect(gamestate.current_color).to_not eq(clone.current_color)
   end
 
   it 'returns all own fields' do
@@ -51,13 +59,16 @@ RSpec.describe GameState do
       move = SkipMove.new
       gamestate.perform!(move)
     end.not_to raise_error(NoMethodError)
-    upr = gamestate.undeployed_pieces(PlayerColor::RED).size
     expect do
-      move = SetMove.new(gamestate.undeployed_pieces(PlayerColor::RED).first, CubeCoordinates.new(1, 0))
-      gamestate.perform!(move)
-    end.not_to raise_error
-    expect do
-      move = DragMove.new(CubeCoordinates.new(0, 0), CubeCoordinates.new(1, -1))
+      move = SetMove.new(
+        Piece.new(
+          Color::RED,
+          gamestate.undeployed_pieces(Color::RED).first,
+          Rotation::NONE,
+          false,
+          Coordinates.new(1, 0)
+        )
+      )
       gamestate.perform!(move)
     end.not_to raise_error
   end

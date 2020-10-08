@@ -47,6 +47,9 @@ class GameState
   # @!attribute [rw] board
   # @return [Board] Das aktuelle Spielbrett
   attr_accessor :board
+  # @!attribute [rw] startPiece
+  # @return [PieceShape] Der Stein, der im ersten Zug von allen Farben gelegt werden muss
+  attr_accessor :start_piece
   # @!attribute [rw] last_move
   # @return [Move] Der zuletzt gemachte Zug (ist nil vor dem ersten Zug, also
   #                bei turn == 0)
@@ -62,24 +65,25 @@ class GameState
   end
 
   def initialize
-    @current_player_color = Color::RED
-    @start_player_color = Color::RED
+    @current_color = Color::RED
+    @start_color = Color::RED
     @board = Board.new
     @turn = 0
     @undeployed_blue_pieces = PieceShape.to_a
     @undeployed_yellow_pieces = PieceShape.to_a
     @undeployed_red_pieces = PieceShape.to_a
     @undeployed_green_pieces = PieceShape.to_a
+    @start_piece = GameRuleLogic.get_random_pentomino
   end
 
   # Fügt einen Spieler zum Spielzustand hinzu.
   #
   # @param player [Player] Der hinzuzufügende Spieler.
   def add_player(player)
-    if player.color == PlayerColor::RED
-      @red = player
-    elsif player.color == PlayerColor::BLUE
-      @blue = player
+    if player.color == PlayerType::ONE
+      @player_one = player
+    elsif player.color == PlayerType::TWO
+      @player_two = player
     end
   end
 
@@ -107,10 +111,14 @@ class GameState
 
   def undeployed_pieces(color)
     case color
-    when PlayerColor::RED
+    when Color::RED
       undeployed_red_pieces
-    when PlayerColor::BLUE
+    when Color::BLUE
       undeployed_blue_pieces
+    when Color::YELLOW
+      undeployed_yellow_pieces
+    when Color::GREEN
+      undeployed_green_pieces
     end
   end
 

@@ -16,7 +16,7 @@ class Field
   #
   # @param x [Integer] X-Koordinate
   # @param y [Integer] Y-Koordinate
-  # @param pieces [Array<Piece>] Spielsteine auf dem Feld
+  # @param color [Color] Farbe des Spielsteins, der das Feld überdeckt, nil falls kein Spielstein es überdeckt
   def initialize(x, y, color = nil)
     @color = color
     @coordinates = Coordinates.new(x, y)

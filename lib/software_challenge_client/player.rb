@@ -7,15 +7,15 @@ class Player
   # @return [String] der Name des Spielers, hat keine Auswirkungen auf das Spiel
   attr_reader :name
 
-  # @!attribute [r] color
-  # @return [PlayerColor] die Farbe des Spielers, Rot, Blau, Gelb, Grün
-  attr_reader :color
+  # @!attribute [r] type
+  # @return [PlayerType] erster (PlayerType::ONE) oder zweiter (PlayerType::TWO) Spieler
+  attr_reader :type
 
   # Konstruktor
-  # @param color [PlayerColor] Farbe
+  # @param type [PlayerType] Erster oder zweiter
   # @param name [String] Name
-  def initialize(color, name)
-    @color = color
+  def initialize(type, name)
+    @type = type
     @name = name
   end
 
