@@ -19,8 +19,12 @@ class GameState
   attr_accessor :start_color
   # @!attribute [rw] current_color
   # @return [Color] Die Farbe, die den nächsten Zug machen darf, also
-  #                       gerade an der Reihe ist.
+  #                 gerade an der Reihe ist.
   attr_accessor :current_color
+  # @!attribute [rw] ordered_colors
+  # @return [Array<Color>] Ein Array aller Farben die ziehen können in 
+  #                        der Reihenfolge in der sie drankommen
+  attr_accessor :ordered_colors
 
   # @!attribute [r] undeployed_blue_pieces
   # @return [Array<PieceShape>] Die blauen, nicht gesetzten Spielsteine
@@ -138,6 +142,10 @@ class GameState
   #                   laufenden Spielen.
   def game_ended?
     !condition.nil?
+  end
+
+  def remove_active_color
+    ordered_colors.delete current_color
   end
 
   # @return [Player] Der Spieler, der das Spiel gewonnen hat, falls dies schon
