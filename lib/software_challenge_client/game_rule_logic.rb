@@ -6,7 +6,8 @@ require_relative 'invalid_move_exception'
 
 # Methoden, welche die Spielregeln von Blokus abbilden.
 #
-# Es gibt hier viele Helfermethoden, die von den beiden Hauptmethoden {GameRuleLogic#valid_move?} und {GameRuleLogic.possible_moves} benutzt werden.
+# Es gibt hier viele Helfermethoden, die von den beiden Hauptmethoden {GameRuleLogic#valid_move?} 
+# und {GameRuleLogic.possible_moves} benutzt werden.
 class GameRuleLogic
   include Constants
 
@@ -39,7 +40,7 @@ class GameRuleLogic
   # Führe den gegebenen [Move] im gebenenen [GameState] aus.
   # @param gamestate der aktuelle Spielstand
   # @param move der auszuführende Zug
-  def perform_move(gamestate, move)
+  def self.perform_move(gamestate, move)
     validate_move_color(gamestate, move)
     case move
     when SkipMove
@@ -51,14 +52,14 @@ class GameRuleLogic
   end
 
   # Check if the given [move] has the right [Color].
-  def validate_move_color(gamestate, move)
+  def self.validate_move_color(gamestate, move)
     if move.color != gamestate.current_color then
       raise InvalidMoveException.new("Expected move from #{gamestate.current_color}", move)
     end
   end
 
   # Check if the given [move] is able to be performed for the given [gamestate]. */
-  def validate_set_move(gamestate, move)
+  def self.validate_set_move(gamestate, move)
     # Check whether the color's move is currently active
     validate_move_color(gamestate, move)
     # Check whether the shape is valid
@@ -80,7 +81,7 @@ class GameRuleLogic
   end
 
   # Perform the given [SetMove].
-  def perform_set_move(gamestate, move)
+  def self.perform_set_move(gamestate, move)
     validate_set_move(gamestate, move)
 
     perform_set_move(gamestate.board, move)
@@ -96,7 +97,7 @@ class GameRuleLogic
   end
 
   # Validate the [PieceShape] of a [SetMove] depending on the current [GameState].
-  def validate_shape(gamestate, shape, color = gamestate.current_color)
+  def self.validate_shape(gamestate, shape, color = gamestate.current_color)
     if is_first_move(gamestate) then
       if shape != gamestate.start_piece then
         raise InvalidMoveException.new("#{shape} is not the requested first shape, #{gamestate.startPiece}")
@@ -113,7 +114,7 @@ class GameRuleLogic
   # @param move der zu überprüfende Zug
   #
   # @return ob der Zug zulässig ist
-  def valid_set_move?(gamestate, move)
+  def self.valid_set_move?(gamestate, move)
     begin
       validate_set_move(gamestate, move)
       true
@@ -123,7 +124,7 @@ class GameRuleLogic
   end
 
   # Validate a [SetMove] on a [Board].
-  def validate_set_move_placement(board, move)
+  def self.validate_set_move_placement(board, move)
     move.piece.coordinates.each do |it|
       if it.x < 0 || it.y < 0 || it.x >= BOARD_SIZE || it.y >= BOARD_SIZE then
         raise InvalidMoveException.new("Field #{it} is out of bounds", move)
@@ -140,14 +141,14 @@ class GameRuleLogic
   end
 
   # Place a Piece on the given [board] according to [move].
-  def perform_set_move(board, move)
+  def self.perform_set_move(board, move)
       move.piece.coordinates.each do |it|
           board[it] = move.color
       end
   end
 
   # Skip a turn.
-  def perform_skip_move(gamestate) {
+  def self.perform_skip_move(gamestate) {
     if !gamestate.tryAdvance() then
       logger.error("Couldn't proceed to next turn!")
     end
@@ -157,12 +158,12 @@ class GameRuleLogic
   end
 
   # Check if the given [position] is already obstructed by another piece.
-  def obstructed?(board, position)
+  def self.obstructed?(board, position)
     board[position].content != FieldContent.EMPTY
   end
 
   # Check if the given [position] already borders on another piece of same [color].
-  def borders_on_color?(board, position, color) 
+  def self.borders_on_color?(board, position, color) 
     [Coordinates.new(1, 0), Coordinates.new(0, 1), Coordinates.new(-1, 0), Coordinates.new(0, -1)].any? do |it| 
       begin
         board[position + it].content == color
@@ -173,7 +174,7 @@ class GameRuleLogic
   end
 
   # Return true if the given [Coordinates] touch a corner of a field of same color.
-  def corners_on_color?(board, position, color)
+  def self.corners_on_color?(board, position, color)
     [Coordinates.new(1, 1), Coordinates.new(1, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 1)].any? do |it|
       begin
         board[position + it].content == +color
@@ -189,17 +190,8 @@ class GameRuleLogic
   # TODO: Was ist Corner?
 
   # Gib zurück, ob sich der [GameState] noch in der ersten Runde befindet.
-  def first_move?(gamestate)
+  def self.first_move?(gamestate)
     gamestate.undeployed_pieces(gamestate.current_color).length() == Constants.TOTAL_PIECE_SHAPES
-  end
-
-  # Gib eine Sammlung an möglichen [SetMove]s zurück.
-  def get_possible_moves(gamestate)
-    if first_move?(gamestate) then
-      get_possible_start_moves(gamestate)
-    else
-      get_all_possible_moves(gamestate)
-    end
   end
 
 =begin
@@ -219,7 +211,7 @@ class GameRuleLogic
 =end
 
   # Return a list of all possible SetMoves, regardless of whether it's the first round.
-  def get_all_possible_moves(gamestate)
+  def self.get_all_possible_moves(gamestate)
     c = gamestate.current_color
     moves = []
     gamestate.undeployed_pieces(c).each do |p|
@@ -250,7 +242,7 @@ class GameRuleLogic
 =end
 
   # Return a list of all possible SetMoves, regardless of whether it's the first round.
-  def get_possible_start_moves(gamestate)
+  def self.get_possible_start_moves(gamestate)
     kind = gamestate.start_piece
     moves = []
     Rotation.each do |r|
@@ -269,7 +261,7 @@ class GameRuleLogic
   # There's no real usage, except maybe for cases where no Move validation happens
   # if `Constants.VALIDATE_MOVE` is false, then this function should return the same
   # Set as `::getPossibleMoves`
-  def get_all_moves()
+  def self.get_all_moves()
     moves = []
     Color.each do |c|
       PieceShape.each do |s|
@@ -399,7 +391,11 @@ class GameRuleLogic
   # Gibt alle möglichen lege Züge zurück
   # @param gamestate [GameState] Der zu untersuchende GameState.
   def self.possible_set_moves(gamestate)
-    raise 'Not implemented yet!'
+    if first_move?(gamestate) then
+      get_possible_start_moves(gamestate)
+    else
+      get_all_possible_moves(gamestate)
+    end
   end
 
   # Prueft, ob ein Spieler im gegebenen GameState gewonnen hat.
