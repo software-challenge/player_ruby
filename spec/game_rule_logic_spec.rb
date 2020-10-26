@@ -56,4 +56,18 @@ RSpec.describe GameRuleLogic do
 
   end
 
+  context 'corner predicate' do
+    it 'identifies all corners as corner' do
+      expect(GameRuleLogic.corner?(Coordinates.new(0, 0))).to be true
+      expect(GameRuleLogic.corner?(Coordinates.new(0, 19))).to be true
+      expect(GameRuleLogic.corner?(Coordinates.new(19, 0))).to be true
+      expect(GameRuleLogic.corner?(Coordinates.new(19, 19))).to be true
+    end
+
+    it 'identifies other places not as corner' do
+      expect(GameRuleLogic.corner?(Coordinates.new(1, 0))).to be false
+      expect(GameRuleLogic.corner?(Coordinates.new(12, 3))).to be false
+      expect(GameRuleLogic.corner?(Coordinates.new(99, 3))).to be false
+    end
+  end
 end

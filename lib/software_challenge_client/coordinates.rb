@@ -27,6 +27,10 @@ class Coordinates
     end
   end
 
+  def +(other)
+    Coordinates.new(x + other.x, y + other.y)
+  end
+
   def to_s
     "(#{x}, #{y})"
   end

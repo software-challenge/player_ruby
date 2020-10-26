@@ -185,9 +185,15 @@ class GameRuleLogic
   end
 
   # Return true if the given [Coordinates] are a corner.
-  #def corner?(position)
-  # Corner.asSet().contains(position)
-  # TODO: Was ist Corner?
+  def self.corner?(position)
+    corner = [
+      Coordinates.new(0,0),
+      Coordinates.new(BOARD_SIZE-1, 0),
+      Coordinates.new(0, BOARD_SIZE-1),
+      Coordinates.new(BOARD_SIZE-1, BOARD_SIZE-1)
+    ]
+    corner.include? position
+  end
 
   # Gib zurück, ob sich der [GameState] noch in der ersten Runde befindet.
   def self.first_move?(gamestate)
