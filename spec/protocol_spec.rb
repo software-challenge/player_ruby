@@ -258,18 +258,6 @@ RSpec.describe Protocol do
     XML
   end
 
-  it 'converts a dragmove to xml' do
-    move = DragMove.new(CubeCoordinates.new(3, 1), CubeCoordinates.new(-1, -2))
-    # NOTE that this is brittle because XML formatting (whitespace, attribute
-    # order) is arbitrary.
-    expect(subject.move_to_xml(move)).to eq <<~XML
-      <data class="dragmove">
-        <start x="3" y="1" z="-4"/>
-        <destination x="-1" y="-2" z="3"/>
-      </data>
-    XML
-  end
-
   it 'converts a skipmove to xml' do
     move = SkipMove.new
     # NOTE that this is brittle because XML formatting (whitespace, attribute
