@@ -121,8 +121,8 @@ class Protocol
     when 'field'
       x = attrs['x'].to_i
       y = attrs['y'].to_i
-      obstructed = attrs['isObstructed'] == 'true'
-      field = Field.new(x, y, [], obstructed)
+      color = Color[attrs['content'][0,1]]
+      field = Field.new(x, y, color)
       @gamestate.board.add_field(field)
       @context[:piece_target] = :field
       @context[:field] = field

@@ -8,4 +8,10 @@ class Color < TypesafeEnum::Base
   new :YELLOW, 'Y'
   new :RED, 'R'
   new :GREEN, 'G'
+
+  class << self
+    def [](digit)
+      constants.find { |const| const_get(const) == digit }
+    end
+  end
 end
