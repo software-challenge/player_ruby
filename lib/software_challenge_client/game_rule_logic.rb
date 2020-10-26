@@ -6,7 +6,8 @@ require_relative 'invalid_move_exception'
 
 # Methoden, welche die Spielregeln von Blokus abbilden.
 #
-# Es gibt hier viele Helfermethoden, die von den beiden Hauptmethoden {GameRuleLogic#valid_move?} und {GameRuleLogic.possible_moves} benutzt werden.
+# Es gibt hier viele Helfermethoden, die von den beiden Hauptmethoden {GameRuleLogic#valid_move?} 
+# und {GameRuleLogic.possible_moves} benutzt werden.
 class GameRuleLogic
   include Constants
 
@@ -37,229 +38,168 @@ class GameRuleLogic
   end
 
   # Führe den gegebenen [Move] im gebenenen [GameState] aus.
-  # @param gameState der aktuelle Spielstand
+  # @param gamestate der aktuelle Spielstand
   # @param move der auszuführende Zug
-  def perform_move(gamestate, move)
-    validateMoveColor(gameState, move)
+  def self.perform_move(gamestate, move)
+    validate_move_color(gamestate, move)
     case move
     when SkipMove
-      performSkipMove(gameState)
+      perform_skip_move(gamestate)
     when SetMove
-      performSetMove(gameState, move)
+      perform_set_move(gamestate, move)
     end
-    gameState.lastMove = move
+    gamestate.lastMove = move
   end
 
   # Check if the given [move] has the right [Color].
-  def validate_move_color(gamestate, move)
-    if move.color != gameState.currentColor
-      raise InvalidMoveException('Expected move from #{gameState.current_color}', move)
+  def self.validate_move_color(gamestate, move)
+    if move.color != gamestate.current_color then
+      raise InvalidMoveException.new("Expected move from #{gamestate.current_color}", move)
     end
   end
 
-  # Check if the given [move] is able to be performed for the given [gameState]. */
-  def validate_set_move(gamestate, move)
+  # Check if the given [move] is able to be performed for the given [gamestate]. */
+  def self.validate_set_move(gamestate, move)
     # Check whether the color's move is currently active
     validate_move_color(gamestate, move)
     # Check whether the shape is valid
     validate_shape(gamestate, move.piece.kind, move.color)
     # Check whether the piece can be placed
-    validate_set_move(gamestate.board, move)
+    validate_set_move_placement(gamestate.board, move)
 
-    if is_first_move(gamestate)
+    if is_first_move(gamestate) then
       # Check if it is placed correctly in a corner
-      if move.piece.coordinates.none { |it| is_on_corner(it) }
-        throw InvalidMoveException("The Piece isn't located in a corner", move)
+      if move.piece.coordinates.none { |it| is_on_corner(it) } then
+        raise InvalidMoveException.new("The Piece isn't located in a corner", move)
       end
     else
       # Check if the piece is connected to at least one tile of same color by corner
-      if move.piece.coordinates.none { |it| corners_on_color(gamestate.board, it, move.color) }
-        throw InvalidMoveException("#{move.piece} shares no corner with another piece of same color", move)
+      if move.piece.coordinates.none { |it| corners_on_color(gamestate.board, it, move.color) } then
+        raise InvalidMoveException.new("#{move.piece} shares no corner with another piece of same color", move)
       end
     end
   end
 
   # Perform the given [SetMove].
-  def perform_set_move(gamestate, move)
+  def self.perform_set_move(gamestate, move)
     validate_set_move(gamestate, move)
 
     perform_set_move(gamestate.board, move)
-    gameState.undeployed_pieces(move.color).remove(move.piece.kind)
-    gameState.deployed_pieces(move.color).add(move.piece)
+    gamestate.undeployed_pieces(move.color).remove(move.piece.kind)
+    gamestate.deployed_pieces(move.color).add(move.piece)
 
     # If it was the last piece for this color, remove it from the turn queue
-    if gameState.undeployed_piece_shapes(move.color).empty?
-      gameState.lastMoveMono += move.color to (move.piece.kind == PieceShape.MONO)
+    if gamestate.undeployed_piece_shapes(move.color).empty? then
+      gamestate.lastMoveMono += move.color to (move.piece.kind == PieceShape.MONO)
     end
 
-    gameState.try_advance()
+    gamestate.try_advance()
   end
 
   # Validate the [PieceShape] of a [SetMove] depending on the current [GameState].
-  def validate_shape(gamestate, shape, color = gamestate.current_color)
-    if (is_first_move(gamestate))
-      if (shape != gamestate.start_piece)
-        throw InvalidMoveException("$shape is not the requested first shape, ${gameState.startPiece}")
+  def self.validate_shape(gamestate, shape, color = gamestate.current_color)
+    if is_first_move(gamestate) then
+      if shape != gamestate.start_piece then
+        raise InvalidMoveException.new("#{shape} is not the requested first shape, #{gamestate.startPiece}")
       end
     else
-      if (!gameState.undeployedPieceShapes(color).contains(shape))
-        throw InvalidMoveException("Piece $shape has already been placed before")
+      if !gamestate.undeployedPieceShapes(color).contains(shape) then
+        raise InvalidMoveException.new("Piece #{shape} has already been placed before")
       end
     end
   end
 
   # Prüft, ob der gegebene [Move] zulässig ist.
-  # @param gameState der aktuelle Spielstand
+  # @param gamestate der aktuelle Spielstand
   # @param move der zu überprüfende Zug
   #
   # @return ob der Zug zulässig ist
-  def is_valid_set_move(gamestate, move)
+  def self.valid_set_move?(gamestate, move)
     begin
-      validate_set_move(gameState, move)
+      validate_set_move(gamestate, move)
       true
     rescue InvalidMoveException
       false
     end
   end
 
-=begin
-    # Validate a [SetMove] on a [board]. */
-    def validate_set_move(board, move)
+  # Validate a [SetMove] on a [Board].
+  def self.validate_set_move_placement(board, move)
+    move.piece.coordinates.each do |it|
+      if it.x < 0 || it.y < 0 || it.x >= BOARD_SIZE || it.y >= BOARD_SIZE then
+        raise InvalidMoveException.new("Field #{it} is out of bounds", move)
+      end
+
+      if obstructed?(board, it)  then
+        raise InvalidMoveException.new("Field #{it} already belongs to #{board[it].content}", move)
+      end
+
+      if borders_on_color(board, it, move.color) then
+        raise InvalidMoveException.new("Field #{it} already borders on #{move.color}", move)
+      end
+    end
+  end
+
+  # Place a Piece on the given [board] according to [move].
+  def self.perform_set_move(board, move)
       move.piece.coordinates.each do |it|
-            try {
-                board[it]
-            } catch (e: ArrayIndexOutOfBoundsException) {
-                throw InvalidMoveException("Field $it is out of bounds", move)
-            }
-            // Checks if a part of the piece is obstructed
-            if (isObstructed(board, it))
-                throw InvalidMoveException("Field $it already belongs to ${board[it].content}", move)
-            // Checks if a part of the piece would border on another piece of same color
-            if (bordersOnColor(board, it, move.color))
-                throw InvalidMoveException("Field $it already borders on ${move.color}", move)
-        }
-    }
+          board[it] = move.color
+      end
+  end
 
-    /** Place a Piece on the given [board] according to [move]. */
+  # Skip a turn.
+  def self.perform_skip_move(gamestate) {
+    if !gamestate.tryAdvance() then
+      logger.error("Couldn't proceed to next turn!")
+    end
+    if first_move?(gamestate) then
+      raise InvalidMoveException.new("Can't Skip on first round", SkipMove.new(gamestate.currentColor))
+    end
+  end
+
+  # Check if the given [position] is already obstructed by another piece.
+  def self.obstructed?(board, position)
+    board[position].content != FieldContent.EMPTY
+  end
+
+  # Check if the given [position] already borders on another piece of same [color].
+  def self.borders_on_color?(board, position, color) 
+    [Coordinates.new(1, 0), Coordinates.new(0, 1), Coordinates.new(-1, 0), Coordinates.new(0, -1)].any? do |it| 
+      begin
+        board[position + it].content == color
+      rescue
+        false
+      end
+    end
+  end
+
+  # Return true if the given [Coordinates] touch a corner of a field of same color.
+  def self.corners_on_color?(board, position, color)
+    [Coordinates.new(1, 1), Coordinates.new(1, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 1)].any? do |it|
+      begin
+        board[position + it].content == +color
+      rescue 
+        false
+      end
+    end
+  end
+
+  # Return true if the given [Coordinates] are a corner.
+  #def corner?(position)
+  # Corner.asSet().contains(position) 
+  # TODO: Was ist Corner?
+
+  # Gib zurück, ob sich der [GameState] noch in der ersten Runde befindet.
+  def self.first_move?(gamestate)
+    gamestate.undeployed_pieces(gamestate.current_color).length() == Constants.TOTAL_PIECE_SHAPES
+  end
+
+=begin
+  /** Stream all possible moves regardless of whether it's the first turn. */
     @JvmStatic
-    private fun performSetMove(board: Board, move: SetMove) {
-        move.piece.coordinates.forEach {
-            board[it] = +move.color
-        }
-    }
-
-    /** Skip a turn. */
-    @JvmStatic
-    private fun performSkipMove(gameState: GameState) {
-        if (!gameState.tryAdvance())
-            logger.error("Couldn't proceed to next turn!")
-        if (isFirstMove(gameState))
-            throw InvalidMoveException("Can't Skip on first round", SkipMove(gameState.currentColor))
-    }
-
-    /** Check if the given [position] is already obstructed by another piece. */
-    @JvmStatic
-    private fun isObstructed(board: Board, position: Coordinates): Boolean =
-            board[position].content != FieldContent.EMPTY
-
-    /** Check if the given [position] already borders on another piece of same [color]. */
-    @JvmStatic
-    private fun bordersOnColor(board: Board, position: Coordinates, color: Color): Boolean = listOf(
-            Vector(1, 0),
-            Vector(0, 1),
-            Vector(-1, 0),
-            Vector(0, -1)).any {
-        try {
-            board[position + it].content == +color
-        } catch (e: ArrayIndexOutOfBoundsException) { false }
-    }
-
-    /** Return true if the given [Coordinates] touch a corner of a field of same color. */
-    @JvmStatic
-    private fun cornersOnColor(board: Board, position: Coordinates, color: Color): Boolean = listOf(
-            Vector(1, 1),
-            Vector(1, -1),
-            Vector(-1, -1),
-            Vector(-1, 1)).any {
-        try {
-            board[position + it].content == +color
-        } catch (e: ArrayIndexOutOfBoundsException) { false }
-    }
-
-    /** Return true if the given [Coordinates] are a corner. */
-    @JvmStatic
-    private fun isOnCorner(position: Coordinates): Boolean =
-            Corner.asSet().contains(position)
-
-    /** Gib zurück, ob sich der [GameState] noch in der ersten Runde befindet. */
-    @JvmStatic
-    fun isFirstMove(gameState: GameState) =
-            gameState.undeployedPieceShapes(gameState.currentColor).size == Constants.TOTAL_PIECE_SHAPES
-
-
-    /** Gib eine Sammlung an möglichen [SetMove]s zurück. */
-    @JvmStatic
-    fun getPossibleMoves(gameState: GameState) =
-            streamPossibleMoves(gameState).toSet()
-
-    /** Return a list of all possible SetMoves, regardless of whether it's the first round. */
-    @JvmStatic
-    private fun getAllPossibleMoves(gameState: GameState) =
-            streamAllPossibleMoves(gameState).toSet()
-
-    /** Return a list of possible SetMoves if it's the first round. */
-    @JvmStatic
-    private fun getPossibleStartMoves(gameState: GameState) =
-            streamPossibleStartMoves(gameState).toSet()
-
-    /**
-     * Return a list of all moves, impossible or not.
-     *  There's no real usage, except maybe for cases where no Move validation happens
-     *  if `Constants.VALIDATE_MOVE` is false, then this function should return the same
-     *  Set as `::getPossibleMoves`
-     */
-    @JvmStatic
-    private fun getAllMoves(): Set<SetMove> {
-        val moves = mutableSetOf<SetMove>()
-        for (color in Color.values()) {
-            for (shape in PieceShape.values()) {
-                for (rotation in Rotation.values()) {
-                    for (flip in listOf(false, true)) {
-                        for (y in 0 until Constants.BOARD_SIZE) {
-                            for (x in 0 until Constants.BOARD_SIZE) {
-                                moves.add(SetMove(Piece(color, shape, rotation, flip, Coordinates(x, y))))
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return moves
-    }
-
-    /** Entferne alle Farben, die keine Steine mehr auf dem Feld platzieren können. */
-    @JvmStatic
-    fun removeInvalidColors(gameState: GameState) {
-        if (gameState.orderedColors.isEmpty()) return
-        if (streamPossibleMoves(gameState).none { isValidSetMove(gameState, it) }) {
-            gameState.removeActiveColor()
-            removeInvalidColors(gameState)
-        }
-    }
-
-    /** Gib Eine Sequenz an möglichen [SetMove]s zurück. */
-    @JvmStatic
-    fun streamPossibleMoves(gameState: GameState) =
-            if (isFirstMove(gameState))
-                streamPossibleStartMoves(gameState)
-            else
-                streamAllPossibleMoves(gameState)
-
-    /** Stream all possible moves regardless of whether it's the first turn. */
-    @JvmStatic
-    private fun streamAllPossibleMoves(gameState: GameState) = sequence<SetMove> {
-        val color = gameState.currentColor
-        gameState.undeployedPieceShapes(color).map {
+    private fun streamAllPossibleMoves(gamestate: GameState) = sequence<SetMove> {
+        val color = gamestate.currentColor
+        gamestate.undeployedPieceShapes(color).map {
             val area = it.coordinates.area()
             for (y in 0 until Constants.BOARD_SIZE - area.dy)
                 for (x in 0 until Constants.BOARD_SIZE - area.dx)
@@ -267,25 +207,88 @@ class GameRuleLogic
                         yield(SetMove(Piece(color, it, variant.key, Coordinates(x, y))))
                     }
         }
-    }.filter { isValidSetMove(gameState, it) }
-
-    /** Stream all possible moves if it's the first turn of [gameState]. */
-    @JvmStatic
-    private fun streamPossibleStartMoves(gameState: GameState) = sequence<SetMove> {
-        val kind = gameState.startPiece
-        for (variant in kind.variants) {
-            for (corner in Corner.values()) {
-                yield(SetMove(Piece(gameState.currentColor, kind, variant.key, corner.align(variant.key.area()))))
-            }
-        }
-    }.filter { isValidSetMove(gameState, it) }
-
-
+    }.filter { isValidSetMove(gamestate, it) }
 =end
 
+  # Return a list of all possible SetMoves, regardless of whether it's the first round.
+  def self.get_all_possible_moves(gamestate)
+    c = gamestate.current_color
+    moves = []
+    gamestate.undeployed_pieces(c).each do |p|
+      Rotation.each do |r|
+        [false, true].each do |f|
+          (0..BOARD_SIZE-p.kind.dimension.x).to_a.each do |x|
+            (0..BOARD_SIZE-p.kind.dimension.y).to_a.each do |y|
+              moves << SetMove.new(Piece.new(c, p.kind, r, f, Coordinates.new(x, y)))
+            end
+          end
+        end
+      end
+    end
+    moves.filter {|m| valid_set_move?(gamestate, m) }
+  end
 
+=begin
+    /** Stream all possible moves if it's the first turn of [gamestate]. */
+    @JvmStatic
+    private fun streamPossibleStartMoves(gamestate: GameState) = sequence<SetMove> {
+        val kind = gamestate.startPiece
+        for (variant in kind.variants) {
+            for (corner in Corner.values()) {
+                yield(SetMove(Piece(gamestate.currentColor, kind, variant.key, corner.align(variant.key.area()))))
+            }
+        }
+    }.filter { isValidSetMove(gamestate, it) }
+=end
 
+  # Return a list of all possible SetMoves, regardless of whether it's the first round.
+  def self.get_possible_start_moves(gamestate)
+    kind = gamestate.start_piece
+    moves = []
+    Rotation.each do |r|
+      [false, true].each do |f|
+        (0..BOARD_SIZE-kind.dimension.x).to_a.each do |x|
+          (0..BOARD_SIZE-kind.dimension.y).to_a.each do |y|
+            moves << SetMove.new(Piece.new(c, kind, r, f, Coordinates.new(x, y)))
+          end
+        end
+      end
+    end
+    moves.filter {|m| valid_set_move?(gamestate, m) }
+  end
 
+  # Return a list of all moves, impossible or not.
+  # There's no real usage, except maybe for cases where no Move validation happens
+  # if `Constants.VALIDATE_MOVE` is false, then this function should return the same
+  # Set as `::getPossibleMoves`
+  def self.get_all_moves()
+    moves = []
+    Color.each do |c|
+      PieceShape.each do |s|
+        Rotation.each do |r|
+          [false, true].each do |f|
+            (0..BOARD_SIZE-1).to_a.each do |x|
+              (0..BOARD_SIZE-1).to_a.each do |y|
+                moves << SetMove.new(Piece.new(c, s, r, f, Coordinates.new(x, y)))
+              end
+            end
+          end
+        end
+      end
+    end
+    moves
+  end
+  
+  # Entferne alle Farben, die keine Steine mehr auf dem Feld platzieren können.
+  def remove_invalid_colors(gamestate) {
+    if gamestate.ordered_colors.length == 0 then
+      return nil
+    end
+    if get_possible_moves(gamestate).length == 0 then
+      gamestate.remove_active_color()
+      remove_invalid_colors(gamestate)
+    end
+  end
 
   # Prueft, ob ein Spielzug fuer den gegebenen Gamestate valide ist
   #
@@ -388,7 +391,11 @@ class GameRuleLogic
   # Gibt alle möglichen lege Züge zurück
   # @param gamestate [GameState] Der zu untersuchende GameState.
   def self.possible_set_moves(gamestate)
-    raise 'Not implemented yet!'
+    if first_move?(gamestate) then
+      get_possible_start_moves(gamestate)
+    else
+      get_all_possible_moves(gamestate)
+    end
   end
 
   # Prueft, ob ein Spieler im gegebenen GameState gewonnen hat.
