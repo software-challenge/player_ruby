@@ -234,16 +234,6 @@ class Protocol
           data.hint(content: hint.content)
         end
       end
-    when DragMove
-      builder.data(class: 'dragmove') do |data|
-        s = move.start
-        data.start(x: s.x, y: s.y, z: s.z)
-        d = move.destination
-        data.destination(x: d.x, y: d.y, z: d.z)
-        move.hints.each do |hint|
-          data.hint(content: hint.content)
-        end
-      end
     when SkipMove
       builder.data(class: 'skipmove') do |data|
         move.hints.each do |hint|
