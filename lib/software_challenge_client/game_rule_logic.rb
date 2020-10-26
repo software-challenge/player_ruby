@@ -196,24 +196,8 @@ class GameRuleLogic
 
   # Gib zurück, ob sich der [GameState] noch in der ersten Runde befindet.
   def self.first_move?(gamestate)
-    gamestate.undeployed_pieces(gamestate.current_color).length() == Constants.TOTAL_PIECE_SHAPES
+    gamestate.undeployed_pieces(gamestate.current_color).length() == TOTAL_PIECE_SHAPES
   end
-
-=begin
-  /** Stream all possible moves regardless of whether it's the first turn. */
-    @JvmStatic
-    private fun streamAllPossibleMoves(gamestate: GameState) = sequence<SetMove> {
-        val color = gamestate.currentColor
-        gamestate.undeployedPieceShapes(color).map {
-            val area = it.coordinates.area()
-            for (y in 0 until Constants.BOARD_SIZE - area.dy)
-                for (x in 0 until Constants.BOARD_SIZE - area.dx)
-                    for (variant in it.variants) {
-                        yield(SetMove(Piece(color, it, variant.key, Coordinates(x, y))))
-                    }
-        }
-    }.filter { isValidSetMove(gamestate, it) }
-=end
 
   # Return a list of all possible SetMoves, regardless of whether it's the first round.
   def self.get_all_possible_moves(gamestate)
@@ -232,19 +216,6 @@ class GameRuleLogic
     end
     moves.filter {|m| valid_set_move?(gamestate, m) }
   end
-
-=begin
-    /** Stream all possible moves if it's the first turn of [gamestate]. */
-    @JvmStatic
-    private fun streamPossibleStartMoves(gamestate: GameState) = sequence<SetMove> {
-        val kind = gamestate.startPiece
-        for (variant in kind.variants) {
-            for (corner in Corner.values()) {
-                yield(SetMove(Piece(gamestate.currentColor, kind, variant.key, corner.align(variant.key.area()))))
-            }
-        }
-    }.filter { isValidSetMove(gamestate, it) }
-=end
 
   # Return a list of all possible SetMoves, regardless of whether it's the first round.
   def self.get_possible_start_moves(gamestate)
