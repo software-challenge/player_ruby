@@ -89,6 +89,7 @@ class GameRuleLogic
     # If it was the last piece for this color, remove it from the turn queue
     if gamestate.undeployed_piece_shapes(move.color).empty? then
       gamestate.lastMoveMono += move.color to (move.piece.kind == PieceShape.MONO)
+      gamestate.remove_active_color
     end
 
     gamestate.try_advance()

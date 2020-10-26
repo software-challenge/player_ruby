@@ -91,6 +91,18 @@ class Board
     field(coordinates.x, coordinates.y)
   end
 
+  def fields_of_color(color)
+    fields = []
+    (0..BOARD_SIZE-1).to_a.each do |x|
+      (0..BOARD_SIZE-1).to_a.each do |y|
+        if field(x, y).color == color
+          fields << field(x, y)
+        end
+      end
+    end
+    fields
+  end
+
   def deployed_pieces(color)
     case color
     when Color::RED

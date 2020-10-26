@@ -195,8 +195,8 @@ class GameState
     @current_player_color = other_player_color
   end
 
-  # @return [Array<Field>] Alle Felder mit Fischen des Spielers, der gerade an der Reihe ist.
+  # @return [Array<Field>] Alle Felder mit Blöcken des Spielers, der gerade an der Reihe ist.
   def own_fields
-    board.fields_of_color(current_player_color)
+    board.fields_of_color(current_color)
   end
 end
