@@ -32,9 +32,7 @@ class GameRuleLogic
 
   # Return a random pentomino which is not the `x` one (Used to get a valid starting piece).
   def self.get_random_pentomino
-    PieceShape.filter do |it|
-      it.size == 5 && it != PieceShape::PENTO_X
-    end.sample
+    PieceShape.map(&:value).select {|it| it.size == 5 && it != PieceShape::PENTO_X }
   end
 
   # Führe den gegebenen [Move] im gebenenen [GameState] aus.
