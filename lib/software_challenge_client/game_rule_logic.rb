@@ -6,7 +6,7 @@ require_relative 'invalid_move_exception'
 
 # Methoden, welche die Spielregeln von Blokus abbilden.
 #
-# Es gibt hier viele Helfermethoden, die von den beiden Hauptmethoden {GameRuleLogic#valid_move?} 
+# Es gibt hier viele Helfermethoden, die von den beiden Hauptmethoden {GameRuleLogic#valid_move?}
 # und {GameRuleLogic.possible_moves} benutzt werden.
 class GameRuleLogic
   include Constants
@@ -148,12 +148,12 @@ class GameRuleLogic
   end
 
   # Skip a turn.
-  def self.perform_skip_move(gamestate) {
+  def self.perform_skip_move(gamestate)
+    if first_move?(gamestate)
+      raise InvalidMoveException.new("Can't Skip on first round", SkipMove.new(gamestate.currentColor))
+    end
     if !gamestate.tryAdvance() then
       logger.error("Couldn't proceed to next turn!")
-    end
-    if first_move?(gamestate) then
-      raise InvalidMoveException.new("Can't Skip on first round", SkipMove.new(gamestate.currentColor))
     end
   end
 
@@ -163,8 +163,8 @@ class GameRuleLogic
   end
 
   # Check if the given [position] already borders on another piece of same [color].
-  def self.borders_on_color?(board, position, color) 
-    [Coordinates.new(1, 0), Coordinates.new(0, 1), Coordinates.new(-1, 0), Coordinates.new(0, -1)].any? do |it| 
+  def self.borders_on_color?(board, position, color)
+    [Coordinates.new(1, 0), Coordinates.new(0, 1), Coordinates.new(-1, 0), Coordinates.new(0, -1)].any? do |it|
       begin
         board[position + it].content == color
       rescue
@@ -178,7 +178,7 @@ class GameRuleLogic
     [Coordinates.new(1, 1), Coordinates.new(1, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 1)].any? do |it|
       begin
         board[position + it].content == +color
-      rescue 
+      rescue
         false
       end
     end
@@ -186,7 +186,7 @@ class GameRuleLogic
 
   # Return true if the given [Coordinates] are a corner.
   #def corner?(position)
-  # Corner.asSet().contains(position) 
+  # Corner.asSet().contains(position)
   # TODO: Was ist Corner?
 
   # Gib zurück, ob sich der [GameState] noch in der ersten Runde befindet.
@@ -278,14 +278,13 @@ class GameRuleLogic
     end
     moves
   end
-  
+
   # Entferne alle Farben, die keine Steine mehr auf dem Feld platzieren können.
-  def remove_invalid_colors(gamestate) {
-    if gamestate.ordered_colors.length == 0 then
-      return nil
-    end
-    if get_possible_moves(gamestate).length == 0 then
-      gamestate.remove_active_color()
+  def remove_invalid_colors(gamestate)
+    return if gamestate.ordered_colors.empty?
+
+    if get_possible_moves(gamestate).empty?
+      gamestate.remove_active_color
       remove_invalid_colors(gamestate)
     end
   end
