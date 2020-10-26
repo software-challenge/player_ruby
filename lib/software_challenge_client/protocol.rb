@@ -229,7 +229,7 @@ class Protocol
       builder.data(class: 'setmove') do |data|
         data.piece(owner: move.piece.owner.key, type: move.piece.type.key)
         d = move.destination
-        data.destination(x: d.x, y: d.y, z: d.z)
+        data.destination(x: d.x, y: d.y)
         move.hints.each do |hint|
           data.hint(content: hint.content)
         end

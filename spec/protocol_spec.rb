@@ -247,14 +247,15 @@ RSpec.describe Protocol do
   end
 
   it 'converts a setmove to xml' do
-    move = SetMove.new(Piece.new(PlayerColor::BLUE, PieceType::ANT), CubeCoordinates.new(-2, 0))
+    move = SetMove.new(Piece.new(Color::BLUE, PieceShape::PENTO_T, Rotation::LEFT, false, Coordinates.new(4,2)))
     # NOTE that this is brittle because XML formatting (whitespace, attribute
     # order) is arbitrary.
     expect(subject.move_to_xml(move)).to eq <<~XML
-      <data class="setmove">
-        <piece owner="BLUE" type="ANT"/>
-        <destination x="-2" y="0" z="2"/>
-      </data>
+    <data class="sc.plugin2021.SetMove">
+      <piece color="BLUE" kind="PENTO_T" rotation="LEFT" isFlipped="false">
+        <position x="4" y="2"/>
+      </piece>
+    </data>
     XML
   end
 
