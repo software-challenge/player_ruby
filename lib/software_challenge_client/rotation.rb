@@ -14,4 +14,9 @@ class Rotation < TypesafeEnum::Base
   def rotate(rotation)
     Rotation.to_a[(value + rotation.value) % Rotation.size]
   end
+
+  # Gibt den rotation namen zurück
+  def to_s
+    self.key[0..-1]
+  end
 end

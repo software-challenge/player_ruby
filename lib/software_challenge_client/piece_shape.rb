@@ -74,4 +74,9 @@ class PieceShape < TypesafeEnum::Base
   def transform(rotation, flip)
     coordinates.rotate(rotation).flip(flip)
   end
+
+  # Gibt den shape namen zurück
+  def to_s
+    self.key[0..-1]
+  end
 end

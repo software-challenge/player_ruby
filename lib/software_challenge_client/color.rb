@@ -14,4 +14,9 @@ class Color < TypesafeEnum::Base
       constants.find { |const| const_get(const) == digit }
     end
   end
+
+  # Gibt den color namen zurück
+  def to_s
+    self.key[0..-1]
+  end
 end

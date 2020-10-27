@@ -226,10 +226,10 @@ class Protocol
     # structures.
     case move
     when SetMove
-      builder.data(class: 'setmove') do |data|
-        data.piece(owner: move.piece.owner.key, type: move.piece.type.key)
-        d = move.destination
-        data.destination(x: d.x, y: d.y)
+      builder.data(class: 'sc.plugin2021.SetMove') do |data|
+        data.piece(color: move.piece.color, kind: move.piece.kind, rotation: move.piece.rotation, isFlipped: move.piece.is_flipped) do |piece|
+          piece.position(x: move.piece.position.x, y: move.piece.position.y)
+        end
         move.hints.each do |hint|
           data.hint(content: hint.content)
         end
