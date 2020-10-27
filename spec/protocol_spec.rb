@@ -248,7 +248,7 @@ RSpec.describe Protocol do
     # NOTE that this is brittle because XML formatting (whitespace, attribute
     # order) is arbitrary.
     expect(subject.move_to_xml(move)).to eq <<~XML
-      <data class="skipmove">
+      <data class="sc.plugin2021.SkipMove">
       </data>
     XML
   end
