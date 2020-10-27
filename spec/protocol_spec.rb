@@ -81,168 +81,152 @@ RSpec.describe Protocol do
     it 'creates the new board in the gamestate' do
       subject.gamestate.board.clear
       server_message <<-XML
-        <board>
-          <fields>
-            <null/>
-            <null/>
-            <null/>
-            <null/>
-            <null/>
-            <field x="-5" y="0" z="5" isObstructed="false"/>
-            <field x="-5" y="1" z="4" isObstructed="false"/>
-            <field x="-5" y="2" z="3" isObstructed="false"/>
-            <field x="-5" y="3" z="2" isObstructed="false"/>
-            <field x="-5" y="4" z="1" isObstructed="false"/>
-            <field x="-5" y="5" z="0" isObstructed="false"/>
-          </fields>
-          <fields>
-            <null/>
-            <null/>
-            <null/>
-            <null/>
-            <field x="-4" y="-1" z="5" isObstructed="false"/>
-            <field x="-4" y="0" z="4" isObstructed="false"/>
-            <field x="-4" y="1" z="3" isObstructed="false"/>
-            <field x="-4" y="2" z="2" isObstructed="true"/>
-            <field x="-4" y="3" z="1" isObstructed="false"/>
-            <field x="-4" y="4" z="0" isObstructed="false"/>
-            <field x="-4" y="5" z="-1" isObstructed="false"/>
-          </fields>
-          <fields>
-            <null/>
-            <null/>
-            <null/>
-            <field x="-3" y="-2" z="5" isObstructed="false"/>
-            <field x="-3" y="-1" z="4" isObstructed="false"/>
-            <field x="-3" y="0" z="3" isObstructed="false"/>
-            <field x="-3" y="1" z="2" isObstructed="false"/>
-            <field x="-3" y="2" z="1" isObstructed="false"/>
-            <field x="-3" y="3" z="0" isObstructed="false"/>
-            <field x="-3" y="4" z="-1" isObstructed="false"/>
-            <field x="-3" y="5" z="-2" isObstructed="false"/>
-          </fields>
-          <fields>
-            <null/>
-            <null/>
-            <field x="-2" y="-3" z="5" isObstructed="false"/>
-            <field x="-2" y="-2" z="4" isObstructed="false"/>
-            <field x="-2" y="-1" z="3" isObstructed="false"/>
-            <field x="-2" y="0" z="2" isObstructed="false"/>
-            <field x="-2" y="1" z="1" isObstructed="false"/>
-            <field x="-2" y="2" z="0" isObstructed="false"/>
-            <field x="-2" y="3" z="-1" isObstructed="false"/>
-            <field x="-2" y="4" z="-2" isObstructed="false">
-              <piece owner="BLUE" type="GRASSHOPPER"/>
-            </field>
-            <field x="-2" y="5" z="-3" isObstructed="false"/>
-          </fields>
-          <fields>
-            <null/>
-            <field x="-1" y="-4" z="5" isObstructed="false"/>
-            <field x="-1" y="-3" z="4" isObstructed="false"/>
-            <field x="-1" y="-2" z="3" isObstructed="false"/>
-            <field x="-1" y="-1" z="2" isObstructed="false"/>
-            <field x="-1" y="0" z="1" isObstructed="false"/>
-            <field x="-1" y="1" z="0" isObstructed="false"/>
-            <field x="-1" y="2" z="-1" isObstructed="false"/>
-            <field x="-1" y="3" z="-2" isObstructed="false"/>
-            <field x="-1" y="4" z="-3" isObstructed="false"/>
-            <field x="-1" y="5" z="-4" isObstructed="false"/>
-          </fields>
-          <fields>
-            <field x="0" y="-5" z="5" isObstructed="false"/>
-            <field x="0" y="-4" z="4" isObstructed="false"/>
-            <field x="0" y="-3" z="3" isObstructed="false"/>
-            <field x="0" y="-2" z="2" isObstructed="false"/>
-            <field x="0" y="-1" z="1" isObstructed="false"/>
-            <field x="0" y="0" z="0" isObstructed="false">
-              <piece owner="RED" type="ANT"/>
-              <piece owner="BLUE" type="BEE"/>
-            </field>
-            <field x="0" y="1" z="-1" isObstructed="false"/>
-            <field x="0" y="2" z="-2" isObstructed="false"/>
-            <field x="0" y="3" z="-3" isObstructed="false"/>
-            <field x="0" y="4" z="-4" isObstructed="false"/>
-            <field x="0" y="5" z="-5" isObstructed="false"/>
-          </fields>
-          <fields>
-            <field x="1" y="-5" z="4" isObstructed="false"/>
-            <field x="1" y="-4" z="3" isObstructed="false"/>
-            <field x="1" y="-3" z="2" isObstructed="false"/>
-            <field x="1" y="-2" z="1" isObstructed="false"/>
-            <field x="1" y="-1" z="0" isObstructed="false"/>
-            <field x="1" y="0" z="-1" isObstructed="false"/>
-            <field x="1" y="1" z="-2" isObstructed="false"/>
-            <field x="1" y="2" z="-3" isObstructed="false"/>
-            <field x="1" y="3" z="-4" isObstructed="false"/>
-            <field x="1" y="4" z="-5" isObstructed="false"/>
-            <null/>
-          </fields>
-          <fields>
-            <field x="2" y="-5" z="3" isObstructed="false"/>
-            <field x="2" y="-4" z="2" isObstructed="false"/>
-            <field x="2" y="-3" z="1" isObstructed="false"/>
-            <field x="2" y="-2" z="0" isObstructed="false"/>
-            <field x="2" y="-1" z="-1" isObstructed="false"/>
-            <field x="2" y="0" z="-2" isObstructed="false"/>
-            <field x="2" y="1" z="-3" isObstructed="false"/>
-            <field x="2" y="2" z="-4" isObstructed="false"/>
-            <field x="2" y="3" z="-5" isObstructed="false"/>
-            <null/>
-            <null/>
-          </fields>
-          <fields>
-            <field x="3" y="-5" z="2" isObstructed="false"/>
-            <field x="3" y="-4" z="1" isObstructed="false"/>
-            <field x="3" y="-3" z="0" isObstructed="false"/>
-            <field x="3" y="-2" z="-1" isObstructed="false"/>
-            <field x="3" y="-1" z="-2" isObstructed="false"/>
-            <field x="3" y="0" z="-3" isObstructed="false"/>
-            <field x="3" y="1" z="-4" isObstructed="false"/>
-            <field x="3" y="2" z="-5" isObstructed="false"/>
-            <null/>
-            <null/>
-            <null/>
-          </fields>
-          <fields>
-            <field x="4" y="-5" z="1" isObstructed="false"/>
-            <field x="4" y="-4" z="0" isObstructed="false"/>
-            <field x="4" y="-3" z="-1" isObstructed="false"/>
-            <field x="4" y="-2" z="-2" isObstructed="false"/>
-            <field x="4" y="-1" z="-3" isObstructed="false"/>
-            <field x="4" y="0" z="-4" isObstructed="false"/>
-            <field x="4" y="1" z="-5" isObstructed="false"/>
-            <null/>
-            <null/>
-            <null/>
-            <null/>
-          </fields>
-          <fields>
-            <field x="5" y="-5" z="0" isObstructed="false"/>
-            <field x="5" y="-4" z="-1" isObstructed="false"/>
-            <field x="5" y="-3" z="-2" isObstructed="false"/>
-            <field x="5" y="-2" z="-3" isObstructed="false"/>
-            <field x="5" y="-1" z="-4" isObstructed="false"/>
-            <field x="5" y="0" z="-5" isObstructed="false"/>
-            <null/>
-            <null/>
-            <null/>
-            <null/>
-            <null/>
-          </fields>
-        </board>
+      <board>
+      <field x="0" y="0" content="BLUE"/>
+      <field x="1" y="0" content="RED"/>
+      <field x="2" y="0" content="RED"/>
+      <field x="3" y="0" content="RED"/>
+      <field x="8" y="0" content="RED"/>
+      <field x="12" y="0" content="RED"/>
+      <field x="13" y="0" content="RED"/>
+      <field x="14" y="0" content="RED"/>
+      <field x="15" y="0" content="RED"/>
+      <field x="16" y="0" content="RED"/>
+      <field x="19" y="0" content="RED"/>
+      <field x="0" y="1" content="BLUE"/>
+      <field x="1" y="1" content="BLUE"/>
+      <field x="2" y="1" content="BLUE"/>
+      <field x="4" y="1" content="RED"/>
+      <field x="5" y="1" content="RED"/>
+      <field x="6" y="1" content="RED"/>
+      <field x="8" y="1" content="RED"/>
+      <field x="9" y="1" content="RED"/>
+      <field x="10" y="1" content="RED"/>
+      <field x="11" y="1" content="RED"/>
+      <field x="17" y="1" content="RED"/>
+      <field x="18" y="1" content="RED"/>
+      <field x="19" y="1" content="RED"/>
+      <field x="1" y="2" content="BLUE"/>
+      <field x="2" y="2" content="RED"/>
+      <field x="3" y="2" content="BLUE"/>
+      <field x="4" y="2" content="BLUE"/>
+      <field x="6" y="2" content="RED"/>
+      <field x="7" y="2" content="RED"/>
+      <field x="18" y="2" content="RED"/>
+      <field x="0" y="3" content="BLUE"/>
+      <field x="1" y="3" content="RED"/>
+      <field x="2" y="3" content="BLUE"/>
+      <field x="3" y="3" content="RED"/>
+      <field x="4" y="3" content="RED"/>
+      <field x="5" y="3" content="RED"/>
+      <field x="6" y="3" content="BLUE"/>
+      <field x="8" y="3" content="RED"/>
+      <field x="0" y="4" content="RED"/>
+      <field x="1" y="4" content="RED"/>
+      <field x="2" y="4" content="BLUE"/>
+      <field x="4" y="4" content="RED"/>
+      <field x="5" y="4" content="BLUE"/>
+      <field x="6" y="4" content="BLUE"/>
+      <field x="8" y="4" content="RED"/>
+      <field x="0" y="5" content="BLUE"/>
+      <field x="1" y="5" content="BLUE"/>
+      <field x="2" y="5" content="BLUE"/>
+      <field x="4" y="5" content="BLUE"/>
+      <field x="5" y="5" content="BLUE"/>
+      <field x="6" y="5" content="RED"/>
+      <field x="7" y="5" content="RED"/>
+      <field x="8" y="5" content="RED"/>
+      <field x="3" y="6" content="BLUE"/>
+      <field x="6" y="6" content="BLUE"/>
+      <field x="0" y="7" content="BLUE"/>
+      <field x="1" y="7" content="BLUE"/>
+      <field x="2" y="7" content="BLUE"/>
+      <field x="3" y="7" content="BLUE"/>
+      <field x="5" y="7" content="BLUE"/>
+      <field x="6" y="7" content="BLUE"/>
+      <field x="0" y="8" content="YELLOW"/>
+      <field x="1" y="8" content="YELLOW"/>
+      <field x="4" y="8" content="BLUE"/>
+      <field x="6" y="8" content="BLUE"/>
+      <field x="0" y="9" content="GREEN"/>
+      <field x="1" y="9" content="YELLOW"/>
+      <field x="2" y="9" content="BLUE"/>
+      <field x="3" y="9" content="BLUE"/>
+      <field x="4" y="9" content="BLUE"/>
+      <field x="7" y="9" content="GREEN"/>
+      <field x="0" y="10" content="GREEN"/>
+      <field x="1" y="10" content="YELLOW"/>
+      <field x="2" y="10" content="GREEN"/>
+      <field x="3" y="10" content="YELLOW"/>
+      <field x="5" y="10" content="BLUE"/>
+      <field x="6" y="10" content="GREEN"/>
+      <field x="7" y="10" content="GREEN"/>
+      <field x="0" y="11" content="GREEN"/>
+      <field x="1" y="11" content="YELLOW"/>
+      <field x="2" y="11" content="GREEN"/>
+      <field x="3" y="11" content="YELLOW"/>
+      <field x="4" y="11" content="BLUE"/>
+      <field x="5" y="11" content="BLUE"/>
+      <field x="7" y="11" content="GREEN"/>
+      <field x="0" y="12" content="YELLOW"/>
+      <field x="1" y="12" content="GREEN"/>
+      <field x="2" y="12" content="YELLOW"/>
+      <field x="3" y="12" content="YELLOW"/>
+      <field x="7" y="12" content="GREEN"/>
+      <field x="0" y="13" content="YELLOW"/>
+      <field x="1" y="13" content="GREEN"/>
+      <field x="2" y="13" content="GREEN"/>
+      <field x="4" y="13" content="GREEN"/>
+      <field x="5" y="13" content="GREEN"/>
+      <field x="6" y="13" content="GREEN"/>
+      <field x="0" y="14" content="YELLOW"/>
+      <field x="2" y="14" content="YELLOW"/>
+      <field x="3" y="14" content="GREEN"/>
+      <field x="6" y="14" content="GREEN"/>
+      <field x="7" y="14" content="GREEN"/>
+      <field x="0" y="15" content="YELLOW"/>
+      <field x="2" y="15" content="YELLOW"/>
+      <field x="4" y="15" content="YELLOW"/>
+      <field x="6" y="15" content="YELLOW"/>
+      <field x="8" y="15" content="GREEN"/>
+      <field x="9" y="15" content="GREEN"/>
+      <field x="10" y="15" content="GREEN"/>
+      <field x="11" y="15" content="GREEN"/>
+      <field x="0" y="16" content="YELLOW"/>
+      <field x="2" y="16" content="YELLOW"/>
+      <field x="4" y="16" content="YELLOW"/>
+      <field x="6" y="16" content="YELLOW"/>
+      <field x="11" y="16" content="GREEN"/>
+      <field x="1" y="17" content="YELLOW"/>
+      <field x="3" y="17" content="YELLOW"/>
+      <field x="4" y="17" content="YELLOW"/>
+      <field x="5" y="17" content="YELLOW"/>
+      <field x="7" y="17" content="YELLOW"/>
+      <field x="12" y="17" content="GREEN"/>
+      <field x="13" y="17" content="GREEN"/>
+      <field x="14" y="17" content="GREEN"/>
+      <field x="15" y="17" content="GREEN"/>
+      <field x="16" y="17" content="GREEN"/>
+      <field x="18" y="17" content="GREEN"/>
+      <field x="1" y="18" content="YELLOW"/>
+      <field x="2" y="18" content="YELLOW"/>
+      <field x="6" y="18" content="YELLOW"/>
+      <field x="7" y="18" content="YELLOW"/>
+      <field x="17" y="18" content="GREEN"/>
+      <field x="18" y="18" content="GREEN"/>
+      <field x="0" y="19" content="YELLOW"/>
+      <field x="1" y="19" content="YELLOW"/>
+      <field x="3" y="19" content="YELLOW"/>
+      <field x="5" y="19" content="YELLOW"/>
+      <field x="6" y="19" content="YELLOW"/>
+      <field x="18" y="19" content="GREEN"/>
+      <field x="19" y="19" content="GREEN"/>
+    </board>
       XML
       board = subject.gamestate.board
-      expect(board.field_list.size).to eq(Board::FIELD_AMOUNT)
-      expect(board.field(0, 0).pieces.size).to eq(2)
-      expect(board.field(0, 0).pieces).to eq([Piece.new(PlayerColor::RED, PieceType::ANT), Piece.new(PlayerColor::BLUE, PieceType::BEE)])
-      expect(board.field(-2, 4).pieces).to eq([Piece.new(PlayerColor::BLUE, PieceType::GRASSHOPPER)])
-      expect(board.field(-4, 2).obstructed).to be true
-      board.field_list.each do |f|
-        unless [[0, 0], [-2, 4], [-4, 2]].include? [f.coordinates.x, f.coordinates.y]
-          expect(f).to be_empty
-        end
-      end
+      expect(board.field(6, 18)).to eq(Field.new(6, 18, Color::YELLOW))
+      expect(board.field(18, 18)).to eq(Field.new(18, 18, Color::GREEN))
+      expect(board.fields_of_color(Color::RED)).not_to be_empty
     end
   end
 
