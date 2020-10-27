@@ -100,25 +100,19 @@ class Protocol
       @gamestate.start_player_color = Color[attrs['startPlayerColor'][0,1]]
       @gamestate.current_player_color = Color[attrs['currentPlayerColor'][0,1]]
       logger.debug "Round: #{@gamestate.round}, Turn: #{@gamestate.turn}"
-    when 'red'
-      logger.debug 'new red player'
-      player = parsePlayer(attrs)
-      if player.color != PlayerColor::RED
-        throw new IllegalArgumentException("expected #{PlayerColor::RED} Player but got #{player.color}")
-      end
+    when 'first'
+      logger.debug 'new first player'
+      player = Player.new(PlayerType::ONE, attrs['displayName'])
       @gamestate.add_player(player)
       @context[:player] = player
-    when 'blue'
-      logger.debug 'new blue player'
-      player = parsePlayer(attrs)
-      if player.color != PlayerColor::BLUE
-        throw new IllegalArgumentException("expected #{PlayerColor::BLUE} Player but got #{player.color}")
-      end
+    when 'second'
+      logger.debug 'new second player'
+      player = Player.new(PlayerType::TWO, attrs['displayName'])
       @gamestate.add_player(player)
       @context[:player] = player
     when 'board'
       logger.debug 'new board'
-      @gamestate.board = Board.new
+      @gamestate.board = Board.new()
     when 'field'
       x = attrs['x'].to_i
       y = attrs['y'].to_i
@@ -184,17 +178,6 @@ class Protocol
     end
   end
 
-  # Converts XML attributes for a Player to a new Player object
-  #
-  # @param attributes [Hash] Attributes for the new Player.
-  # @return [Player] The created Player object.
-  def parsePlayer(attributes)
-    Player.new(
-      PlayerColor.find_by_key(attributes['color'].to_sym),
-      attributes['displayName']
-    )
-  end
-
   # send a xml document
   #
   # @param document [REXML::Document] the document, that will be send to the connected server
@@ -236,7 +219,7 @@ class Protocol
         end
       end
     when SkipMove
-      builder.data(class: 'skipmove') do |data|
+      builder.data(class: 'sc.plugin2021.SkipMove') do |data|
         move.hints.each do |hint|
           data.hint(content: hint.content)
         end

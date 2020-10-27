@@ -87,9 +87,9 @@ class GameState
   #
   # @param player [Player] Der hinzuzufügende Spieler.
   def add_player(player)
-    if player.color == PlayerType::ONE
+    if player.type == PlayerType::ONE
       @player_one = player
-    elsif player.color == PlayerType::TWO
+    elsif player.type == PlayerType::TWO
       @player_two = player
     end
   end
