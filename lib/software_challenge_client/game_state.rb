@@ -14,6 +14,9 @@ class GameState
   # @!attribute [rw] turn
   # @return [Integer] Aktuelle Zugnummer (von 0 beginnend)
   attr_accessor :turn
+  # @!attribute [rw] round
+  # @return [Integer] Aktuelle Rundennummer (von 1 beginnend)
+  attr_accessor :turn
   # @!attribute [rw] start_color
   # @return [Color] Die Farbe, die den ersten Zug im Spiel machen darf.
   attr_accessor :start_color
@@ -106,11 +109,6 @@ class GameState
   # @return [PlayerColor] Farbe des Spielers, der gerade nicht an der Reihe ist.
   def other_player_color
     PlayerColor.opponent_color(current_player_color)
-  end
-
-  # @return [Integer] Aktuelle Runde (von 0 beginnend).
-  def round
-    turn / 2
   end
 
   def undeployed_pieces(color)
