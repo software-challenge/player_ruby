@@ -4,27 +4,27 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    {
-        "name": "RSpec - all",
-        "type": "Ruby",
-        "request": "launch",
-        "program": "${workspaceRoot}/bin/rspec",
-        "args": [
-            "-I",
-            "${workspaceRoot}"
-        ]
-    },
-    {
-        "name": "RSpec - active spec file only",
-        "type": "Ruby",
-        "request": "launch",
-        "program": "${workspaceRoot}/bin/rspec",
-        "args": [
-            "-I",
-            "${workspaceRoot}",
-            "${file}"
-        ]
-    },
+        {
+            "name": "RSpec - all",
+            "type": "Ruby",
+            "request": "launch",
+            "program": "C:/tools/ruby27/bin/rspec",
+            "args": [
+                "-I",
+                "${workspaceRoot}"
+            ]
+        },
+        {
+            "name": "RSpec - active spec file only",
+            "type": "Ruby",
+            "request": "launch",
+            "program": "C:/tools/ruby27/bin/rspec",
+            "args": [
+                "-I",
+                "${workspaceRoot}",
+                "${file}"
+            ]
+        },
         {
             "name": "Debug Local File",
             "type": "Ruby",
