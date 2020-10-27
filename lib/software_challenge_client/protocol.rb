@@ -116,7 +116,7 @@ class Protocol
     when 'field'
       x = attrs['x'].to_i
       y = attrs['y'].to_i
-      color = Color[attrs['content'][0,1]]
+      color = Color.find_by_value(attrs['content'][0,1])
       field = Field.new(x, y, color)
       @gamestate.board.add_field(field)
       @context[:piece_target] = :field
