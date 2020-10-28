@@ -32,6 +32,7 @@ module GameStateHelpers
     end
     gamestate.ordered_colors = [ Color::BLUE, Color::YELLOW, Color::RED, Color::GREEN ]
     gamestate.current_color_index = 0
+    gamestate.start_piece = PieceShape::PENTO_V
     gamestate.board = Board.new(board_fields)
   end
 end

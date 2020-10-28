@@ -25,6 +25,14 @@ class CoordinateSet
     )
   end
 
+  def area
+    minX = coordinates.map(&:x).min
+    minY = coordinates.map(&:y).min
+    maxX = coordinates.map(&:x).max
+    maxY = coordinates.map(&:y).max
+    Coordinates.new(maxX - minX, maxY - minY)
+  end
+
   def align
     minX = coordinates.map(&:x).min
     minY = coordinates.map(&:y).min

@@ -98,7 +98,7 @@ class Protocol
       @gamestate.current_color_index = attrs['currentColorIndex'].to_i
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.round = attrs['round'].to_i
-      @gamestate.start_piece = Color[attrs['startPiece']]
+      @gamestate.start_piece = PieceShape.to_a.find {|s| s.key == attrs['startPiece'].to_sym }
       logger.debug "Round: #{@gamestate.round}, Turn: #{@gamestate.turn}"
     when 'first'
       logger.debug 'new first player'

@@ -220,12 +220,14 @@ class GameRuleLogic
   # Return a list of all possible SetMoves, regardless of whether it's the first round.
   def self.get_possible_start_moves(gamestate)
     kind = gamestate.start_piece
+    kind_max_x = BOARD_SIZE - kind.dimension.x
+    kind_max_y = BOARD_SIZE - kind.dimension.y
     moves = []
     Rotation.each do |r|
       [false, true].each do |f|
-        (0..BOARD_SIZE-kind.dimension.x).to_a.each do |x|
-          (0..BOARD_SIZE-kind.dimension.y).to_a.each do |y|
-            moves << SetMove.new(Piece.new(c, kind, r, f, Coordinates.new(x, y)))
+        (0..kind_max_x).to_a.each do |x|
+          (0..kind_max_y).to_a.each do |y|
+            moves << SetMove.new(Piece.new(c, kind, Coordinates.new(x, y), r, f))
           end
         end
       end
@@ -285,7 +287,7 @@ class GameRuleLogic
 
   def self.validate_set_move(gamestate, move)
     owned_fields = gamestate.board.fields_of_color(gamestate.current_color)
-    other_player_fields = gamestate.board.fields_of_color(gamestate.other_color)
+    other_player_fields = gamestate.board.fields_of_color(gamestate.other_player_color)
     corner = false
 
     unless gamestate.undeployed_pieces(gamestate.current_player_color).include?(move.piece)
