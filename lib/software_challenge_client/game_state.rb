@@ -94,28 +94,27 @@ class GameState
     end
   end
 
+  # @return [Player] Spieler, der gerade an der Reihe ist.
+  def current_player
+    turn % 2 == 0 ? player_one : player_two
+  end
+
+  # @return [Player] Spieler, der gerade nicht an der Reihe ist.
+  def other_player
+    turn % 2 == 0 ? player_two : player_one
+  end
+
+  # @return [PlayerType] Typ des Spielers, der gerade nicht an der Reihe ist.
+  def other_player_type
+    other_player.type
+  end
+
   # @return [Color] Farbe, der gerade an der Reihe ist.
   def current_color
     ordered_colors[current_color_index]
   end
 
-  # @return [Player] Spieler, der gerade an der Reihe ist.
-  def current_player
-    return red if current_player_color == PlayerColor::RED
-    return blue if current_player_color == PlayerColor::BLUE
-  end
-
-  # @return [Player] Spieler, der gerade nicht an der Reihe ist.
-  def other_player
-    return blue if current_player_color == PlayerColor::RED
-    return red if current_player_color == PlayerColor::BLUE
-  end
-
-  # @return [PlayerColor] Farbe des Spielers, der gerade nicht an der Reihe ist.
-  def other_player_color
-    PlayerColor.opponent_color(current_player_color)
-  end
-
+  # @return [Array<PieceShape>] Array aller Shapes, der gegebenen Farbe, die noch nicht gelegt wurden
   def undeployed_pieces(color)
     case color
     when Color::RED
@@ -129,6 +128,7 @@ class GameState
     end
   end
 
+  # @return [Array<PieceShape>] Array aller Shapes, der gegebenen Farbe, die schon gelegt wurden
   def deployed_pieces(color)
     board.deployed_pieces(color)
   end
@@ -147,6 +147,7 @@ class GameState
     !condition.nil?
   end
 
+  # Entfernt die jetzige Farbe aus der Farbrotation 
   def remove_active_color
     ordered_colors.delete current_color
   end
