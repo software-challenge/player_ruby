@@ -17,6 +17,6 @@ class Rotation < TypesafeEnum::Base
 
   # Gibt den rotation namen zurück
   def to_s
-    self.key[0..-1]
+    self.key.to_s
   end
 end

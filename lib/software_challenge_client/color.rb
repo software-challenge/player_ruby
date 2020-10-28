@@ -17,6 +17,6 @@ class Color < TypesafeEnum::Base
 
   # Gibt den color namen zurück
   def to_s
-    self.key[0..-1]
+    self.key.to_s
   end
 end

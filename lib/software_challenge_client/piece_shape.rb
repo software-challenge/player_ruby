@@ -77,6 +77,6 @@ class PieceShape < TypesafeEnum::Base
 
   # Gibt den shape namen zurück
   def to_s
-    self.key[0..-1]
+    self.key.to_s
   end
 end
