@@ -287,21 +287,16 @@ class GameRuleLogic
 
   def self.validate_set_move(gamestate, move)
     owned_fields = gamestate.board.fields_of_color(gamestate.current_color)
-    other_player_fields = gamestate.board.fields_of_color(gamestate.other_player_color)
+    other_color_fields = Color.to_a.flat_map {|i| gamestate.board.fields_of_color(i) }
     corner = false
 
-    unless gamestate.undeployed_pieces(gamestate.current_player_color).include?(move.piece)
+    unless gamestate.undeployed_pieces(gamestate.current_color).include?(move.piece.kind)
       raise InvalidMoveException.new('Piece is not a undeployed piece of the current player', move)
     end
 
-    move.piece.shape.each { |coords|
-      dest = Coordinates.new(coords.x + move.destination.x, coords.y + move.destination.y)
-      unless is_on_board(dest)
-        raise InvalidMoveException.new('Destination ${move.destination} is out of bounds!', move)
-      end
-
-      unless gamestate.board.field_at(dest).empty?
-        raise InvalidMoveException.new('Set destination is not empty!', move)
+    move.piece.coords.each { |coords|
+      unless gamestate.board.field_at(coords).empty?
+        raise InvalidMoveException.new('Piece destination is not empty!', move)
       end
 
       unless other_player_fields.empty?

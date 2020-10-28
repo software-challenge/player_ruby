@@ -30,6 +30,12 @@ class Piece
     @position = position
   end
 
+  def coords 
+    kind.coordinates.transform do |it|
+      Coordinates.new(it.x + position.x, it.y + position.y)
+    end.coordinates
+  end
+  
   def ==(other)
     color == other.color &&
       kind == other.kind &&
