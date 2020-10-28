@@ -20,7 +20,7 @@ RSpec.describe Protocol do
       server_message <<-XML
       <room roomId="cb3bc426-5c70-48b9-9307-943bc328b503">
       <data class="memento">
-        <state class="state" currentColorIndex="1" turn="1" round="1" startPiece="PENTO_V">
+        <state class="state" currentColorIndex="3" turn="3" round="1" startPiece="PENTO_V">
           <startTeam class="team">ONE</startTeam>
           <board>
             <field x="17" y="0" content="BLUE"/>
@@ -127,10 +127,10 @@ RSpec.describe Protocol do
             <color>RED</color>
             <color>GREEN</color>
           </orderedColors>
-          <first displayName="One">
+          <first displayName="OwO">
             <color class="team">ONE</color>
           </first>
-          <second displayName="Two">
+          <second displayName="UwU">
             <color class="team">TWO</color>
           </second>
           <lastMove class="sc.plugin2021.SetMove">
@@ -144,11 +144,11 @@ RSpec.describe Protocol do
     </room>
       XML
       expect(subject.gamestate.turn).to eq(3)
-      expect(subject.gamestate.start_player_color).to eq(PlayerColor::RED)
-      expect(subject.gamestate.current_player_color).to eq(PlayerColor::BLUE)
-      expect(subject.gamestate.current_player).to_not be_nil
-      expect(subject.gamestate.red.name).to eq('')
-      expect(subject.gamestate.blue.name).to eq('aBluePlayer')
+      expect(subject.gamestate.start_color).to eq(Color::BLUE)
+      expect(subject.gamestate.current_color_index).to eq(3)
+      expect(subject.gamestate.ordered_colors).to_not be_empty
+      expect(subject.gamestate.player_one.name).to eq('OwO')
+      expect(subject.gamestate.player_two.name).to eq('UwU')
     end
 
     xit 'updates the last move, if it exists in the gamestate' do

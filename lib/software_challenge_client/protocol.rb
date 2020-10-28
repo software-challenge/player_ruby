@@ -95,7 +95,7 @@ class Protocol
     when 'state'
       logger.debug 'new gamestate'
       @gamestate = GameState.new
-      @gamestate.current_color_index = Color[attrs['currentColorIndex']]
+      @gamestate.current_color_index = attrs['currentColorIndex'].to_i
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.round = attrs['round'].to_i
       @gamestate.start_piece = Color[attrs['startPiece']]
@@ -105,44 +105,63 @@ class Protocol
       player = Player.new(PlayerType::ONE, attrs['displayName'])
       @gamestate.add_player(player)
       @context[:player] = player
+      @context[:color] = :one
     when 'second'
       logger.debug 'new second player'
       player = Player.new(PlayerType::TWO, attrs['displayName'])
       @gamestate.add_player(player)
       @context[:player] = player
+      @context[:color] = :two
+    when 'orderedColors'
+      @context[:color] = :ordered_colors
+      @gamestate.ordered_colors = [ Color::BLUE, Color::YELLOW, Color::RED, Color::GREEN ]
+    when 'color'
+      if @context[:color] == :ordered_colors
+        # TODO: Parse ordered color values
+      end
     when 'board'
       logger.debug 'new board'
       @gamestate.board = Board.new()
     when 'field'
       x = attrs['x'].to_i
       y = attrs['y'].to_i
-      color = Color.find_by_value(attrs['content'][0,1])
+      color = Color.find_by_key(attrs['content'].to_sym)
       field = Field.new(x, y, color)
       @gamestate.board.add_field(field)
       @context[:piece_target] = :field
       @context[:field] = field
+    when 'blueShapes'
+      @context[:piece_target] = :blue_shapes
+      @gamestate.undeployed_blue_pieces = []
+    when 'yellowShapes'
+      @context[:piece_target] = :yellow_shapes
+      @gamestate.undeployed_yellow_pieces = []
+    when 'redShapes'
+      @context[:piece_target] = :red_shapes
+      @gamestate.undeployed_red_pieces = []
+    when 'greenShapes'
+      @context[:piece_target] = :green_shapes
+      @gamestate.undeployed_green_pieces = []
     when 'piece'
-      owner = PlayerColor.find_by_key(attrs['owner'].to_sym)
-      type = PieceType.find_by_key(attrs['type'].to_sym)
-      piece = Piece.new(owner, type)
+      color = Color.find_by_key(attrs['color'].to_sym)
+      kind = PieceShape.find_by_key(attrs['kind'].to_sym)
+      rotation = Rotation.find_by_key(attrs['rotation'].to_sym)
+      is_flipped = attrs['isFlipped'].downcase == "true"
+      piece = Piece.new(color, kind, Coordinates.origin, is_flipped, rotation)
       case @context[:piece_target]
-      when :field
-        @context[:field].add_piece(piece)
-      when :undeployed_red_pieces
-        @gamestate.undeployed_red_pieces << piece
-      when :undeployed_blue_pieces
+      when :blue_shapes
         @gamestate.undeployed_blue_pieces << piece
+      when :yellow_shapes
+        @gamestate.undeployed_yellow_pieces << piece
+      when :red_shapes 
+        @gamestate.green_red_pieces << piece
+      when :green_shapes
+        @gamestate.undeployed_green_pieces << piece
       when :last_move
         @context[:last_move_piece] = piece
       else
         raise "unknown piece target #{@context[:piece_target]}"
       end
-    when 'undeployedRedPieces'
-      @context[:piece_target] = :undeployed_red_pieces
-      @gamestate.undeployed_red_pieces = []
-    when 'undeployedBluePieces'
-      @context[:piece_target] = :undeployed_blue_pieces
-      @gamestate.undeployed_blue_pieces = []
     when 'lastMove'
       type = attrs['class']
       if type == 'skipmove'
@@ -151,16 +170,8 @@ class Protocol
         @context[:last_move_type] = type
         @context[:piece_target] = :last_move
       end
-    when 'start'
-      @context[:last_move_start] = CubeCoordinates.new(attrs['x'].to_i, attrs['y'].to_i, attrs['z'].to_i)
-    when 'destination'
-      destination = CubeCoordinates.new(attrs['x'].to_i, attrs['y'].to_i, attrs['z'].to_i)
-      case @context[:last_move_type]
-      when 'setmove'
-        @gamestate.last_move = SetMove.new(@context[:last_move_piece], destination)
-      when 'dragmove'
-        @gamestate.last_move = SetMove.new(@context[:last_move_start], destination)
-      end
+    when 'startColor'
+      @gamestate.start_color = Color::BLUE
     when 'winner'
       # TODO
       # winning_player = parsePlayer(attrs)

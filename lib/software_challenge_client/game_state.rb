@@ -17,6 +17,10 @@ class GameState
   # @!attribute [rw] round
   # @return [Integer] Aktuelle Rundennummer (von 1 beginnend)
   attr_accessor :round
+
+  # @!attribute [rw] startColor
+  # @return [Color] Die Farbe, die zuerst legen darf
+  attr_accessor :start_color
   # @!attribute [rw] current_color_index
   # @return [Color] Der jetzige Index in der Zug Reihenfolge der Farben.
   attr_accessor :current_color_index
