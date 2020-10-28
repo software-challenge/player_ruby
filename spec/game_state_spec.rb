@@ -62,8 +62,8 @@ RSpec.describe GameState do
     expect do
       move = SetMove.new(
         Piece.new(
-          Color::RED,
-          gamestate.undeployed_pieces(Color::RED).first,
+          gamestate.current_color,
+          gamestate.undeployed_pieces(gamestate.current_color).first,
           Rotation::NONE,
           false,
           Coordinates.new(1, 0)
