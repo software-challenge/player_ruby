@@ -95,10 +95,10 @@ class Protocol
     when 'state'
       logger.debug 'new gamestate'
       @gamestate = GameState.new
+      @gamestate.current_color_index = Color[attrs['currentColorIndex']]
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.round = attrs['round'].to_i
-      @gamestate.start_player_color = Color[attrs['startPlayerColor'][0,1]]
-      @gamestate.current_player_color = Color[attrs['currentPlayerColor'][0,1]]
+      @gamestate.start_piece = Color[attrs['startPiece']]
       logger.debug "Round: #{@gamestate.round}, Turn: #{@gamestate.turn}"
     when 'first'
       logger.debug 'new first player'

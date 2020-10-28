@@ -16,14 +16,10 @@ class GameState
   attr_accessor :turn
   # @!attribute [rw] round
   # @return [Integer] Aktuelle Rundennummer (von 1 beginnend)
-  attr_accessor :turn
-  # @!attribute [rw] start_color
-  # @return [Color] Die Farbe, die den ersten Zug im Spiel machen darf.
-  attr_accessor :start_color
-  # @!attribute [rw] current_color
-  # @return [Color] Die Farbe, die den nächsten Zug machen darf, also
-  #                 gerade an der Reihe ist.
-  attr_accessor :current_color
+  attr_accessor :round
+  # @!attribute [rw] current_color_index
+  # @return [Color] Der jetzige Index in der Zug Reihenfolge der Farben.
+  attr_accessor :current_color_index
   # @!attribute [rw] ordered_colors
   # @return [Array<Color>] Ein Array aller Farben die ziehen können in 
   #                        der Reihenfolge in der sie drankommen
@@ -92,6 +88,11 @@ class GameState
     elsif player.type == PlayerType::TWO
       @player_two = player
     end
+  end
+
+  # @return [Color] Farbe, der gerade an der Reihe ist.
+  def current_color
+    ordered_colors[current_color_index]
   end
 
   # @return [Player] Spieler, der gerade an der Reihe ist.

@@ -18,11 +18,130 @@ RSpec.describe Protocol do
   context 'when getting a new game state' do
     it 'updates the game state' do
       server_message <<-XML
-  <room roomId="bc65c764-c062-4b06-940c-5c6c39cb2324">
-    <data class="memento">
-      <state startPlayerColor="RED" currentPlayerColor="BLUE" turn="3">
-        <red color="RED" displayName=""/>
-        <blue color="BLUE" displayName="aBluePlayer"/>
+      <room roomId="cb3bc426-5c70-48b9-9307-943bc328b503">
+      <data class="memento">
+        <state class="state" currentColorIndex="1" turn="1" round="1" startPiece="PENTO_V">
+          <startTeam class="team">ONE</startTeam>
+          <board>
+            <field x="17" y="0" content="BLUE"/>
+            <field x="18" y="0" content="BLUE"/>
+            <field x="19" y="0" content="BLUE"/>
+            <field x="17" y="1" content="BLUE"/>
+            <field x="17" y="2" content="BLUE"/>
+          </board>
+          <blueShapes class="linked-hash-set">
+            <shape>MONO</shape>
+            <shape>DOMINO</shape>
+            <shape>TRIO_L</shape>
+            <shape>TRIO_I</shape>
+            <shape>TETRO_O</shape>
+            <shape>TETRO_T</shape>
+            <shape>TETRO_I</shape>
+            <shape>TETRO_L</shape>
+            <shape>TETRO_Z</shape>
+            <shape>PENTO_L</shape>
+            <shape>PENTO_T</shape>
+            <shape>PENTO_S</shape>
+            <shape>PENTO_Z</shape>
+            <shape>PENTO_I</shape>
+            <shape>PENTO_P</shape>
+            <shape>PENTO_W</shape>
+            <shape>PENTO_U</shape>
+            <shape>PENTO_R</shape>
+            <shape>PENTO_X</shape>
+            <shape>PENTO_Y</shape>
+          </blueShapes>
+          <yellowShapes class="linked-hash-set">
+            <shape>MONO</shape>
+            <shape>DOMINO</shape>
+            <shape>TRIO_L</shape>
+            <shape>TRIO_I</shape>
+            <shape>TETRO_O</shape>
+            <shape>TETRO_T</shape>
+            <shape>TETRO_I</shape>
+            <shape>TETRO_L</shape>
+            <shape>TETRO_Z</shape>
+            <shape>PENTO_L</shape>
+            <shape>PENTO_T</shape>
+            <shape>PENTO_V</shape>
+            <shape>PENTO_S</shape>
+            <shape>PENTO_Z</shape>
+            <shape>PENTO_I</shape>
+            <shape>PENTO_P</shape>
+            <shape>PENTO_W</shape>
+            <shape>PENTO_U</shape>
+            <shape>PENTO_R</shape>
+            <shape>PENTO_X</shape>
+            <shape>PENTO_Y</shape>
+          </yellowShapes>
+          <redShapes class="linked-hash-set">
+            <shape>MONO</shape>
+            <shape>DOMINO</shape>
+            <shape>TRIO_L</shape>
+            <shape>TRIO_I</shape>
+            <shape>TETRO_O</shape>
+            <shape>TETRO_T</shape>
+            <shape>TETRO_I</shape>
+            <shape>TETRO_L</shape>
+            <shape>TETRO_Z</shape>
+            <shape>PENTO_L</shape>
+            <shape>PENTO_T</shape>
+            <shape>PENTO_V</shape>
+            <shape>PENTO_S</shape>
+            <shape>PENTO_Z</shape>
+            <shape>PENTO_I</shape>
+            <shape>PENTO_P</shape>
+            <shape>PENTO_W</shape>
+            <shape>PENTO_U</shape>
+            <shape>PENTO_R</shape>
+            <shape>PENTO_X</shape>
+            <shape>PENTO_Y</shape>
+          </redShapes>
+          <greenShapes class="linked-hash-set">
+            <shape>MONO</shape>
+            <shape>DOMINO</shape>
+            <shape>TRIO_L</shape>
+            <shape>TRIO_I</shape>
+            <shape>TETRO_O</shape>
+            <shape>TETRO_T</shape>
+            <shape>TETRO_I</shape>
+            <shape>TETRO_L</shape>
+            <shape>TETRO_Z</shape>
+            <shape>PENTO_L</shape>
+            <shape>PENTO_T</shape>
+            <shape>PENTO_V</shape>
+            <shape>PENTO_S</shape>
+            <shape>PENTO_Z</shape>
+            <shape>PENTO_I</shape>
+            <shape>PENTO_P</shape>
+            <shape>PENTO_W</shape>
+            <shape>PENTO_U</shape>
+            <shape>PENTO_R</shape>
+            <shape>PENTO_X</shape>
+            <shape>PENTO_Y</shape>
+          </greenShapes>
+          <lastMoveMono class="linked-hash-map"/>
+          <orderedColors>
+            <color>BLUE</color>
+            <color>YELLOW</color>
+            <color>RED</color>
+            <color>GREEN</color>
+          </orderedColors>
+          <first displayName="One">
+            <color class="team">ONE</color>
+          </first>
+          <second displayName="Two">
+            <color class="team">TWO</color>
+          </second>
+          <lastMove class="sc.plugin2021.SetMove">
+            <piece color="BLUE" kind="PENTO_V" rotation="RIGHT" isFlipped="false">
+              <position x="17" y="0"/>
+            </piece>
+          </lastMove>
+          <startColor>BLUE</startColor>
+        </state>
+      </data>
+    </room>
       XML
       expect(subject.gamestate.turn).to eq(3)
       expect(subject.gamestate.start_player_color).to eq(PlayerColor::RED)
