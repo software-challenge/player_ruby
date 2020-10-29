@@ -26,10 +26,10 @@
             ]
         },
         {
-            "name": "Debug Local File",
+            "name": "Debug Main File",
             "type": "Ruby",
             "request": "launch",
-            "program": "${workspaceRoot}/main.rb"
+            "program": "example/main.rb"
         }
     ]
 }
