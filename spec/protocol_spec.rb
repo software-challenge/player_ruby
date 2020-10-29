@@ -16,7 +16,8 @@ RSpec.describe Protocol do
   end
 
   context 'when getting a new game state' do
-    it 'updates the game state' do
+
+    before do
       server_message <<-XML
       <room roomId="cb3bc426-5c70-48b9-9307-943bc328b503">
       <data class="memento">
@@ -123,9 +124,8 @@ RSpec.describe Protocol do
           <lastMoveMono class="linked-hash-map"/>
           <orderedColors>
             <color>BLUE</color>
-            <color>YELLOW</color>
-            <color>RED</color>
             <color>GREEN</color>
+            <color>RED</color>
           </orderedColors>
           <first displayName="OwO">
             <color class="team">ONE</color>
@@ -143,19 +143,32 @@ RSpec.describe Protocol do
       </data>
     </room>
       XML
+    end
+
+    it 'sets the current turn' do
       expect(subject.gamestate.turn).to eq(3)
+    end
+
+    it 'sets the start color' do
       expect(subject.gamestate.start_color).to eq(Color::BLUE)
+    end
+
+    it 'sets the current color' do
       expect(subject.gamestate.current_color_index).to eq(3)
-      expect(subject.gamestate.ordered_colors).to_not be_empty
+    end
+
+    it 'sets the ordered colors still in the game' do
+      expected = [Color::BLUE,  Color::GREEN, Color::RED]
+      # TODO: Currently is [Color::BLUE,  Color::YELLOW, Color::RED, Color::GREEN]
+      expect(subject.gamestate.ordered_colors).to eq(expected)
+    end
+
+    it 'sets the player names' do
       expect(subject.gamestate.player_one.name).to eq('OwO')
       expect(subject.gamestate.player_two.name).to eq('UwU')
     end
 
-    xit 'updates the last move, if it exists in the gamestate' do
-      server_message <<-XML
-        <state turn="2" startPlayer="RED" currentPlayer="BLUE">
-          <lastMove class="move" x="8" y="9" direction="DOWN"/>
-      XML
+    xit 'updates the last move' do
       move = Move.new(8, 9, Direction::DOWN)
       expect(subject.gamestate.last_move).to eq(move)
     end
