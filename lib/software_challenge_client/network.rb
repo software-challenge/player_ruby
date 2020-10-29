@@ -95,7 +95,7 @@ class Network
   #
   # @param xml [REXML::Document] the Document, that will be sent
   def sendXML(xml)
-    text = ''
+    text = ''.dup
     xml.write(text)
     sendString(text)
   end
