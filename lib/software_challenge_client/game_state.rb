@@ -133,6 +133,11 @@ class GameState
     board.deployed_pieces(color)
   end
 
+  # @return [Bool] Ob diese gamestate in der ersten Runde ist
+  def is_first_move?
+    round == 1
+  end
+
   # Führt einen Zug auf dem Spielzustand aus. Das Spielbrett wird entsprechend
   # modifiziert.
   #

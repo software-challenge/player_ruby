@@ -3,6 +3,7 @@
 
 require_relative './util/constants'
 require_relative 'invalid_move_exception'
+require_relative 'set_move'
 
 # Methoden, welche die Spielregeln von Blokus abbilden.
 #
@@ -51,7 +52,7 @@ class GameRuleLogic
 
   # Check if the given [move] has the right [Color].
   def self.validate_move_color(gamestate, move)
-    if move.color != gamestate.current_color then
+    if move.is_a?(SetMove.class) && move.piece.color != gamestate.current_color then
       raise InvalidMoveException.new("Expected move from #{gamestate.current_color}", move)
     end
   end
@@ -61,21 +62,23 @@ class GameRuleLogic
     # Check whether the color's move is currently active
     validate_move_color(gamestate, move)
     # Check whether the shape is valid
-    validate_shape(gamestate, move.piece.kind, move.color)
+    validate_shape(gamestate, move.piece.kind, move.piece.color)
     # Check whether the piece can be placed
     validate_set_move_placement(gamestate.board, move)
 
-    if is_first_move(gamestate) then
+    if gamestate.is_first_move? then
       # Check if it is placed correctly in a corner
-      if move.piece.coordinates.none { |it| is_on_corner(it) } then
+      if move.piece.coordinates.none? { |it| is_on_corner(it) } then
         raise InvalidMoveException.new("The Piece isn't located in a corner", move)
       end
     else
       # Check if the piece is connected to at least one tile of same color by corner
-      if move.piece.coordinates.none { |it| corners_on_color(gamestate.board, it, move.color) } then
+      if move.piece.coords.none? { |it| corners_on_color?(gamestate.board, it, move.piece.color) } then
         raise InvalidMoveException.new("#{move.piece} shares no corner with another piece of same color", move)
       end
     end
+
+    true
   end
 
   # Perform the given [SetMove].
@@ -97,12 +100,12 @@ class GameRuleLogic
 
   # Validate the [PieceShape] of a [SetMove] depending on the current [GameState].
   def self.validate_shape(gamestate, shape, color = gamestate.current_color)
-    if is_first_move(gamestate) then
+    if gamestate.is_first_move? then
       if shape != gamestate.start_piece then
         raise InvalidMoveException.new("#{shape} is not the requested first shape, #{gamestate.startPiece}")
       end
     else
-      if !gamestate.undeployedPieceShapes(color).contains(shape) then
+      if !gamestate.undeployed_pieces(color).include? shape then
         raise InvalidMoveException.new("Piece #{shape} has already been placed before")
       end
     end
@@ -124,17 +127,17 @@ class GameRuleLogic
 
   # Validate a [SetMove] on a [Board].
   def self.validate_set_move_placement(board, move)
-    move.piece.coordinates.each do |it|
+    move.piece.coords.each do |it|
       if it.x < 0 || it.y < 0 || it.x >= BOARD_SIZE || it.y >= BOARD_SIZE then
         raise InvalidMoveException.new("Field #{it} is out of bounds", move)
       end
 
       if obstructed?(board, it)  then
-        raise InvalidMoveException.new("Field #{it} already belongs to #{board[it].content}", move)
+        raise InvalidMoveException.new("Field #{it} already belongs to #{board[it].color}", move)
       end
 
-      if borders_on_color(board, it, move.color) then
-        raise InvalidMoveException.new("Field #{it} already borders on #{move.color}", move)
+      if borders_on_color?(board, it, move.piece.color) then
+        raise InvalidMoveException.new("Field #{it} already borders on #{move.piece.color}", move)
       end
     end
   end
@@ -158,7 +161,7 @@ class GameRuleLogic
 
   # Check if the given [position] is already obstructed by another piece.
   def self.obstructed?(board, position)
-    board[position].content != FieldContent.EMPTY
+    !board[position].color.nil?
   end
 
   # Check if the given [position] already borders on another piece of same [color].
@@ -176,7 +179,7 @@ class GameRuleLogic
   def self.corners_on_color?(board, position, color)
     [Coordinates.new(1, 1), Coordinates.new(1, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 1)].any? do |it|
       begin
-        board[position + it].content == +color
+        board[position + it].color == color
       rescue
         false
       end
@@ -285,46 +288,6 @@ class GameRuleLogic
     coords.x >= 0 && coords.x < BOARD_SIZE && coords.y >= 0 && coords.y < BOARD_SIZE
   end
 
-  def self.validate_set_move(gamestate, move)
-    owned_fields = gamestate.board.fields_of_color(gamestate.current_color)
-    other_color_fields = Color.to_a.flat_map {|i| gamestate.board.fields_of_color(i) }
-    corner = false
-
-    unless gamestate.undeployed_pieces(gamestate.current_color).include?(move.piece.kind)
-      raise InvalidMoveException.new('Piece is not a undeployed piece of the current player', move)
-    end
-
-    move.piece.coords.each { |coords|
-      unless gamestate.board.field_at(coords).empty?
-        raise InvalidMoveException.new('Piece destination is not empty!', move)
-      end
-
-      unless other_player_fields.empty?
-        if other_player_fields.map { |of| get_4neighbours(gamestate.board, of.coordinates).map(&:coordinates) }.flatten.include?(move.dest)
-          raise InvalidMoveException.new('Piece can not touch other players pieces!', move)
-        end
-      end
-
-      unless owned_fields.empty?
-        if owned_fields.map { |of| get_4neighbours(gamestate.board, of.coordinates).map(&:coordinates) }.flatten.include?(move.dest)
-          raise InvalidMoveException.new('Piece can not touch your already placed pieces!', move)
-        end
-      end
-
-      if get_8neighbours(
-           gamestate.board,
-           move.destination
-         ).any? {|f|
-           f.color == gamestate.current_player_color &&
-             get_4neighbours(gamestate.board, f).all? { |n| f.color == nil }
-         }
-        corner = true
-      end
-    }
-
-    corner
-  end
-
   def self.validate_skip_move(gamestate, move)
     unless possible_moves(gamestate).empty?
       raise InvalidMoveException.new('Skipping a turn is only allowed when no other moves can be made.', move)
@@ -339,12 +302,10 @@ class GameRuleLogic
     raise 'Invalid move!' unless valid_move?(gamestate, move)
     case move
     when SetMove
-      # delete first occurrence of piece
-      gamestate.undeployed_pieces(move.piece.color).delete_at(
-        gamestate.undeployed_pieces(move.piece.color).index(move.piece) ||
-        gamestate.undeployed_pieces(move.piece.color).length
-      )
-      gamestate.board.field_at(move.destination).add_piece(move.piece)
+      gamestate.undeployed_pieces(move.piece.color).delete(move.piece)
+      move.piece.coords.each do |coord|
+        gamestate.board[coord].color = move.piece.color
+      end
     end
     gamestate.turn += 1
     gamestate.last_move = move

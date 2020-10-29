@@ -121,6 +121,10 @@ class Board
     Marshal.load(Marshal.dump(self))
   end
 
+  def [](coords)
+    field_at(coords)
+  end
+
   # Gibt eine textuelle Repräsentation des Spielbrettes aus.
   def to_s
     (0...BOARD_SIZE).to_a.map do |x|
