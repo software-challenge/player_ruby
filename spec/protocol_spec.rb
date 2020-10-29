@@ -158,8 +158,8 @@ RSpec.describe Protocol do
     end
 
     it 'sets the ordered colors still in the game' do
-      expected = [Color::BLUE,  Color::GREEN, Color::RED]
-      # TODO: Currently is [Color::BLUE,  Color::YELLOW, Color::RED, Color::GREEN]
+      expected = [Color::BLUE, Color::GREEN, Color::RED]
+      # TODO: Currently is [Color::BLUE, Color::YELLOW, Color::RED, Color::GREEN]
       expect(subject.gamestate.ordered_colors).to eq(expected)
     end
 

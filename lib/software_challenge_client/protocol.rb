@@ -61,6 +61,10 @@ class Protocol
     case name
     when 'board'
       logger.debug @gamestate.board.to_s
+    when 'color'
+      if @context[:color] == :ordered_colors
+        @gamestate.ordered_colors << Color.to_a.find {|s| s.key == @context[:last_text].to_sym }
+      end
     end
   end
 
@@ -114,11 +118,7 @@ class Protocol
       @context[:color] = :two
     when 'orderedColors'
       @context[:color] = :ordered_colors
-      @gamestate.ordered_colors = [ Color::BLUE, Color::YELLOW, Color::RED, Color::GREEN ]
-    when 'color'
-      if @context[:color] == :ordered_colors
-        # TODO: Parse ordered color values
-      end
+      @gamestate.ordered_colors = []
     when 'board'
       logger.debug 'new board'
       @gamestate.board = Board.new()
