@@ -66,9 +66,9 @@ class Network
   # reads from the socket until "</room>" is read
   def readString
     return false unless @connected
-    sock_msg = ''
+    sock_msg = ''.dup # dup makes this string mutable
 
-    line = ''
+    line = ''.dup # dup makes this string mutable
     @socket.each_char do |char|
       line += char
       sock_msg += char
@@ -95,7 +95,7 @@ class Network
   #
   # @param xml [REXML::Document] the Document, that will be sent
   def sendXML(xml)
-    text = ''.dup
+    text = ''.dup # dup makes this string mutable
     xml.write(text)
     sendString(text)
   end
