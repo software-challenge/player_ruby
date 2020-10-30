@@ -290,10 +290,7 @@ class GameRuleLogic
   end
 
   def self.validate_skip_move(gamestate, move)
-    unless possible_moves(gamestate).empty?
-      raise InvalidMoveException.new('Skipping a turn is only allowed when no other moves can be made.', move)
-    end
-    if gamestate.round < 2
+    unless gamestate.round > 1
       raise InvalidMoveException.new('Skipping a turn is only allowed after the first turn', move)
     end
     true
