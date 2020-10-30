@@ -68,7 +68,7 @@ class GameRuleLogic
 
     if gamestate.is_first_move? then
       # Check if it is placed correctly in a corner
-      if move.piece.coordinates.none? { |it| is_on_corner(it) } then
+      if move.piece.coords.none? { |it| corner?(it) } then
         raise InvalidMoveException.new("The Piece isn't located in a corner", move)
       end
     else
@@ -151,7 +151,7 @@ class GameRuleLogic
 
   # Skip a turn.
   def self.perform_skip_move(gamestate)
-    if first_move?(gamestate)
+    if gamestate.is_first_move?
       raise InvalidMoveException.new("Can't Skip on first round", SkipMove.new(gamestate.currentColor))
     end
     if !gamestate.tryAdvance() then
@@ -197,11 +197,6 @@ class GameRuleLogic
     corner.include? position
   end
 
-  # Gib zurück, ob sich der [GameState] noch in der ersten Runde befindet.
-  def self.first_move?(gamestate)
-    gamestate.undeployed_pieces(gamestate.current_color).length() == TOTAL_PIECE_SHAPES
-  end
-
   # Return a list of all possible SetMoves, regardless of whether it's the first round.
   def self.get_all_possible_moves(gamestate)
     c = gamestate.current_color
@@ -236,7 +231,8 @@ class GameRuleLogic
         end
       end
     end
-    moves.filter {|m| valid_set_move?(gamestate, m) }
+    moves = moves.filter {|m| valid_set_move?(gamestate, m) }
+    moves
   end
 
   # Return a list of all moves, impossible or not.
@@ -312,7 +308,7 @@ class GameRuleLogic
   # all possible moves, but will *not* return the skip move if no other moves are possible!
   # @param gamestate [GameState] Der zu untersuchende GameState.
   def self.possible_moves(gamestate)
-    if (gamestate.turn > 1)
+    if not gamestate.is_first_move?
       possible_set_moves(gamestate) + SkipMove.new()
     else
       possible_set_moves(gamestate)
@@ -322,7 +318,7 @@ class GameRuleLogic
   # Gibt alle möglichen lege Züge zurück
   # @param gamestate [GameState] Der zu untersuchende GameState.
   def self.possible_set_moves(gamestate)
-    if first_move?(gamestate) then
+    if gamestate.is_first_move? then
       get_possible_start_moves(gamestate)
     else
       get_all_possible_moves(gamestate)
