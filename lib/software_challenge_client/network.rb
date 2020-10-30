@@ -1,5 +1,5 @@
 # encoding: UTF-8
-# frozen_string_literal: true
+# frozen_string_literal: false
 
 require 'socket'
 require 'rexml/document'
@@ -66,9 +66,9 @@ class Network
   # reads from the socket until "</room>" is read
   def readString
     return false unless @connected
-    sock_msg = ''.dup # dup makes this string mutable
+    sock_msg = ''
 
-    line = ''.dup # dup makes this string mutable
+    line = ''
     @socket.each_char do |char|
       line += char
       sock_msg += char
@@ -95,7 +95,7 @@ class Network
   #
   # @param xml [REXML::Document] the Document, that will be sent
   def sendXML(xml)
-    text = ''.dup # dup makes this string mutable
+    text = ''
     xml.write(text)
     sendString(text)
   end
