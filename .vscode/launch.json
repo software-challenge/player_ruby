@@ -5,14 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "RSpec - all",
+            "name": "Debug Main File",
             "type": "Ruby",
             "request": "launch",
-            "program": "C:/tools/ruby27/bin/rspec",
-            "args": [
-                "-I",
-                "${workspaceRoot}"
-            ]
+            "program": "example/main.rb"
         },
         {
             "name": "RSpec - active spec file only",
@@ -26,10 +22,14 @@
             ]
         },
         {
-            "name": "Debug Main File",
+            "name": "RSpec - all",
             "type": "Ruby",
             "request": "launch",
-            "program": "example/main.rb"
-        }
+            "program": "C:/tools/ruby27/bin/rspec",
+            "args": [
+                "-I",
+                "${workspaceRoot}"
+            ]
+        },
     ]
 }
