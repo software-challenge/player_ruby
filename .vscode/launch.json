@@ -17,7 +17,7 @@
             "program": "example/main.rb"
         },
         {
-            "name": "RSpec - active spec file only",
+            "name": "RSpec - Active spec File only",
             "type": "Ruby",
             "request": "launch",
             "program": "C:/tools/ruby27/bin/rspec",
@@ -28,7 +28,7 @@
             ]
         },
         {
-            "name": "RSpec - all",
+            "name": "RSpec - All",
             "type": "Ruby",
             "request": "launch",
             "program": "C:/tools/ruby27/bin/rspec",
