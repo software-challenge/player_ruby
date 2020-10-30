@@ -19,7 +19,7 @@ class GameRuleLogic
   # all possible moves, but will *not* return the skip move if no other moves are possible!
   # @param gamestate [GameState] Der zu untersuchende GameState.
   def self.possible_moves(gamestate)
-    re = possible_set_moves(gamestate)
+    re = possible_setmoves(gamestate)
 
     if not gamestate.is_first_move?
       re << SkipMove.new()
@@ -69,27 +69,27 @@ class GameRuleLogic
     moves.filter {|m| valid_set_move?(gamestate, m) }
   end
 
-  # Return a list of all moves, impossible or not.
-  # There's no real usage, except maybe for cases where no Move validation happens
-  # if `Constants.VALIDATE_MOVE` is false, then this function should return the same
-  # Set as `::getPossibleMoves`
-  def self.get_all_set_moves()
-    moves = []
-    Color.each do |c|
-      PieceShape.each do |s|
-        Rotation.each do |r|
-          [false, true].each do |f|
-            (0..BOARD_SIZE-1).to_a.each do |x|
-              (0..BOARD_SIZE-1).to_a.each do |y|
-                moves << SetMove.new(Piece.new(c, s, r, f, Coordinates.new(x, y)))
-              end
-            end
-          end
-        end
-      end
-    end
-    moves
-  end
+  # # Return a list of all moves, impossible or not.
+  # # There's no real usage, except maybe for cases where no Move validation happens
+  # # if `Constants.VALIDATE_MOVE` is false, then this function should return the same
+  # # Set as `::getPossibleMoves`
+  # def self.get_all_set_moves()
+  #   moves = []
+  #   Color.each do |c|
+  #     PieceShape.each do |s|
+  #       Rotation.each do |r|
+  #         [false, true].each do |f|
+  #           (0..BOARD_SIZE-1).to_a.each do |x|
+  #             (0..BOARD_SIZE-1).to_a.each do |y|
+  #               moves << SetMove.new(Piece.new(c, s, r, f, Coordinates.new(x, y)))
+  #             end
+  #           end
+  #         end
+  #       end
+  #     end
+  #   end
+  #   moves
+  # end
 
   # --- Move Validation ------------------------------------------------------------
 
