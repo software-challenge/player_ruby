@@ -211,7 +211,7 @@ class GameRuleLogic
         [false, true].each do |f|
           (0..BOARD_SIZE-p.kind.dimension.x).to_a.each do |x|
             (0..BOARD_SIZE-p.kind.dimension.y).to_a.each do |y|
-              moves << SetMove.new(Piece.new(c, p.kind, r, f, Coordinates.new(x, y)))
+              moves << SetMove.new(Piece.new(c, p.kind, Coordinates.new(x, y), f, r))
             end
           end
         end
@@ -225,12 +225,13 @@ class GameRuleLogic
     kind = gamestate.start_piece
     kind_max_x = BOARD_SIZE - kind.dimension.x
     kind_max_y = BOARD_SIZE - kind.dimension.y
+    current_color = gamestate.current_color
     moves = []
     Rotation.each do |r|
       [false, true].each do |f|
         (0..kind_max_x).to_a.each do |x|
           (0..kind_max_y).to_a.each do |y|
-            moves << SetMove.new(Piece.new(c, kind, Coordinates.new(x, y), r, f))
+            moves << SetMove.new(Piece.new(current_color, kind, Coordinates.new(x, y), f, r))
           end
         end
       end
@@ -250,7 +251,7 @@ class GameRuleLogic
           [false, true].each do |f|
             (0..BOARD_SIZE-1).to_a.each do |x|
               (0..BOARD_SIZE-1).to_a.each do |y|
-                moves << SetMove.new(Piece.new(c, s, r, f, Coordinates.new(x, y)))
+                moves << SetMove.new(Piece.new(c, s, Coordinates.new(x, y), f, r))
               end
             end
           end

@@ -37,4 +37,15 @@ RSpec.describe Piece do
       end
     end
   end
+
+  it 'has coordinates as position' do
+    p = Piece.new(
+      Color::RED,
+      PieceShape::MONO,
+      Coordinates.new(18, 3),
+      false,
+      Rotation::NONE
+    )
+    expect(p.position).to be_a(Coordinates)
+  end
 end

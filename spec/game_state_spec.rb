@@ -58,15 +58,15 @@ RSpec.describe GameState do
     expect do
       move = SkipMove.new
       gamestate.perform!(move)
-    end.not_to raise_error(NoMethodError)
+    end.not_to raise_error
     expect do
       move = SetMove.new(
         Piece.new(
           gamestate.current_color,
           gamestate.undeployed_pieces(gamestate.current_color).first,
-          Rotation::NONE,
+          Coordinates.new(18, 3),
           false,
-          Coordinates.new(18, 3)
+          Rotation::NONE
         )
       )
       gamestate.perform!(move)
