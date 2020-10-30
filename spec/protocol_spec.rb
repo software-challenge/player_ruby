@@ -363,7 +363,7 @@ RSpec.describe Protocol do
   end
 
   it 'converts a setmove to xml' do
-    move = SetMove.new(Piece.new(Color::BLUE, PieceShape::PENTO_T, Coordinates.new(4,2), false, Rotation::LEFT))
+    move = SetMove.new(Piece.new(Color::BLUE, PieceShape::PENTO_T, Rotation::LEFT, false, Coordinates.new(4,2)))
     # NOTE that this is brittle because XML formatting (whitespace, attribute
     # order) is arbitrary.
     expect(subject.move_to_xml(move)).to eq <<~XML

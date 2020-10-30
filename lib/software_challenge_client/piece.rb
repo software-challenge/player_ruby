@@ -28,11 +28,17 @@ class Piece
     @rotation = rotation
     @is_flipped = is_flipped
     @position = position
+
+    begin 
+      text = position.x
+    rescue
+      text = 0
+    end
   end
 
   def coords 
     kind.coordinates.transform do |it|
-      Coordinates.new(it.x + position.x, it.y + position.y)
+      Coordinates.new(it.x + @position.x, it.y + @position.y)
     end.coordinates
   end
   

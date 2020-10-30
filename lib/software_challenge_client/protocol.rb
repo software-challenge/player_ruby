@@ -147,7 +147,7 @@ class Protocol
       kind = PieceShape.find_by_key(attrs['kind'].to_sym)
       rotation = Rotation.find_by_key(attrs['rotation'].to_sym)
       is_flipped = attrs['isFlipped'].downcase == "true"
-      piece = Piece.new(color, kind, Coordinates.origin, is_flipped, rotation)
+      piece = Piece.new(color, kind, rotation, is_flipped, Coordinates.origin)
       case @context[:piece_target]
       when :blue_shapes
         @gamestate.undeployed_blue_pieces << piece

@@ -231,7 +231,7 @@ class GameRuleLogic
       [false, true].each do |f|
         (0..kind_max_x).to_a.each do |x|
           (0..kind_max_y).to_a.each do |y|
-            moves << SetMove.new(Piece.new(current_color, kind, Coordinates.new(x, y), f, r))
+            moves << SetMove.new(Piece.new(current_color, kind, r, f, Coordinates.new(x, y)))
           end
         end
       end

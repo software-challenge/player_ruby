@@ -42,9 +42,9 @@ RSpec.describe Piece do
     p = Piece.new(
       Color::RED,
       PieceShape::MONO,
-      Coordinates.new(18, 3),
+      Rotation::NONE,
       false,
-      Rotation::NONE
+      Coordinates.new(18, 3)
     )
     expect(p.position).to be_a(Coordinates)
   end
