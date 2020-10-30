@@ -20,45 +20,39 @@ class GameRuleLogic
   # @param gamestate [GameState] Der zu untersuchende GameState.
   def self.possible_moves(gamestate)
     re = possible_set_moves(gamestate)
+
     if not gamestate.is_first_move?
-      re = re + SkipMove.new()
+      re << SkipMove.new()
     end
+
     re
   end
 
   # Gibt alle möglichen lege Züge zurück
   # @param gamestate [GameState] Der zu untersuchende GameState.
-  def self.possible_set_moves(gamestate)
+  def self.possible_setmoves(gamestate)
     if gamestate.is_first_move? then
-      get_possible_start_moves(gamestate)
+      get_possible_setmoves_for_kind(gamestate, gamestate.start_piece)
     else
       get_all_possible_moves(gamestate)
     end
   end
 
   # Return a list of all possible SetMoves, regardless of whether it's the first round.
-  def self.get_all_possible_moves(gamestate)
-    c = gamestate.current_color
+  def self.get_all_possible_setmoves(gamestate)
     moves = []
-    gamestate.undeployed_pieces(c).each do |p|
-      kind_max_x = BOARD_SIZE - p.kind.dimension.x
-      kind_max_y = BOARD_SIZE - p.kind.dimension.y
-      Rotation.each do |r|
-        [false, true].each do |f|
-          (0..kind_max_x).to_a.each do |x|
-            (0..kind_max_y).to_a.each do |y|
-              moves << SetMove.new(Piece.new(c, p.kind, r, f, Coordinates.new(x, y)))
-            end
-          end
-        end
-      end
+    gamestate.undeployed_pieces(gamestate.current_color).each do |p|
+      moves += get_possible_setmoves_for_kind(gamestate, p.kind)
     end
-    moves.filter {|m| valid_set_move?(gamestate, m) }
+    moves
   end
 
-  # Return a list of all possible SetMoves for the the first round.
-  def self.get_possible_start_moves(gamestate)
-    kind = gamestate.start_piece
+  # Gibt eine Liste aller möglichen SetMoves für diese Form zurück.
+  # @param gamestate der aktuelle Spielstand
+  # @param kind die [PieceShape] der züge
+  #
+  # @return alle möglichen züge mit dem kind
+  def self.get_possible_setmoves_for_kind(gamestate, kind)
     kind_max_x = BOARD_SIZE - kind.dimension.x
     kind_max_y = BOARD_SIZE - kind.dimension.y
     current_color = gamestate.current_color
