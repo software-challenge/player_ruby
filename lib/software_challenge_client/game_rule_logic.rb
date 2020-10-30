@@ -98,6 +98,19 @@ class GameRuleLogic
   # @param move der zu überprüfende Zug
   #
   # @return ob der Zug zulässig ist
+  def self.valid_move?(gamestate, move)
+    if move.instance_of? SkipMove
+      !gamestate.is_first_move?
+    else
+      valid_set_move?(gamestate, move)
+    end
+  end
+
+  # Prüft, ob der gegebene [SetMove] zulässig ist.
+  # @param gamestate der aktuelle Spielstand
+  # @param move der zu überprüfende Zug
+  #
+  # @return ob der Zug zulässig ist
   def self.valid_set_move?(gamestate, move)
     begin
       validate_set_move(gamestate, move)
@@ -215,7 +228,7 @@ class GameRuleLogic
     raise 'Invalid move!' unless valid_move?(gamestate, move)
     if move.instance_of? SetMove
       gamestate.undeployed_pieces(move.piece.color).delete(move.piece)
-      gamestate.deployed_pieces(move.color).add(move.piece)
+      # gamestate.deployed_pieces(move.piece.color).add(move.piece)
 
       # Apply piece to board
       move.piece.coords.each do |coord|
@@ -223,13 +236,13 @@ class GameRuleLogic
       end
 
       # If it was the last piece for this color, remove it from the turn queue
-      if gamestate.undeployed_piece_shapes(move.color).empty? then
+      if gamestate.undeployed_pieces(move.piece.color).empty? then
         gamestate.lastMoveMono += move.color to (move.piece.kind == PieceShape.MONO)
         gamestate.remove_active_color
       end
     end
-    gamestate.turn++
-    gamestate.round++
+    gamestate.turn += 1
+    gamestate.round += 1
     gamestate.last_move = move
   end
 
