@@ -46,6 +46,6 @@ class Field
 
   # @return [String] Textuelle Darstellung des Feldes.
   def to_s
-    empty? ? '_' : color.to_s
+    empty? ? '_' : color.value
   end
 end

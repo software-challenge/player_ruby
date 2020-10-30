@@ -127,6 +127,7 @@ class Board
 
   # Gibt eine textuelle Repräsentation des Spielbrettes aus.
   def to_s
+    "\n"+
     (0...BOARD_SIZE).to_a.map do |x|
       (0...BOARD_SIZE).to_a.map do |y|
         @fields[x][y].to_s

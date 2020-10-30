@@ -40,7 +40,7 @@ class Protocol
   #
   # @param text [String] the xml-string that will be parsed
   def process_string(text)
-    logger.debug "Parse XML:\n#{text}\n----END XML"
+    #logger.debug "Parse XML:\n#{text}\n----END XML"
     begin
       REXML::Document.parse_stream(text, self)
     rescue REXML::ParseException => e

@@ -35,6 +35,6 @@ class Client < ClientInterface
     # end
     possible_moves = GameRuleLogic.possible_moves(gamestate)
     logger.debug "#{possible_moves.size} moegliche Zuege gefunden"
-    possible_moves.sample
+    possible_moves.first
   end
 end
