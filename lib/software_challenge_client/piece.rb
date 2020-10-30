@@ -28,12 +28,6 @@ class Piece
     @rotation = rotation
     @is_flipped = is_flipped
     @position = position
-
-    begin 
-      text = position.x
-    rescue
-      text = 0
-    end
   end
 
   def coords 
