@@ -211,7 +211,7 @@ class GameRuleLogic
         [false, true].each do |f|
           (0..BOARD_SIZE-p.kind.dimension.x).to_a.each do |x|
             (0..BOARD_SIZE-p.kind.dimension.y).to_a.each do |y|
-              moves << SetMove.new(Piece.new(c, p.kind, Coordinates.new(x, y), f, r))
+              moves << SetMove.new(Piece.new(c, p.kind, r, f, Coordinates.new(x, y)))
             end
           end
         end
@@ -251,7 +251,7 @@ class GameRuleLogic
           [false, true].each do |f|
             (0..BOARD_SIZE-1).to_a.each do |x|
               (0..BOARD_SIZE-1).to_a.each do |y|
-                moves << SetMove.new(Piece.new(c, s, Coordinates.new(x, y), f, r))
+                moves << SetMove.new(Piece.new(c, s, r, f, Coordinates.new(x, y)))
               end
             end
           end

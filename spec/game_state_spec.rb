@@ -64,9 +64,9 @@ RSpec.describe GameState do
         Piece.new(
           gamestate.current_color,
           gamestate.undeployed_pieces(gamestate.current_color).first,
-          Coordinates.new(18, 3),
+          Rotation::NONE,
           false,
-          Rotation::NONE
+          Coordinates.new(18, 3)
         )
       )
       gamestate.perform!(move)
