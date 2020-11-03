@@ -34,7 +34,7 @@ class GameRuleLogic
     if gamestate.is_first_move? then
       get_possible_setmoves_for_kind(gamestate, gamestate.start_piece)
     else
-      get_all_possible_moves(gamestate)
+      get_all_possible_setmoves(gamestate)
     end
   end
 
@@ -42,7 +42,7 @@ class GameRuleLogic
   def self.get_all_possible_setmoves(gamestate)
     moves = []
     gamestate.undeployed_pieces(gamestate.current_color).each do |p|
-      moves += get_possible_setmoves_for_kind(gamestate, p.kind)
+      moves += get_possible_setmoves_for_kind(gamestate, p)
     end
     moves
   end

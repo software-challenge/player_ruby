@@ -65,6 +65,29 @@ class Protocol
       if @context[:color] == :ordered_colors
         @gamestate.ordered_colors << Color.to_a.find {|s| s.key == @context[:last_text].to_sym }
       end
+    when 'shape'
+      case @context[:piece_target] 
+      when :blue_shapes
+        last = @context[:last_text]
+        arr = PieceShape.to_a
+        shape = arr.find {|s| s.key == @context[:last_text].to_sym }
+        @gamestate.undeployed_blue_pieces << shape
+      when :yellow_shapes
+        shape = PieceShape.to_a.find {|s| s.key == @context[:last_text].to_sym }
+        @gamestate.undeployed_yellow_pieces << shape
+      when :red_shapes
+        shape = PieceShape.to_a.find {|s| s.key == @context[:last_text].to_sym }
+        @gamestate.undeployed_red_pieces << shape
+      when :green_shapes
+        shape = PieceShape.to_a.find {|s| s.key == @context[:last_text].to_sym }
+        @gamestate.undeployed_green_pieces << shape
+      end
+    when 'yellowShapes'
+     
+    when 'redShapes'
+      
+    when 'greenShapes'
+      
     end
   end
 
