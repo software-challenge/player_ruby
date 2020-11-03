@@ -31,7 +31,7 @@ class Piece
   end
 
   def coords 
-    kind.coordinates.transform do |it|
+    kind.transform(@rotation, @is_flipped).transform do |it|
       Coordinates.new(it.x + @position.x, it.y + @position.y)
     end.coordinates
   end
