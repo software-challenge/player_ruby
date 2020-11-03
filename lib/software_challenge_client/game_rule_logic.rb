@@ -14,11 +14,14 @@ class GameRuleLogic
 
   SUM_MAX_SQUARES = 89
 
+  attr_reader :logger
+
   # --- Possible Moves ------------------------------------------------------------
 
   # all possible moves, but will *not* return the skip move if no other moves are possible!
   # @param gamestate [GameState] Der zu untersuchende GameState.
-  def self.possible_moves(gamestate)
+  def self.possible_moves(gamestate, logger)
+    @logger = logger
     re = possible_setmoves(gamestate)
 
     if not gamestate.is_first_move?
@@ -43,6 +46,7 @@ class GameRuleLogic
     moves = []
     gamestate.undeployed_pieces(gamestate.current_color).each do |p|
       moves += get_possible_setmoves_for_kind(gamestate, p)
+      @logger.debug "checked all moves for #{p}"
     end
     moves
   end
@@ -66,6 +70,7 @@ class GameRuleLogic
         end
       end
     end
+    @logger.debug "got all moves for #{kind}"
     moves.filter {|m| valid_set_move?(gamestate, m) }
   end
 
@@ -114,7 +119,6 @@ class GameRuleLogic
   def self.valid_set_move?(gamestate, move)
     begin
       validate_set_move(gamestate, move)
-      true
     rescue InvalidMoveException
       false
     end
@@ -132,11 +136,13 @@ class GameRuleLogic
     if gamestate.is_first_move? then
       # Check if it is placed correctly in a corner
       if move.piece.coords.none? { |it| corner?(it) } then
+        return false
         raise InvalidMoveException.new("The Piece isn't located in a corner", move)
       end
     else
       # Check if the piece is connected to at least one tile of same color by corner
       if move.piece.coords.none? { |it| corners_on_color?(gamestate.board, it, move.piece.color) } then
+        return false
         raise InvalidMoveException.new("#{move.piece} shares no corner with another piece of same color", move)
       end
     end
@@ -147,6 +153,7 @@ class GameRuleLogic
   # Check if the given [move] has the right [Color].
   def self.validate_move_color(gamestate, move)
     if move.is_a?(SetMove.class) && move.piece.color != gamestate.current_color then
+      return false
       raise InvalidMoveException.new("Expected move from #{gamestate.current_color}", move)
     end
   end
@@ -155,10 +162,12 @@ class GameRuleLogic
   def self.validate_shape(gamestate, shape, color = gamestate.current_color)
     if gamestate.is_first_move? then
       if shape != gamestate.start_piece then
+        return false
         raise InvalidMoveException.new("#{shape} is not the requested first shape, #{gamestate.startPiece}")
       end
     else
       if !gamestate.undeployed_pieces(color).include? shape then
+        return false
         raise InvalidMoveException.new("Piece #{shape} has already been placed before")
       end
     end
@@ -167,7 +176,8 @@ class GameRuleLogic
   # Validate a [SetMove] on a [Board].
   def self.validate_set_move_placement(board, move)
     move.piece.coords.each do |it|
-      if it.x < 0 || it.y < 0 || it.x >= BOARD_SIZE || it.y >= BOARD_SIZE then
+      if !board.in_bounds? it then
+        return false
         raise InvalidMoveException.new("Field #{it} is out of bounds", move)
       end
 
@@ -176,6 +186,7 @@ class GameRuleLogic
       end
 
       if borders_on_color?(board, it, move.piece.color) then
+        return false
         raise InvalidMoveException.new("Field #{it} already borders on #{move.piece.color}", move)
       end
     end
@@ -184,9 +195,9 @@ class GameRuleLogic
   # Check if the given [position] already borders on another piece of same [color].
   def self.borders_on_color?(board, position, color)
     [Coordinates.new(1, 0), Coordinates.new(0, 1), Coordinates.new(-1, 0), Coordinates.new(0, -1)].any? do |it|
-      begin
-        board[position + it].content == color
-      rescue
+      if board.in_bounds?(position + it)
+        board[position + it].color == color
+      else
         false
       end
     end
@@ -195,11 +206,7 @@ class GameRuleLogic
   # Return true if the given [Coordinates] touch a corner of a field of same color.
   def self.corners_on_color?(board, position, color)
     [Coordinates.new(1, 1), Coordinates.new(1, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 1)].any? do |it|
-      begin
-        board[position + it].color == color
-      rescue
-        false
-      end
+      board.in_bounds?(position + it) && board[position + it].color == color
     end
   end
 

@@ -103,6 +103,10 @@ class Board
     fields
   end
 
+  def in_bounds?(it) 
+    it.x >= 0 && it.y >= 0 && it.x < BOARD_SIZE && it.y < BOARD_SIZE
+  end
+
   def deployed_pieces(color)
     case color
     when Color::RED

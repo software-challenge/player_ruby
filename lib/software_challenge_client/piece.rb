@@ -22,20 +22,18 @@ class Piece
   # @return [Coordinates]
   attr_reader :position
 
+  attr_reader :coords
+
   def initialize(color, kind, rotation = Rotation::NONE, is_flipped = false, position = Coordinates.origin)
     @color = color
     @kind = kind
     @rotation = rotation
     @is_flipped = is_flipped
     @position = position
+
+    @coords = coords_priv
   end
 
-  def coords 
-    kind.transform(@rotation, @is_flipped).transform do |it|
-      Coordinates.new(it.x + @position.x, it.y + @position.y)
-    end.coordinates
-  end
-  
   def ==(other)
     color == other.color &&
       kind == other.kind &&
@@ -50,5 +48,12 @@ class Piece
 
   def inspect
     to_s
+  end
+
+  private
+  def coords_priv
+    kind.transform(@rotation, @is_flipped).transform do |it|
+      Coordinates.new(it.x + @position.x, it.y + @position.y)
+    end.coordinates
   end
 end

@@ -33,7 +33,7 @@ class Client < ClientInterface
     #     logger.debug "Feld (#{f.x}, #{f.y}) #{f.obstructed ? 'OO' : f.pieces.last.to_s}"
     #   end
     # end
-    possible_moves = GameRuleLogic.possible_moves(gamestate)
+    possible_moves = GameRuleLogic.possible_moves(gamestate, logger)
     logger.debug "#{possible_moves.size} moegliche Zuege gefunden"
     possible_moves.first
   end
