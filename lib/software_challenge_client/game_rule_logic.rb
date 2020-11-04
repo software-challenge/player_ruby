@@ -152,74 +152,47 @@ class GameRuleLogic
   #
   # @return ob der Zug zulässig ist
   def self.valid_set_move?(gamestate, move)
-    begin
-      validate_set_move(gamestate, move)
-    rescue InvalidMoveException
-      false
-    end
-  end
-
-  # Check if the given [move] is able to be performed for the given [gamestate]. */
-  def self.validate_set_move(gamestate, move)
+    
     # Check whether the color's move is currently active
-    validate_move_color(gamestate, move)
+    if move.piece.color != gamestate.current_color then
+      return false
+    end
+
     # Check whether the shape is valid
-    validate_shape(gamestate, move, move.piece.color)
+    if gamestate.is_first_move? then
+      if move.piece.kind != gamestate.start_piece then
+        return false
+      end
+    elsif !gamestate.undeployed_pieces(move.piece.color).include?(move.piece.kind) then
+      return false
+    end
+    
     # Check whether the piece can be placed
-    validate_set_move_placement(gamestate.board, move)
+    move.piece.coords.each do |it|
+      if !gamestate.board.in_bounds?(it) then
+        return false
+      end
+      if obstructed?(gamestate.board, it)  then
+        return false
+      end
+      if borders_on_color?(gamestate.board, it, move.piece.color) then
+        return false
+      end
+    end
 
     if gamestate.is_first_move? then
       # Check if it is placed correctly in a corner
       if move.piece.coords.none? { |it| corner?(it) } then
         return false
-        raise InvalidMoveException.new("The Piece isn't located in a corner", move)
       end
     else
       # Check if the piece is connected to at least one tile of same color by corner
       if move.piece.coords.none? { |it| corners_on_color?(gamestate.board, it, move.piece.color) } then
         return false
-        raise InvalidMoveException.new("#{move.piece} shares no corner with another piece of same color", move)
       end
     end
 
-    true
-  end
-
-  # Check if the given [move] has the right [Color].
-  def self.validate_move_color(gamestate, move)
-    if move.is_a?(SetMove.class) && move.piece.color != gamestate.current_color then
-      raise InvalidMoveException.new("Expected move from #{gamestate.current_color}", move)
-    end
-  end
-
-  # Validate the [PieceShape] of a [SetMove] depending on the current [GameState].
-  def self.validate_shape(gamestate, move, color = gamestate.current_color)
-    if gamestate.is_first_move? then
-      if move.piece.kind != gamestate.start_piece then
-        raise InvalidMoveException.new("#{move.piece.kind} is not the requested first shape, #{gamestate.start_piece}", move)
-      end
-    else
-      if !gamestate.undeployed_pieces(color).include? move.piece.kind then
-        raise InvalidMoveException.new("Piece #{move.piece.kind} has already been placed before", move)
-      end
-    end
-  end
-
-  # Validate a [SetMove] on a [Board].
-  def self.validate_set_move_placement(board, move)
-    move.piece.coords.each do |it|
-      if !board.in_bounds? it then
-        raise InvalidMoveException.new("Field #{it} is out of bounds", move)
-      end
-
-      if obstructed?(board, it)  then
-        raise InvalidMoveException.new("Field #{it} already belongs to #{board[it].color}", move)
-      end
-
-      if borders_on_color?(board, it, move.piece.color) then
-        raise InvalidMoveException.new("Field #{it} already borders on #{move.piece.color}", move)
-      end
-    end
+    return true
   end
 
   # Check if the given [position] already borders on another piece of same [color].
