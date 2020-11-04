@@ -31,6 +31,32 @@ class GameRuleLogic
     re
   end
 
+  # Returns one possible move
+  # @param gamestate [GameState] Der zu untersuchende GameState.
+  def self.possible_move(gamestate, logger)
+    @logger = logger
+    
+    current_color = gamestate.current_color
+    for p in gamestate.undeployed_pieces(current_color) do
+      kind_max_x = BOARD_SIZE - p.dimension.x
+      kind_max_y = BOARD_SIZE - p.dimension.y
+      for r in Rotation.to_a do
+        for f in [true,false] do
+          for x in 0..kind_max_x do
+            for y in 0..kind_max_y do
+              move = SetMove.new(Piece.new(current_color, p, r, f, Coordinates.new(x, y)))
+              if valid_set_move?(gamestate, move)
+                return move
+              end
+            end
+          end
+        end
+      end
+    end
+
+    return SkipMove.new()
+  end
+
   # Gibt alle möglichen lege Züge zurück
   # @param gamestate [GameState] Der zu untersuchende GameState.
   def self.possible_setmoves(gamestate)
@@ -43,12 +69,22 @@ class GameRuleLogic
 
   # Return a list of all possible SetMoves, regardless of whether it's the first round.
   def self.get_all_possible_setmoves(gamestate)
+    current_color = gamestate.current_color
     moves = []
-    gamestate.undeployed_pieces(gamestate.current_color).each do |p|
-      moves += get_possible_setmoves_for_kind(gamestate, p)
-      @logger.debug "checked all moves for #{p}"
+    for p in gamestate.undeployed_pieces(current_color) do
+      kind_max_x = BOARD_SIZE - p.dimension.x
+      kind_max_y = BOARD_SIZE - p.dimension.y
+      for r in Rotation.to_a do
+        for f in [true,false] do
+          for x in 0..kind_max_x do
+            for y in 0..kind_max_y do
+              moves << SetMove.new(Piece.new(current_color, p, r, f, Coordinates.new(x, y)))
+            end
+          end
+        end
+      end
     end
-    moves
+    return moves.filter {|m| valid_set_move?(gamestate, m) }
   end
 
   # Gibt eine Liste aller möglichen SetMoves für diese Form zurück.
@@ -61,17 +97,16 @@ class GameRuleLogic
     kind_max_y = BOARD_SIZE - kind.dimension.y
     current_color = gamestate.current_color
     moves = []
-    Rotation.each do |r|
-      [false, true].each do |f|
-        (0..kind_max_x).to_a.each do |x|
-          (0..kind_max_y).to_a.each do |y|
+    for r in Rotation.to_a do
+      for f in [false, true] do
+        for x in 0..kind_max_x do
+          for y in 0..kind_max_y do
             moves << SetMove.new(Piece.new(current_color, kind, r, f, Coordinates.new(x, y)))
           end
         end
       end
     end
-    @logger.debug "got all moves for #{kind}"
-    moves.filter {|m| valid_set_move?(gamestate, m) }
+    return moves.filter {|m| valid_set_move?(gamestate, m) }
   end
 
   # # Return a list of all moves, impossible or not.
@@ -129,7 +164,7 @@ class GameRuleLogic
     # Check whether the color's move is currently active
     validate_move_color(gamestate, move)
     # Check whether the shape is valid
-    validate_shape(gamestate, move.piece.kind, move.piece.color)
+    validate_shape(gamestate, move, move.piece.color)
     # Check whether the piece can be placed
     validate_set_move_placement(gamestate.board, move)
 
@@ -153,22 +188,19 @@ class GameRuleLogic
   # Check if the given [move] has the right [Color].
   def self.validate_move_color(gamestate, move)
     if move.is_a?(SetMove.class) && move.piece.color != gamestate.current_color then
-      return false
       raise InvalidMoveException.new("Expected move from #{gamestate.current_color}", move)
     end
   end
 
   # Validate the [PieceShape] of a [SetMove] depending on the current [GameState].
-  def self.validate_shape(gamestate, shape, color = gamestate.current_color)
+  def self.validate_shape(gamestate, move, color = gamestate.current_color)
     if gamestate.is_first_move? then
-      if shape != gamestate.start_piece then
-        return false
-        raise InvalidMoveException.new("#{shape} is not the requested first shape, #{gamestate.startPiece}")
+      if move.piece.kind != gamestate.start_piece then
+        raise InvalidMoveException.new("#{move.piece.kind} is not the requested first shape, #{gamestate.start_piece}", move)
       end
     else
-      if !gamestate.undeployed_pieces(color).include? shape then
-        return false
-        raise InvalidMoveException.new("Piece #{shape} has already been placed before")
+      if !gamestate.undeployed_pieces(color).include? move.piece.kind then
+        raise InvalidMoveException.new("Piece #{move.piece.kind} has already been placed before", move)
       end
     end
   end
@@ -177,7 +209,6 @@ class GameRuleLogic
   def self.validate_set_move_placement(board, move)
     move.piece.coords.each do |it|
       if !board.in_bounds? it then
-        return false
         raise InvalidMoveException.new("Field #{it} is out of bounds", move)
       end
 
@@ -186,7 +217,6 @@ class GameRuleLogic
       end
 
       if borders_on_color?(board, it, move.piece.color) then
-        return false
         raise InvalidMoveException.new("Field #{it} already borders on #{move.piece.color}", move)
       end
     end
