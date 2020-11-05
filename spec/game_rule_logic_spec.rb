@@ -109,6 +109,7 @@ RSpec.describe GameRuleLogic do
         end
       end
       time /= n
+      puts time
       expect(time).to be < 2.0
     end
 

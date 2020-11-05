@@ -1,6 +1,6 @@
 # encoding: UTF-8
 # frozen_string_literal: true
-require_relative '../lib/software_challenge_client.rb'
+require_relative 'software_challenge_client.rb'
 
 # This is an example of a client playing the game using the software challenge
 # gem.
@@ -36,6 +36,6 @@ class Client < ClientInterface
     # possible_moves = GameRuleLogic.possible_moves(gamestate, logger)
     # logger.debug "#{possible_moves.size} moegliche Zuege gefunden"
     # possible_moves.first
-    GameRuleLogic.possible_move(gamestate, logger)
+    GameRuleLogic.possible_moves(gamestate).sample
   end
 end
