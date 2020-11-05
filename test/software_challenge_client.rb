@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module SoftwareChallengeClient
   require './lib/software_challenge_client/board.rb'
   require './lib/software_challenge_client/client_interface.rb'
