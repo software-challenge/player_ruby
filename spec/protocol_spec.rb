@@ -21,7 +21,7 @@ RSpec.describe Protocol do
       server_message <<-XML
       <room roomId="cb3bc426-5c70-48b9-9307-943bc328b503">
       <data class="memento">
-        <state class="state" currentColorIndex="3" turn="3" round="1" startPiece="PENTO_V">
+        <state class="state" currentColorIndex="2" turn="2" round="1" startPiece="PENTO_V">
           <startTeam class="team">ONE</startTeam>
           <board>
             <field x="17" y="0" content="BLUE"/>
@@ -146,7 +146,7 @@ RSpec.describe Protocol do
     end
 
     it 'sets the current turn' do
-      expect(subject.gamestate.turn).to eq(3)
+      expect(subject.gamestate.turn).to eq(2)
     end
 
     it 'sets the start color' do
@@ -154,7 +154,7 @@ RSpec.describe Protocol do
     end
 
     it 'sets the current color' do
-      expect(subject.gamestate.current_color_index).to eq(3)
+      expect(subject.gamestate.current_color_index).to eq(2)
     end
 
     it 'sets the ordered colors still in the game' do
@@ -166,6 +166,30 @@ RSpec.describe Protocol do
     it 'sets the player names' do
       expect(subject.gamestate.player_one.name).to eq('OwO')
       expect(subject.gamestate.player_two.name).to eq('UwU')
+    end
+
+    it 'converts a setmove to xml' do
+      move = SetMove.new(Piece.new(Color::BLUE, PieceShape::PENTO_T, Rotation::LEFT, false, Coordinates.new(4,2)))
+      # NOTE that this is brittle because XML formatting (whitespace, attribute
+      # order) is arbitrary.
+      expect(subject.move_to_xml(move)).to eq <<~XML
+      <data class="sc.plugin2021.SetMove">
+        <piece color="BLUE" kind="PENTO_T" rotation="LEFT" isFlipped="false">
+          <position x="4" y="2"/>
+        </piece>
+      </data>
+      XML
+    end
+  
+    it 'converts a skipmove to xml' do
+      move = SkipMove.new
+      # NOTE that this is brittle because XML formatting (whitespace, attribute
+      # order) is arbitrary.
+      expect(subject.move_to_xml(move)).to eq <<~XML
+      <data class="sc.plugin2021.SkipMove">
+        <color>RED</color>
+      </data>
+      XML
     end
 
     xit 'updates the last move' do
@@ -360,28 +384,5 @@ RSpec.describe Protocol do
       expect(board.field(18, 18)).to eq(Field.new(18, 18, Color::GREEN))
       expect(board.fields_of_color(Color::RED)).not_to be_empty
     end
-  end
-
-  it 'converts a setmove to xml' do
-    move = SetMove.new(Piece.new(Color::BLUE, PieceShape::PENTO_T, Rotation::LEFT, false, Coordinates.new(4,2)))
-    # NOTE that this is brittle because XML formatting (whitespace, attribute
-    # order) is arbitrary.
-    expect(subject.move_to_xml(move)).to eq <<~XML
-    <data class="sc.plugin2021.SetMove">
-      <piece color="BLUE" kind="PENTO_T" rotation="LEFT" isFlipped="false">
-        <position x="4" y="2"/>
-      </piece>
-    </data>
-    XML
-  end
-
-  it 'converts a skipmove to xml' do
-    move = SkipMove.new
-    # NOTE that this is brittle because XML formatting (whitespace, attribute
-    # order) is arbitrary.
-    expect(subject.move_to_xml(move)).to eq <<~XML
-      <data class="sc.plugin2021.SkipMove">
-      </data>
-    XML
   end
 end
