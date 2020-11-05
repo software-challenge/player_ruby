@@ -254,6 +254,7 @@ class Protocol
       end
     when SkipMove
       builder.data(class: 'sc.plugin2021.SkipMove') do |data|
+        data.color(@gamestate.current_color.key.to_s)
         move.hints.each do |hint|
           data.hint(content: hint.content)
         end
