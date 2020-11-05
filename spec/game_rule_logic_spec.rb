@@ -3,6 +3,8 @@
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
+require 'benchmark'
+
 # Needed when chaining matchers. expect(...).not_to raise_error().and .. is not
 # allowed.
 RSpec::Matchers.define_negated_matcher :not_raise_error, :raise_error
@@ -68,6 +70,42 @@ RSpec.describe GameRuleLogic do
       expect(GameRuleLogic.corner?(Coordinates.new(1, 0))).to be false
       expect(GameRuleLogic.corner?(Coordinates.new(12, 3))).to be false
       expect(GameRuleLogic.corner?(Coordinates.new(99, 3))).to be false
+    end
+  end
+
+  context 'in third round' do
+    before do
+      board =
+        <<~BOARD
+          R R _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ G G
+          R _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ G
+          R _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ G
+          _ R R R R R _ _ _ _ _ _ _ _ _ _ _ G G _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ G G _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ Y _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+          _ _ _ _ Y _ _ _ _ _ _ _ _ _ _ _ _ B _ _
+          _ _ _ _ Y _ _ _ _ _ _ _ _ _ _ _ B B _ B
+          Y _ _ _ Y _ _ _ _ _ _ _ _ _ _ _ _ B _ B
+          Y Y Y Y _ _ _ _ _ _ _ _ _ _ _ _ _ _ B B
+      BOARD
+      state_from_string!(board, gamestate)
+    end
+
+    it 'calculates all possible moves in under two seconds' do
+      time = Benchmark.realtime do
+        GameRuleLogic.possible_moves(gamestate, nil)
+      end
+      expect(time).to be < 2.0
     end
   end
 end
