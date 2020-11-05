@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 # frozen_string_literal: true
-require_relative '../lib/software_challenge_client.rb'
+require_relative 'software_challenge_client.rb'
 require 'optparse'
 require 'ostruct'
 

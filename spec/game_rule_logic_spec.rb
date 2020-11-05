@@ -102,10 +102,36 @@ RSpec.describe GameRuleLogic do
     end
 
     it 'calculates all possible moves in under two seconds' do
+      n = 100
       time = Benchmark.realtime do
-        GameRuleLogic.possible_moves(gamestate)
+        n.times do
+          GameRuleLogic.possible_moves(gamestate)
+        end
       end
+      time /= n
+      puts time
       expect(time).to be < 2.0
     end
+
+    # context 'a whole game' do
+    #   it 'calculates all possible moves in under two seconds' do
+    #     state = GameState.new
+    #     n = 1
+    #     times = []
+    #
+    #     until state.ordered_colors.empty? do
+    #       GameRuleLogic.perform_move(state, GameRuleLogic.possible_moves(state).sample)
+    #       times << Benchmark.realtime do
+    #         n.times do
+    #           GameRuleLogic.possible_moves(state)
+    #         end
+    #       end
+    #       puts state.board
+    #     end
+    #     times.each do |e|
+    #       expect(e / n).to be < 2.0
+    #     end
+    #   end
+    # end
   end
 end
