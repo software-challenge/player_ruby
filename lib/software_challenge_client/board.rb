@@ -91,6 +91,10 @@ class Board
     field(coordinates.x, coordinates.y)
   end
 
+  # Alle Felder einer bestimmten Farbe
+  #
+  # @param color [Color] Die Farbe der Felder
+  # @return [Array<Field>] Eine Liste aller felder, die die gegebene Farbe haben
   def fields_of_color(color)
     fields = []
     (0..BOARD_SIZE-1).to_a.each do |x|
@@ -103,10 +107,14 @@ class Board
     fields
   end
 
+  # @param it [Coordinates] Die zu untersuchenden Koordinaten
+  # @return [Boolean] Ob die gegebenen Koordinaten auf dem Board liegen oder nicht
   def in_bounds?(it) 
     it.x >= 0 && it.y >= 0 && it.x < BOARD_SIZE && it.y < BOARD_SIZE
   end
 
+  # @param color [Color] Die Farbe der Steine
+  # @return [Array<PieceShape>] Eine Liste aller Steintypen, die die gegebene Farbe noch nicht gespielt hat
   def deployed_pieces(color)
     case color
     when Color::RED
@@ -125,6 +133,8 @@ class Board
     Marshal.load(Marshal.dump(self))
   end
 
+  # @param coords [Coordinates] Die Koordinaten des Felds
+  # @return Das Feld an den gegebenen Koordinaten
   def [](coords)
     field_at(coords)
   end
