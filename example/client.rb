@@ -28,11 +28,8 @@ class Client < ClientInterface
     logger.debug "Berechne zuege fuer Board #{gamestate.board}"
 
     # all possible moves can't be calculated in under two seconds
-=begin
-    possible_moves = GameRuleLogic.possible_move(gamestate)
+    possible_moves = GameRuleLogic.possible_moves(gamestate)
     logger.debug "#{possible_moves.size} moegliche Zuege gefunden"
     possible_moves.sample
-=end
-    GameRuleLogic.possible_move(gamestate)
   end
 end
