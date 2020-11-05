@@ -109,8 +109,9 @@ dependencies. Then, run `rspec` to run the tests. You can also
 run `bin/console` for an interactive prompt that will allow you to
 experiment.
 
-To install this gem onto your local machine, run `bundle exec rake
-install`.
+To install this gem onto your local machine, run `gem uninstall
+software_challenge_client` to remove an existing gem and then `bundle exec rake
+install` to install the current version.
 
 To develop inside a docker container, make sure you have Docker installed and execute
 `develop.sh`.
