@@ -78,16 +78,19 @@ class GameRuleLogic
   def self.get_possible_setmoves_for_kind(gamestate, kind)
     current_color = gamestate.current_color
     moves = []
-    fields = get_valid_fields(gamestate)
+    fields = Set[]
+    get_valid_fields(gamestate).each do |p|
+      (p.x - 5..p.x).each do |x|
+        (p.y - 5..p.y).each do |y|
+          fields.add(Coordinates.new(x, y))
+        end
+      end
+    end
 
     Rotation.to_a.each do |r|
       [false, true].each do |f|
         fields.each do |p|
-          (p.x - 5..p.x).each do |x|
-            (p.y - 5..p.y).each do |y|
-              moves << SetMove.new(Piece.new(current_color, kind, r, f, Coordinates.new(x, y)))
-            end
-          end
+          moves << SetMove.new(Piece.new(current_color, kind, r, f, p))
         end
       end
     end
