@@ -14,14 +14,11 @@ class GameRuleLogic
 
   SUM_MAX_SQUARES = 89
 
-  attr_reader :logger
-
   # --- Possible Moves ------------------------------------------------------------
 
   # all possible moves, but will *not* return the skip move if no other moves are possible!
   # @param gamestate [GameState] Der zu untersuchende GameState.
-  def self.possible_moves(gamestate, logger)
-    @logger = logger
+  def self.possible_moves(gamestate)
     re = possible_setmoves(gamestate)
 
     if not gamestate.is_first_move?
@@ -33,9 +30,7 @@ class GameRuleLogic
 
   # Returns one possible move
   # @param gamestate [GameState] Der zu untersuchende GameState.
-  def self.possible_move(gamestate, logger)
-    @logger = logger
-    
+  def self.possible_move(gamestate)
     current_color = gamestate.current_color
     for p in gamestate.undeployed_pieces(current_color) do
       kind_max_x = BOARD_SIZE - p.dimension.x
@@ -152,7 +147,7 @@ class GameRuleLogic
   #
   # @return ob der Zug zulässig ist
   def self.valid_set_move?(gamestate, move)
-    
+
     # Check whether the color's move is currently active
     if move.piece.color != gamestate.current_color then
       return false
@@ -166,7 +161,7 @@ class GameRuleLogic
     elsif !gamestate.undeployed_pieces(move.piece.color).include?(move.piece.kind) then
       return false
     end
-    
+
     # Check whether the piece can be placed
     move.piece.coords.each do |it|
       if !gamestate.board.in_bounds?(it) then

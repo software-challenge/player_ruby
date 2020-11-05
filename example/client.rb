@@ -26,14 +26,13 @@ class Client < ClientInterface
   def best_move
     # gamestate.board.add_field(Field.new(5, 0))
     logger.debug "Berechne zuege fuer Board #{gamestate.board}"
-    logger.debug 'Felder'
-    # gamestate.board.field_list.each do |f|
-    #   unless f.empty?
-    #     logger.debug "Feld (#{f.x}, #{f.y}) #{f.obstructed ? 'OO' : f.pieces.last.to_s}"
-    #   end
-    # end
-    possible_moves = GameRuleLogic.possible_moves(gamestate, logger)
+
+    # all possible moves can't be calculated in under two seconds
+=begin
+    possible_moves = GameRuleLogic.possible_move(gamestate)
     logger.debug "#{possible_moves.size} moegliche Zuege gefunden"
     possible_moves.sample
+=end
+    GameRuleLogic.possible_move(gamestate)
   end
 end
