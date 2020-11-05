@@ -6,8 +6,14 @@
 shopt -s globstar || exit 1
 FILENAME='software_challenge_client.rb'
 
-echo "# frozen_string_literal: true
-module SoftwareChallengeClient" > $FILENAME
+if [ $(pwd | grep -o '[^/]*$') != test ] 
+then
+    echo "Please execute me in the test folder"
+    exit 1
+fi
+
+printf "# frozen_string_literal: true\n
+module SoftwareChallengeClient\n" > $FILENAME
 for file in ../lib/software_challenge_client/**/*.rb; do
     echo "  require '${file:1}'"
 done >> $FILENAME;
