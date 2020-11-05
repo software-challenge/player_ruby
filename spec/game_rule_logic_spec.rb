@@ -102,7 +102,7 @@ RSpec.describe GameRuleLogic do
     end
 
     it 'calculates all possible moves in under two seconds' do
-      n = 100
+      n = 25
       time = Benchmark.realtime do
         n.times do
           GameRuleLogic.possible_moves(gamestate)
