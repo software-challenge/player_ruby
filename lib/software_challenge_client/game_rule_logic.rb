@@ -25,8 +25,6 @@ class GameRuleLogic
 
     re << SkipMove.new unless gamestate.is_first_move?
 
-    puts re.count
-
     re
   end
 
@@ -42,7 +40,7 @@ class GameRuleLogic
     if gamestate.is_first_move? then
       get_possible_start_moves(gamestate)
     else
-      get_all_possible_setmoves(gamestate)
+      get_all_possible_setmoves(gamestate).flatten
     end
   end
 
@@ -86,8 +84,9 @@ class GameRuleLogic
   # Return a list of all possible SetMoves, regardless of whether it's the first round.
   def self.get_all_possible_setmoves(gamestate)
     moves = []
+    fields = get_valid_fields(gamestate)
     for p in gamestate.undeployed_pieces(gamestate.current_color) do
-      moves << possible_moves_for_shape(gamestate, p)
+      (moves << possible_moves_for_shape(gamestate, p, fields)).flatten
     end
     moves
   end
@@ -97,11 +96,11 @@ class GameRuleLogic
   # @param shape die [PieceShape] der züge
   #
   # @return alle möglichen züge mit der shape
-  def self.possible_moves_for_shape(gamestate, shape)
+  def self.possible_moves_for_shape(gamestate, shape, fields = get_valid_fields(gamestate))
     color = gamestate.current_color
 
     moves = Set[]
-    for field in get_valid_fields(gamestate) do
+    for field in fields do
       for r in Rotation do
         for f in [true, false] do
           piece = Piece.new(color, shape, r, f, Coordinates.new(0, 0))
@@ -111,7 +110,6 @@ class GameRuleLogic
         end
       end
     end
-
     moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
   end
 
@@ -120,11 +118,9 @@ class GameRuleLogic
     board = gamestate.board
     fields = Set[]
     for field in board.fields_of_color(color) do
-      unless has_neighbor_of_color(board, field, color)
-        for corner in [Coordinates.new(field.x - 1, field.y - 1), Coordinates.new(field.x - 1, field.y + 1), Coordinates.new(field.x + 1, field.y - 1), Coordinates.new(field.x + 1, field.y + 1)] do
-          if Board.contains(corner) && board[corner].empty?
-            fields << corner
-          end
+      for corner in [Coordinates.new(field.x - 1, field.y - 1), Coordinates.new(field.x - 1, field.y + 1), Coordinates.new(field.x + 1, field.y - 1), Coordinates.new(field.x + 1, field.y + 1)] do
+        if Board.contains(corner) && board[corner].empty? && !has_neighbor_of_color(board, Field.new(corner.x, corner.y), color)
+          fields << corner
         end
       end
     end
