@@ -73,8 +73,8 @@ class GameRuleLogic
   # Helper method to calculate all transformations of one shape on one spot
   def self.get_moves_for_shape_on(color, shape, position)
     moves = Set[]
-    for r in Rotation do
-      for f in [true , false] do
+    Rotation.each do |r|
+      [true, false].each do |f|
         moves << SetMove.new(Piece.new(color, shape, r, f, position))
       end
     end
@@ -85,7 +85,7 @@ class GameRuleLogic
   def self.get_all_possible_setmoves(gamestate)
     moves = []
     fields = get_valid_fields(gamestate)
-    for p in gamestate.undeployed_pieces(gamestate.current_color) do
+    gamestate.undeployed_pieces(gamestate.current_color).each do |p|
       (moves << possible_moves_for_shape(gamestate, p, fields)).flatten
     end
     moves
@@ -100,11 +100,11 @@ class GameRuleLogic
     color = gamestate.current_color
 
     moves = Set[]
-    for field in fields do
-      for r in Rotation do
-        for f in [true, false] do
+    fields.each do |field|
+      Rotation.each do |r|
+        [true, false].each do |f|
           piece = Piece.new(color, shape, r, f, Coordinates.new(0, 0))
-          for pos in piece.coords do
+          piece.coords.each do |pos|
             moves << SetMove.new(Piece.new(color, shape, r, f, Coordinates.new(field.x - pos.x, field.y - pos.y)))
           end
         end
@@ -117,8 +117,8 @@ class GameRuleLogic
     color = gamestate.current_color
     board = gamestate.board
     fields = Set[]
-    for field in board.fields_of_color(color) do
-      for corner in [Coordinates.new(field.x - 1, field.y - 1), Coordinates.new(field.x - 1, field.y + 1), Coordinates.new(field.x + 1, field.y - 1), Coordinates.new(field.x + 1, field.y + 1)] do
+    board.fields_of_color(color).each do |field|
+      [Coordinates.new(field.x - 1, field.y - 1), Coordinates.new(field.x - 1, field.y + 1), Coordinates.new(field.x + 1, field.y - 1), Coordinates.new(field.x + 1, field.y + 1)].each do |corner|
         if Board.contains(corner) && board[corner].empty? && !has_neighbor_of_color(board, Field.new(corner.x, corner.y), color)
           fields << corner
         end
