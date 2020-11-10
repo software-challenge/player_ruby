@@ -30,7 +30,7 @@ class CoordinateSet
     minY = coordinates.map(&:y).min
     maxX = coordinates.map(&:x).max
     maxY = coordinates.map(&:y).max
-    Coordinates.new(maxX - minX, maxY - minY)
+    Coordinates.new(maxX - minX + 1, maxY - minY + 1)
   end
 
   def align

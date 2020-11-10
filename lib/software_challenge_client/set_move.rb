@@ -16,4 +16,8 @@ class SetMove
   def ==(other)
     piece == other.piece
   end
+
+  def to_s
+    "SetMove(#{piece}"
+  end
 end

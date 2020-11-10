@@ -148,4 +148,9 @@ class Board
       end.join(' ')
     end.join("\n")
   end
+
+  def self.contains(position)
+    return position.x >= 0 && position.x < BOARD_SIZE &&
+        position.y >= 0 && position.y < BOARD_SIZE
+  end
 end

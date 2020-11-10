@@ -25,106 +25,118 @@ class GameRuleLogic
 
     re << SkipMove.new unless gamestate.is_first_move?
 
+    puts re.count
+
     re
   end
 
   # Returns one possible move
   # @param gamestate [GameState] Der zu untersuchende GameState.
   def self.possible_move(gamestate)
-    current_color = gamestate.current_color
-    for p in gamestate.undeployed_pieces(current_color) do
-      kind_max_x = BOARD_SIZE - p.dimension.x
-      kind_max_y = BOARD_SIZE - p.dimension.y
-      for r in Rotation.to_a do
-        for f in [true,false] do
-          for x in 0..kind_max_x do
-            for y in 0..kind_max_y do
-              move = SetMove.new(Piece.new(current_color, p, r, f, Coordinates.new(x, y)))
-              return move if valid_set_move?(gamestate, move)
-            end
-          end
-        end
-      end
-    end
-
-    SkipMove.new
+    possible_moves(gamestate).sample
   end
 
   # Gibt alle möglichen lege Züge zurück
   # @param gamestate [GameState] Der zu untersuchende GameState.
   def self.possible_setmoves(gamestate)
     if gamestate.is_first_move? then
-      get_possible_setmoves_for_kind(gamestate, gamestate.start_piece)
+      get_possible_start_moves(gamestate)
     else
       get_all_possible_setmoves(gamestate)
     end
   end
 
+  def self.get_possible_start_moves(gamestate)
+    color = gamestate.current_color
+    shape = gamestate.start_piece
+    area1 = shape.dimension
+    area2 = Coordinates.new(area1.y, area1.x)
+    moves = Set[]
+
+    # Hard code corners for most efficiency (and because a proper algorithm would be pretty illegible here)
+    # Upper Left
+    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(0, 0)))
+
+    # Upper Right
+    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, 0)))
+    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, 0)))
+
+    # Lower Left
+    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(0, BOARD_SIZE - area1.y)))
+    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(0, BOARD_SIZE - area2.y)))
+
+    # Lower Right
+    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, BOARD_SIZE - area1.y)))
+    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, BOARD_SIZE - area2.y)))
+
+    moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
+  end
+
+  # Helper method to calculate all transformations of one shape on one spot
+  def self.get_moves_for_shape_on(color, shape, position)
+    moves = Set[]
+    for r in Rotation do
+      for f in [true , false] do
+        moves << SetMove.new(Piece.new(color, shape, r, f, position))
+      end
+    end
+    moves
+  end
+
   # Return a list of all possible SetMoves, regardless of whether it's the first round.
   def self.get_all_possible_setmoves(gamestate)
-    current_color = gamestate.current_color
     moves = []
-    gamestate.undeployed_pieces(current_color).each do |p|
-      moves += get_possible_setmoves_for_kind(gamestate, p)
+    for p in gamestate.undeployed_pieces(gamestate.current_color) do
+      moves << possible_moves_for_shape(gamestate, p)
     end
     moves
   end
 
   # Gibt eine Liste aller möglichen SetMoves für diese Form zurück.
   # @param gamestate der aktuelle Spielstand
-  # @param kind die [PieceShape] der züge
+  # @param shape die [PieceShape] der züge
   #
-  # @return alle möglichen züge mit dem kind
-  def self.get_possible_setmoves_for_kind(gamestate, kind)
-    current_color = gamestate.current_color
-    moves = []
-    fields = Set[]
-    get_valid_fields(gamestate).each do |p|
-      (p.x - 5..p.x).each do |x|
-        (p.y - 5..p.y).each do |y|
-          fields.add(Coordinates.new(x, y))
+  # @return alle möglichen züge mit der shape
+  def self.possible_moves_for_shape(gamestate, shape)
+    color = gamestate.current_color
+
+    moves = Set[]
+    for field in get_valid_fields(gamestate) do
+      for r in Rotation do
+        for f in [true, false] do
+          piece = Piece.new(color, shape, r, f, Coordinates.new(0, 0))
+          for pos in piece.coords do
+            moves << SetMove.new(Piece.new(color, shape, r, f, Coordinates.new(field.x - pos.x, field.y - pos.y)))
+          end
         end
       end
     end
 
-    Rotation.to_a.each do |r|
-      [false, true].each do |f|
-        fields.each do |p|
-          moves << SetMove.new(Piece.new(current_color, kind, r, f, p))
-        end
-      end
-    end
-    moves.filter { |m| valid_set_move?(gamestate, m) }
+    moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
   end
 
   def self.get_valid_fields(gamestate)
     color = gamestate.current_color
     board = gamestate.board
-    [Coordinates.new(0, 0), Coordinates.new(0, Constants::BOARD_SIZE), Coordinates.new(Constants::BOARD_SIZE, Constants::BOARD_SIZE), Coordinates.new(Constants::BOARD_SIZE, 0)].each do |f|
-      unless board[f].nil?
-        return get_valid_fields_around(gamestate, f) if board[f].color == color
-      end
-    end
-  end
-
-  def self.get_valid_fields_around(gamestate, field)
-    if gamestate.board[field].color == gamestate.current_color
-      field.coords
-    else
-      fields = Set[]
-      [Coordinates.new(-1, -1), Coordinates.new(-1, 0), Coordinates.new(-1, 1), Coordinates.new(0, 1), Coordinates.new(1, 1), Coordinates.new(1, 0), Coordinates.new(1, -1), Coordinates.new(0, -1)].each do |n|
-        neighbour = field.coords + n
-        if neighbour.x >= 0 && neighbour.x < Constants::BOARD_SIZE && neighbour.y >= 0 && neighbour.y < Constants::BOARD_SIZE
-          if gamestate.board[neighbour].color == gamestate.current_color
-            fields.merge(get_valid_fields_around(gamestate, neighbour))
-          elsif gamestate.board[neighbour].color.nil?
-            fields.add(neighbour)
+    fields = Set[]
+    for field in board.fields_of_color(color) do
+      unless has_neighbor_of_color(board, field, color)
+        for corner in [Coordinates.new(field.x - 1, field.y - 1), Coordinates.new(field.x - 1, field.y + 1), Coordinates.new(field.x + 1, field.y - 1), Coordinates.new(field.x + 1, field.y + 1)] do
+          if Board.contains(corner) && board[corner].empty?
+            fields << corner
           end
         end
       end
-      fields
     end
-  end
+    fields
+    end
+
+    def self.has_neighbor_of_color(board, field, color)
+      for neighbor in [Coordinates.new(field.x - 1, field.y), Coordinates.new(field.x, field.y - 1), Coordinates.new(field.x + 1, field.y), Coordinates.new(field.x, field.y + 1)] do
+        return true if Board.contains(neighbor) && board[neighbor].color == color
+      end
+      false
+    end
 
   # # Return a list of all moves, impossible or not.
   # # There's no real usage, except maybe for cases where no Move validation happens
