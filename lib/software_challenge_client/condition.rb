@@ -20,6 +20,7 @@ class Condition
     @reason = reason
   end
 
+  # Überprüfe ob es ein Unentschieden gab
   def draw?
     @winner.nil?
   end

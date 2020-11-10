@@ -61,11 +61,12 @@ class PieceShape < TypesafeEnum::Base
     value.size
   end
 
+  # Die Felder, die der Stein belegt
   def coordinates
     CoordinateSet.new(value)
   end
 
-  # Ein Vector, der das kleinstmögliche Rechteck beschreibt, dass die vollständige Form umfasst. */
+  # Eine Koordinate, die das kleinstmögliche Rechteck beschreibt, welches alle Felder umfasst.
   def dimension
     coordinates.area
   end
@@ -75,7 +76,7 @@ class PieceShape < TypesafeEnum::Base
     coordinates.rotate(rotation).flip(flip)
   end
 
-  # Gibt den shape Namen zurück
+  # Gibt den Form Namen zurück
   def to_s
     self.key.to_s
   end

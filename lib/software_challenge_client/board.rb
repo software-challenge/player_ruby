@@ -157,6 +157,8 @@ class Board
       end.join("\n")
   end
 
+  # @param position [Coordinates] Die zu überprüfenden Koordinaten
+  # @return Ob die gegebenen Koordinaten auf dem board liegen
   def self.contains(position)
     position.x >= 0 && position.x < BOARD_SIZE &&
       position.y >= 0 && position.y < BOARD_SIZE

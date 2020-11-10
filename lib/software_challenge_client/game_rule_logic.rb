@@ -18,8 +18,9 @@ class GameRuleLogic
 
   # --- Possible Moves ------------------------------------------------------------
 
-  # all possible moves, but will *not* return the skip move if no other moves are possible!
-  # @param gamestate [GameState] Der zu untersuchende GameState.
+  # Gibt alle möglichen Züge für den Spieler zurück, der in der gamestate dran ist. Diese ist die wichtigste Methode dieser Klasse für Schüler.
+  #
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.possible_moves(gamestate)
     re = possible_setmoves(gamestate)
 
@@ -28,14 +29,14 @@ class GameRuleLogic
     re
   end
 
-  # Returns one possible move
-  # @param gamestate [GameState] Der zu untersuchende GameState.
+  # Gibt einen zufälligen möglichen Zug zurück
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.possible_move(gamestate)
     possible_moves(gamestate).sample
   end
 
-  # Gibt alle möglichen lege Züge zurück
-  # @param gamestate [GameState] Der zu untersuchende GameState.
+  # Gibt alle möglichen Legezüge zurück
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.possible_setmoves(gamestate)
     if gamestate.is_first_move? then
       get_possible_start_moves(gamestate)
@@ -81,7 +82,7 @@ class GameRuleLogic
     moves
   end
 
-  # Return a list of all possible SetMoves, regardless of whether it's the first round.
+  # Gib eine Liste aller möglichen Legezüge zurück, auch wenn es die erste Runde ist.
   def self.get_all_possible_setmoves(gamestate)
     moves = []
     fields = get_valid_fields(gamestate)
@@ -92,10 +93,10 @@ class GameRuleLogic
   end
 
   # Gibt eine Liste aller möglichen SetMoves für diese Form zurück.
-  # @param gamestate der aktuelle Spielstand
-  # @param shape die [PieceShape] der züge
+  # @param gamestate Der aktuelle Spielstand
+  # @param shape Die [PieceShape], die die Züge nutzen sollen
   #
-  # @return alle möglichen züge mit der shape
+  # @return Alle möglichen Züge mit der Form
   def self.possible_moves_for_shape(gamestate, shape, fields = get_valid_fields(gamestate))
     color = gamestate.current_color
 
@@ -113,6 +114,8 @@ class GameRuleLogic
     moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
   end
 
+  # Gibt eine Liste aller Felder zurück, an denen möglicherweise Züge gemacht werden kann.
+  # @param gamestate Der aktuelle Spielstand
   def self.get_valid_fields(gamestate)
     color = gamestate.current_color
     board = gamestate.board
@@ -127,6 +130,10 @@ class GameRuleLogic
     fields
   end
 
+  # Überprüft, ob das gegebene Feld ein Nachbarfeld mit der Farbe [color] hat
+  # @param board Das aktuelle Board
+  # @param field Das zu überprüfende Feld
+  # @param color Nach der zu suchenden Farbe
   def self.has_neighbor_of_color(board, field, color)
     [Coordinates.new(field.x - 1, field.y), Coordinates.new(field.x, field.y - 1), Coordinates.new(field.x + 1, field.y), Coordinates.new(field.x, field.y + 1)].any? do |neighbor|
       Board.contains(neighbor) && board[neighbor].color == color
@@ -171,8 +178,8 @@ class GameRuleLogic
   end
 
   # Prüft, ob der gegebene [SetMove] zulässig ist.
-  # @param gamestate der aktuelle Spielstand
-  # @param move der zu überprüfende Zug
+  # @param gamestate [GameState] der aktuelle Spielstand
+  # @param move [SetMove] der zu überprüfende Zug
   #
   # @return ob der Zug zulässig ist
   def self.valid_set_move?(gamestate, move)
@@ -204,7 +211,10 @@ class GameRuleLogic
     true
   end
 
-  # Check if the given [position] already borders on another piece of same [color].
+  # Überprüft, ob das gegebene Feld ein Nachbarfeld mit der Farbe [color] hat
+  # @param board [Board] Das aktuelle Spielbrett
+  # @param field [Field] Das zu überprüfende Feld
+  # @param color [Color] Nach der zu suchenden Farbe
   def self.borders_on_color?(board, position, color)
     [Coordinates.new(1, 0), Coordinates.new(0, 1), Coordinates.new(-1, 0), Coordinates.new(0, -1)].any? do |it|
       if board.in_bounds?(position + it)
@@ -215,14 +225,18 @@ class GameRuleLogic
     end
   end
 
-  # Return true if the given [Coordinates] touch a corner of a field of same color.
+  # Überprüft, ob das gegebene Feld ein diagonales Nachbarfeld mit der Farbe [color] hat
+  # @param board [Board] Das aktuelle Spielbrett
+  # @param field Das zu überprüfende [Field]
+  # @param color Nach der zu suchenden [Color]
   def self.corners_on_color?(board, position, color)
     [Coordinates.new(1, 1), Coordinates.new(1, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 1)].any? do |it|
       board.in_bounds?(position + it) && board[position + it].color == color
     end
   end
 
-  # Return true if the given [Coordinates] are a corner.
+  # Überprüft, ob die gegebene [position] an einer Ecke des Boards liegt.
+  # @param position [Coordinates] Die zu überprüfenden Koordinaten
   def self.corner?(position)
     corner = [
       Coordinates.new(0,0),
@@ -233,7 +247,9 @@ class GameRuleLogic
     corner.include? position
   end
 
-  # Check if the given [position] is already obstructed by another piece.
+  # Überprüft, ob die gegebene [position] schon mit einer Farbe belegt wurde.
+  # @param board [Board] Das aktuelle Spielbrett
+  # @param position [Coordinates] Die zu überprüfenden Koordinaten
   def self.obstructed?(board, position)
     !board[position].color.nil?
   end
@@ -241,7 +257,7 @@ class GameRuleLogic
   # --- Perform Move ------------------------------------------------------------
 
   # Führe den gegebenen [Move] im gebenenen [GameState] aus.
-  # @param gamestate der aktuelle Spielstand
+  # @param gamestate [GameState] der aktuelle Spielstand
   # @param move der auszuführende Zug
   def self.perform_move(gamestate, move)
     raise 'Invalid move!' unless valid_move?(gamestate, move)
@@ -284,7 +300,7 @@ class GameRuleLogic
     SUM_MAX_SQUARES - undeployed.map(&:size).sum
   end
 
-  # Return a random pentomino which is not the `x` one (Used to get a valid starting piece).
+  # Gibt einen zufälligen Pentomino zurück, welcher nicht `x` ist.
   def self.get_random_pentomino
     PieceShape.map(&:value).select { |it| it.size == 5 && it != PieceShape::PENTO_X }
   end
