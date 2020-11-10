@@ -96,16 +96,25 @@ class Board
   # @param color [Color] Die Farbe der Felder
   # @return [Array<Field>] Eine Liste aller felder, die die gegebene Farbe haben
   # TODO: Redo this recursively, starting from the corresponding corner and then moving alongside edges and corners
-  def fields_of_color(color)
-    fields = []
-    (0..BOARD_SIZE-1).to_a.each do |x|
-      (0..BOARD_SIZE-1).to_a.each do |y|
-        if field(x, y).color == color
-          fields << field(x, y)
+  def fields_of_color(color, fields = [Coordinates.new(0, 0), Coordinates.new(0, BOARD_SIZE - 1), Coordinates.new(BOARD_SIZE - 1, BOARD_SIZE - 1), Coordinates.new(BOARD_SIZE - 1, 0)].filter { |it| field_at(it).color == color})
+    copy = Array.new(fields)
+
+    for field in copy do
+      for neighbor in [Coordinates.new(1, 0), Coordinates.new(1, -1), Coordinates.new(0, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 0), Coordinates.new(-1, 1), Coordinates.new(0, 1), Coordinates.new(1, 1), ] do
+        new_field = field + neighbor
+        if Board.contains(new_field) && @fields[new_field.x][new_field.y].color == color
+          unless fields.include?(new_field)
+            fields << new_field
+          end
         end
       end
     end
-    fields
+
+    if copy.count == fields.count
+      fields
+    else
+      fields_of_color(color, fields)
+    end
   end
 
   # @param it [Coordinates] Die zu untersuchenden Koordinaten

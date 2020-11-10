@@ -10,6 +10,10 @@ class Coordinates
   end
 
   def ==(other)
+    eql?(other)
+  end
+
+  def eql?(other)
     x == other.x && y == other.y
   end
 
