@@ -91,11 +91,12 @@ class Board
     field(coordinates.x, coordinates.y)
   end
 
+  # TODO: Redo this recursively, starting from the corresponding corner and then moving alongside edges and corners
+  
   # Alle Felder einer bestimmten Farbe
   #
   # @param color [Color] Die Farbe der Felder
   # @return [Array<Field>] Eine Liste aller felder, die die gegebene Farbe haben
-  # TODO: Redo this recursively, starting from the corresponding corner and then moving alongside edges and corners
   def fields_of_color(color, fields = [Coordinates.new(0, 0), Coordinates.new(0, BOARD_SIZE - 1), Coordinates.new(BOARD_SIZE - 1, BOARD_SIZE - 1), Coordinates.new(BOARD_SIZE - 1, 0)].filter { |it| field_at(it).color == color })
     copy = Array.new(fields)
 
