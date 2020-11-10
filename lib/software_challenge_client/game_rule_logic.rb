@@ -129,14 +129,13 @@ class GameRuleLogic
       end
     end
     fields
-    end
+  end
 
-    def self.has_neighbor_of_color(board, field, color)
-      for neighbor in [Coordinates.new(field.x - 1, field.y), Coordinates.new(field.x, field.y - 1), Coordinates.new(field.x + 1, field.y), Coordinates.new(field.x, field.y + 1)] do
-        return true if Board.contains(neighbor) && board[neighbor].color == color
-      end
-      false
+  def self.has_neighbor_of_color(board, field, color)
+    [Coordinates.new(field.x - 1, field.y), Coordinates.new(field.x, field.y - 1), Coordinates.new(field.x + 1, field.y), Coordinates.new(field.x, field.y + 1)].any? do |neighbor|
+      Board.contains(neighbor) && board[neighbor].color == color
     end
+  end
 
   # # Return a list of all moves, impossible or not.
   # # There's no real usage, except maybe for cases where no Move validation happens

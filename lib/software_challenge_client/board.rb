@@ -95,6 +95,7 @@ class Board
   #
   # @param color [Color] Die Farbe der Felder
   # @return [Array<Field>] Eine Liste aller felder, die die gegebene Farbe haben
+  # TODO: Redo this recursively, starting from the corresponding corner and then moving alongside edges and corners
   def fields_of_color(color)
     fields = []
     (0..BOARD_SIZE-1).to_a.each do |x|
