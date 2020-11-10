@@ -92,7 +92,7 @@ class Board
   end
 
   # TODO: Redo this recursively, starting from the corresponding corner and then moving alongside edges and corners
-  
+
   # Alle Felder einer bestimmten Farbe
   #
   # @param color [Color] Die Farbe der Felder
