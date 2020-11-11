@@ -39,15 +39,15 @@ class GameRuleLogic
   # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.possible_setmoves(gamestate)
     if gamestate.is_first_move?
-      get_possible_start_moves(gamestate)
+      possible_start_moves(gamestate)
     else
-      get_all_possible_setmoves(gamestate).flatten
+      all_possible_setmoves(gamestate).flatten
     end
   end
 
   # Gibt alle möglichen Legezüge in der ersten Runde zurück
   # @param gamestate [GameState] Der zu untersuchende Spielstand.
-  def self.get_possible_start_moves(gamestate)
+  def self.possible_start_moves(gamestate)
     color = gamestate.current_color
     shape = gamestate.start_piece
     area1 = shape.dimension
@@ -56,25 +56,25 @@ class GameRuleLogic
 
     # Hard code corners for most efficiency (and because a proper algorithm would be pretty illegible here)
     # Upper Left
-    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(0, 0)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(0, 0)))
 
     # Upper Right
-    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, 0)))
-    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, 0)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, 0)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, 0)))
 
     # Lower Left
-    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(0, BOARD_SIZE - area1.y)))
-    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(0, BOARD_SIZE - area2.y)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(0, BOARD_SIZE - area1.y)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(0, BOARD_SIZE - area2.y)))
 
     # Lower Right
-    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, BOARD_SIZE - area1.y)))
-    moves.merge(get_moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, BOARD_SIZE - area2.y)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, BOARD_SIZE - area1.y)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, BOARD_SIZE - area2.y)))
 
     moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
   end
 
   # Helper method to calculate all transformations of one shape on one spot
-  def self.get_moves_for_shape_on(color, shape, position)
+  def self.moves_for_shape_on(color, shape, position)
     moves = Set[]
     Rotation.each do |r|
       [true, false].each do |f|
@@ -85,9 +85,9 @@ class GameRuleLogic
   end
 
   # Gib eine Liste aller möglichen Legezüge zurück, auch wenn es die erste Runde ist.
-  def self.get_all_possible_setmoves(gamestate)
+  def self.all_possible_setmoves(gamestate)
     moves = []
-    fields = get_valid_fields(gamestate)
+    fields = valid_fields(gamestate)
     gamestate.undeployed_pieces(gamestate.current_color).each do |p|
       (moves << possible_moves_for_shape(gamestate, p, fields)).flatten
     end
@@ -99,7 +99,7 @@ class GameRuleLogic
   # @param shape Die [PieceShape], die die Züge nutzen sollen
   #
   # @return Alle möglichen Züge mit der Form
-  def self.possible_moves_for_shape(gamestate, shape, fields = get_valid_fields(gamestate))
+  def self.possible_moves_for_shape(gamestate, shape, fields = valid_fields(gamestate))
     color = gamestate.current_color
 
     moves = Set[]
@@ -118,7 +118,7 @@ class GameRuleLogic
 
   # Gibt eine Liste aller Felder zurück, an denen möglicherweise Züge gemacht werden kann.
   # @param gamestate Der aktuelle Spielstand
-  def self.get_valid_fields(gamestate)
+  def self.valid_fields(gamestate)
     color = gamestate.current_color
     board = gamestate.board
     fields = Set[]
