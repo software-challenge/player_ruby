@@ -17,7 +17,8 @@ class GameRuleLogic
 
   # --- Possible Moves ------------------------------------------------------------
 
-  # Gibt alle möglichen Züge für den Spieler zurück, der in der gamestate dran ist. Diese ist die wichtigste Methode dieser Klasse für Schüler.
+  # Gibt alle möglichen Züge für den Spieler zurück, der in der gamestate dran ist.
+  # Diese ist die wichtigste Methode dieser Klasse für Schüler.
   #
   # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.possible_moves(gamestate)
@@ -122,10 +123,15 @@ class GameRuleLogic
     board = gamestate.board
     fields = Set[]
     board.fields_of_color(color).each do |field|
-      [Coordinates.new(field.x - 1, field.y - 1), Coordinates.new(field.x - 1, field.y + 1), Coordinates.new(field.x + 1, field.y - 1), Coordinates.new(field.x + 1, field.y + 1)].each do |corner|
-        if Board.contains(corner) && board[corner].empty? && !has_neighbor_of_color(board, Field.new(corner.x, corner.y), color)
-          fields << corner
-        end
+      [Coordinates.new(field.x - 1, field.y - 1),
+       Coordinates.new(field.x - 1, field.y + 1),
+       Coordinates.new(field.x + 1, field.y - 1),
+       Coordinates.new(field.x + 1, field.y + 1)].each do |corner|
+        next unless Board.contains(corner)
+        next unless board[corner].empty?
+        next if neighbor_of_color?(board, Field.new(corner.x, corner.y), color)
+
+        fields << corner
       end
     end
     fields
@@ -135,8 +141,11 @@ class GameRuleLogic
   # @param board Das aktuelle Board
   # @param field Das zu überprüfende Feld
   # @param color Nach der zu suchenden Farbe
-  def self.has_neighbor_of_color(board, field, color)
-    [Coordinates.new(field.x - 1, field.y), Coordinates.new(field.x, field.y - 1), Coordinates.new(field.x + 1, field.y), Coordinates.new(field.x, field.y + 1)].any? do |neighbor|
+  def self.neighbor_of_color?(board, field, color)
+    [Coordinates.new(field.x - 1, field.y),
+     Coordinates.new(field.x, field.y - 1),
+     Coordinates.new(field.x + 1, field.y),
+     Coordinates.new(field.x, field.y + 1)].any? do |neighbor|
       Board.contains(neighbor) && board[neighbor].color == color
     end
   end
@@ -310,11 +319,10 @@ class GameRuleLogic
   # Entferne alle Farben, die keine Steine mehr auf dem Feld platzieren können.
   def remove_invalid_colors(gamestate)
     return if gamestate.ordered_colors.empty?
+    return unless get_possible_moves(gamestate).empty?
 
-    if get_possible_moves(gamestate).empty?
-      gamestate.remove_active_color
-      remove_invalid_colors(gamestate)
-    end
+    gamestate.remove_active_color
+    remove_invalid_colors(gamestate)
   end
 
   # Prueft, ob ein Spieler im gegebenen GameState gewonnen hat.
