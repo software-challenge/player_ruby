@@ -15,7 +15,7 @@ class Coordinates
     x == other.x && y == other.y
   end
 
-  # Gibt die Koordinaten (0, 0) zurück.
+  # Gibt die Ursprungs-Koordinaten (0, 0) zurück.
   def self.origin
     Coordinates.new(0, 0)
   end
