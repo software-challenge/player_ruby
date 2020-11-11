@@ -1,3 +1,7 @@
+= 21.0.0
+
+First version for game "Blokus"
+
 = 20.2.4
 
 Update game name in documentation
