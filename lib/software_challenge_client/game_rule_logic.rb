@@ -1,4 +1,3 @@
-# coding: utf-8
 # frozen_string_literal: true
 
 require_relative './util/constants'
@@ -38,7 +37,7 @@ class GameRuleLogic
   # Gibt alle möglichen Legezüge zurück
   # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.possible_setmoves(gamestate)
-    if gamestate.is_first_move? then
+    if gamestate.is_first_move?
       get_possible_start_moves(gamestate)
     else
       get_all_possible_setmoves(gamestate).flatten
@@ -241,10 +240,10 @@ class GameRuleLogic
   # @param position [Coordinates] Die zu überprüfenden Koordinaten
   def self.corner?(position)
     corner = [
-      Coordinates.new(0,0),
-      Coordinates.new(BOARD_SIZE-1, 0),
-      Coordinates.new(0, BOARD_SIZE-1),
-      Coordinates.new(BOARD_SIZE-1, BOARD_SIZE-1)
+      Coordinates.new(0, 0),
+      Coordinates.new(BOARD_SIZE - 1, 0),
+      Coordinates.new(0, BOARD_SIZE - 1),
+      Coordinates.new(BOARD_SIZE - 1, BOARD_SIZE - 1)
     ]
     corner.include? position
   end
@@ -263,6 +262,7 @@ class GameRuleLogic
   # @param move der auszuführende Zug
   def self.perform_move(gamestate, move)
     raise 'Invalid move!' unless valid_move?(gamestate, move)
+
     if move.instance_of? SetMove
       gamestate.undeployed_pieces(move.piece.color).delete(move.piece)
       # gamestate.deployed_pieces(move.piece.color).add(move.piece)
@@ -273,8 +273,8 @@ class GameRuleLogic
       end
 
       # If it was the last piece for this color, remove it from the turn queue
-      if gamestate.undeployed_pieces(move.piece.color).empty? then
-        gamestate.lastMoveMono += move.color to (move.piece.kind == PieceShape.MONO)
+      if gamestate.undeployed_pieces(move.piece.color).empty?
+        gamestate.lastMoveMono += move.color to(move.piece.kind == PieceShape.MONO)
         gamestate.remove_active_color
       end
     end
@@ -320,7 +320,7 @@ class GameRuleLogic
   # Prueft, ob ein Spieler im gegebenen GameState gewonnen hat.
   # @param gamestate [GameState] Der zu untersuchende GameState.
   # @return [Condition] nil, if the game is not won or a Condition indicating the winning player
-  def self.winning_condition(gamestate)
+  def self.winning_condition(_gamestate)
     raise 'Not implemented yet!'
   end
 end
