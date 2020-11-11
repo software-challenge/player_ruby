@@ -91,25 +91,44 @@ class Board
     field(coordinates.x, coordinates.y)
   end
 
+  # TODO: Redo this recursively, starting from the corresponding corner and then moving alongside edges and corners
+
   # Alle Felder einer bestimmten Farbe
   #
   # @param color [Color] Die Farbe der Felder
   # @return [Array<Field>] Eine Liste aller felder, die die gegebene Farbe haben
-  def fields_of_color(color)
-    fields = []
-    (0..BOARD_SIZE-1).to_a.each do |x|
-      (0..BOARD_SIZE-1).to_a.each do |y|
-        if field(x, y).color == color
-          fields << field(x, y)
-        end
+  def fields_of_color(color, fields = [Coordinates.new(0, 0),
+                                       Coordinates.new(0, BOARD_SIZE - 1),
+                                       Coordinates.new(BOARD_SIZE - 1, BOARD_SIZE - 1),
+                                       Coordinates.new(BOARD_SIZE - 1, 0)].filter { |it| field_at(it).color == color })
+    copy = Array.new(fields)
+
+    copy.each do |field|
+      [Coordinates.new(1, 0),
+       Coordinates.new(1, -1),
+       Coordinates.new(0, -1),
+       Coordinates.new(-1, -1),
+       Coordinates.new(-1, 0),
+       Coordinates.new(-1, 1),
+       Coordinates.new(0, 1),
+       Coordinates.new(1, 1)].each do |neighbor|
+        new_field = field + neighbor
+        next unless Board.contains(new_field) && @fields[new_field.x][new_field.y].color == color
+
+        fields << new_field unless fields.include?(new_field)
       end
     end
-    fields
+
+    if copy.count == fields.count
+      fields
+    else
+      fields_of_color(color, fields)
+    end
   end
 
   # @param it [Coordinates] Die zu untersuchenden Koordinaten
   # @return [Boolean] Ob die gegebenen Koordinaten auf dem Board liegen oder nicht
-  def in_bounds?(it) 
+  def in_bounds?(it)
     it.x >= 0 && it.y >= 0 && it.x < BOARD_SIZE && it.y < BOARD_SIZE
   end
 
@@ -141,11 +160,18 @@ class Board
 
   # Gibt eine textuelle Repräsentation des Spielbrettes aus.
   def to_s
-    "\n"+
-    (0...BOARD_SIZE).to_a.map do |x|
+    "\n" +
       (0...BOARD_SIZE).to_a.map do |y|
-        @fields[x][y].to_s
-      end.join(' ')
-    end.join("\n")
+        (0...BOARD_SIZE).to_a.map do |x|
+          @fields[x][y].to_s
+        end.join(' ')
+      end.join("\n")
+  end
+
+  # @param position [Coordinates] Die zu überprüfenden Koordinaten
+  # @return Ob die gegebenen Koordinaten auf dem board liegen
+  def self.contains(position)
+    position.x >= 0 && position.x < BOARD_SIZE &&
+      position.y >= 0 && position.y < BOARD_SIZE
   end
 end

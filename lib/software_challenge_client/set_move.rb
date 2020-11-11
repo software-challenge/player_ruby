@@ -8,6 +8,7 @@ class SetMove
 
   attr_reader :piece
 
+  # Erstellt ein neuen leeren Legezug.
   def initialize(piece)
     @piece = piece
     @hints = []
@@ -15,5 +16,9 @@ class SetMove
 
   def ==(other)
     piece == other.piece
+  end
+
+  def to_s
+    "SetMove(#{piece}"
   end
 end

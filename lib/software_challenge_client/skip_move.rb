@@ -6,6 +6,7 @@ require_relative 'has_hints'
 class SkipMove
   include HasHints
 
+  # Erstellt ein neuen leeren Aussetzzug.
   def initialize
     @hints = []
   end

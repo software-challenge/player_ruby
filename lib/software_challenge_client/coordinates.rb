@@ -1,9 +1,11 @@
 # frozen_string_literal: true
+
 # Einfache kartesische Koordinaten
 class Coordinates
   include Comparable
   attr_reader :x, :y
 
+  # Erstellt neue leere Koordinaten.
   def initialize(x, y)
     @x = x
     @y = y
@@ -13,6 +15,7 @@ class Coordinates
     x == other.x && y == other.y
   end
 
+  # Gibt die Ursprungs-Koordinaten (0, 0) zurück.
   def self.origin
     Coordinates.new(0, 0)
   end
@@ -31,6 +34,7 @@ class Coordinates
     Coordinates.new(x + other.x, y + other.y)
   end
 
+  # Gibt eine textuelle Repräsentation der Koordinaten aus.
   def to_s
     "(#{x}, #{y})"
   end

@@ -1,4 +1,3 @@
-# coding: utf-8
 # frozen_string_literal: true
 
 require_relative './util/constants'
@@ -18,8 +17,10 @@ class GameRuleLogic
 
   # --- Possible Moves ------------------------------------------------------------
 
-  # all possible moves, but will *not* return the skip move if no other moves are possible!
-  # @param gamestate [GameState] Der zu untersuchende GameState.
+  # Gibt alle möglichen Züge für den Spieler zurück, der in der gamestate dran ist.
+  # Diese ist die wichtigste Methode dieser Klasse für Schüler.
+  #
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.possible_moves(gamestate)
     re = possible_setmoves(gamestate)
 
@@ -28,101 +29,124 @@ class GameRuleLogic
     re
   end
 
-  # Returns one possible move
-  # @param gamestate [GameState] Der zu untersuchende GameState.
+  # Gibt einen zufälligen möglichen Zug zurück
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.possible_move(gamestate)
-    current_color = gamestate.current_color
-    for p in gamestate.undeployed_pieces(current_color) do
-      kind_max_x = BOARD_SIZE - p.dimension.x
-      kind_max_y = BOARD_SIZE - p.dimension.y
-      for r in Rotation.to_a do
-        for f in [true,false] do
-          for x in 0..kind_max_x do
-            for y in 0..kind_max_y do
-              move = SetMove.new(Piece.new(current_color, p, r, f, Coordinates.new(x, y)))
-              return move if valid_set_move?(gamestate, move)
-            end
-          end
-        end
+    possible_moves(gamestate).sample
+  end
+
+  # Gibt alle möglichen Legezüge zurück
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
+  def self.possible_setmoves(gamestate)
+    if gamestate.is_first_move?
+      possible_start_moves(gamestate)
+    else
+      all_possible_setmoves(gamestate).flatten
+    end
+  end
+
+  # Gibt alle möglichen Legezüge in der ersten Runde zurück
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
+  def self.possible_start_moves(gamestate)
+    color = gamestate.current_color
+    shape = gamestate.start_piece
+    area1 = shape.dimension
+    area2 = Coordinates.new(area1.y, area1.x)
+    moves = Set[]
+
+    # Hard code corners for most efficiency (and because a proper algorithm would be pretty illegible here)
+    # Upper Left
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(0, 0)))
+
+    # Upper Right
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, 0)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, 0)))
+
+    # Lower Left
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(0, BOARD_SIZE - area1.y)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(0, BOARD_SIZE - area2.y)))
+
+    # Lower Right
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, BOARD_SIZE - area1.y)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, BOARD_SIZE - area2.y)))
+
+    moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
+  end
+
+  # Helper method to calculate all transformations of one shape on one spot
+  def self.moves_for_shape_on(color, shape, position)
+    moves = Set[]
+    Rotation.each do |r|
+      [true, false].each do |f|
+        moves << SetMove.new(Piece.new(color, shape, r, f, position))
       end
     end
-
-    SkipMove.new
+    moves
   end
 
-  # Gibt alle möglichen lege Züge zurück
-  # @param gamestate [GameState] Der zu untersuchende GameState.
-  def self.possible_setmoves(gamestate)
-    if gamestate.is_first_move? then
-      get_possible_setmoves_for_kind(gamestate, gamestate.start_piece)
-    else
-      get_all_possible_setmoves(gamestate)
-    end
-  end
-
-  # Return a list of all possible SetMoves, regardless of whether it's the first round.
-  def self.get_all_possible_setmoves(gamestate)
-    current_color = gamestate.current_color
+  # Gib eine Liste aller möglichen Legezüge zurück, auch wenn es die erste Runde ist.
+  def self.all_possible_setmoves(gamestate)
     moves = []
-    gamestate.undeployed_pieces(current_color).each do |p|
-      moves += get_possible_setmoves_for_kind(gamestate, p)
+    fields = valid_fields(gamestate)
+    gamestate.undeployed_pieces(gamestate.current_color).each do |p|
+      (moves << possible_moves_for_shape(gamestate, p, fields)).flatten
     end
     moves
   end
 
   # Gibt eine Liste aller möglichen SetMoves für diese Form zurück.
-  # @param gamestate der aktuelle Spielstand
-  # @param kind die [PieceShape] der züge
+  # @param gamestate Der aktuelle Spielstand
+  # @param shape Die [PieceShape], die die Züge nutzen sollen
   #
-  # @return alle möglichen züge mit dem kind
-  def self.get_possible_setmoves_for_kind(gamestate, kind)
-    current_color = gamestate.current_color
-    moves = []
-    fields = Set[]
-    get_valid_fields(gamestate).each do |p|
-      (p.x - 5..p.x).each do |x|
-        (p.y - 5..p.y).each do |y|
-          fields.add(Coordinates.new(x, y))
-        end
-      end
-    end
-
-    Rotation.to_a.each do |r|
-      [false, true].each do |f|
-        fields.each do |p|
-          moves << SetMove.new(Piece.new(current_color, kind, r, f, p))
-        end
-      end
-    end
-    moves.filter { |m| valid_set_move?(gamestate, m) }
-  end
-
-  def self.get_valid_fields(gamestate)
+  # @return Alle möglichen Züge mit der Form
+  def self.possible_moves_for_shape(gamestate, shape, fields = valid_fields(gamestate))
     color = gamestate.current_color
-    board = gamestate.board
-    [Coordinates.new(0, 0), Coordinates.new(0, Constants::BOARD_SIZE), Coordinates.new(Constants::BOARD_SIZE, Constants::BOARD_SIZE), Coordinates.new(Constants::BOARD_SIZE, 0)].each do |f|
-      unless board[f].nil?
-        return get_valid_fields_around(gamestate, f) if board[f].color == color
-      end
-    end
-  end
 
-  def self.get_valid_fields_around(gamestate, field)
-    if gamestate.board[field].color == gamestate.current_color
-      field.coords
-    else
-      fields = Set[]
-      [Coordinates.new(-1, -1), Coordinates.new(-1, 0), Coordinates.new(-1, 1), Coordinates.new(0, 1), Coordinates.new(1, 1), Coordinates.new(1, 0), Coordinates.new(1, -1), Coordinates.new(0, -1)].each do |n|
-        neighbour = field.coords + n
-        if neighbour.x >= 0 && neighbour.x < Constants::BOARD_SIZE && neighbour.y >= 0 && neighbour.y < Constants::BOARD_SIZE
-          if gamestate.board[neighbour].color == gamestate.current_color
-            fields.merge(get_valid_fields_around(gamestate, neighbour))
-          elsif gamestate.board[neighbour].color.nil?
-            fields.add(neighbour)
+    moves = Set[]
+    fields.each do |field|
+      Rotation.each do |r|
+        [true, false].each do |f|
+          piece = Piece.new(color, shape, r, f, Coordinates.new(0, 0))
+          piece.coords.each do |pos|
+            moves << SetMove.new(Piece.new(color, shape, r, f, Coordinates.new(field.x - pos.x, field.y - pos.y)))
           end
         end
       end
-      fields
+    end
+    moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
+  end
+
+  # Gibt eine Liste aller Felder zurück, an denen möglicherweise Züge gemacht werden kann.
+  # @param gamestate Der aktuelle Spielstand
+  def self.valid_fields(gamestate)
+    color = gamestate.current_color
+    board = gamestate.board
+    fields = Set[]
+    board.fields_of_color(color).each do |field|
+      [Coordinates.new(field.x - 1, field.y - 1),
+       Coordinates.new(field.x - 1, field.y + 1),
+       Coordinates.new(field.x + 1, field.y - 1),
+       Coordinates.new(field.x + 1, field.y + 1)].each do |corner|
+        next unless Board.contains(corner)
+        next unless board[corner].empty?
+        next if neighbor_of_color?(board, Field.new(corner.x, corner.y), color)
+
+        fields << corner
+      end
+    end
+    fields
+  end
+
+  # Überprüft, ob das gegebene Feld ein Nachbarfeld mit der Farbe [color] hat
+  # @param board Das aktuelle Board
+  # @param field Das zu überprüfende Feld
+  # @param color Nach der zu suchenden Farbe
+  def self.neighbor_of_color?(board, field, color)
+    [Coordinates.new(field.x - 1, field.y),
+     Coordinates.new(field.x, field.y - 1),
+     Coordinates.new(field.x + 1, field.y),
+     Coordinates.new(field.x, field.y + 1)].any? do |neighbor|
+      Board.contains(neighbor) && board[neighbor].color == color
     end
   end
 
@@ -164,8 +188,8 @@ class GameRuleLogic
   end
 
   # Prüft, ob der gegebene [SetMove] zulässig ist.
-  # @param gamestate der aktuelle Spielstand
-  # @param move der zu überprüfende Zug
+  # @param gamestate [GameState] der aktuelle Spielstand
+  # @param move [SetMove] der zu überprüfende Zug
   #
   # @return ob der Zug zulässig ist
   def self.valid_set_move?(gamestate, move)
@@ -197,7 +221,10 @@ class GameRuleLogic
     true
   end
 
-  # Check if the given [position] already borders on another piece of same [color].
+  # Überprüft, ob das gegebene Feld ein Nachbarfeld mit der Farbe [color] hat
+  # @param board [Board] Das aktuelle Spielbrett
+  # @param field [Field] Das zu überprüfende Feld
+  # @param color [Color] Nach der zu suchenden Farbe
   def self.borders_on_color?(board, position, color)
     [Coordinates.new(1, 0), Coordinates.new(0, 1), Coordinates.new(-1, 0), Coordinates.new(0, -1)].any? do |it|
       if board.in_bounds?(position + it)
@@ -208,25 +235,31 @@ class GameRuleLogic
     end
   end
 
-  # Return true if the given [Coordinates] touch a corner of a field of same color.
+  # Überprüft, ob das gegebene Feld ein diagonales Nachbarfeld mit der Farbe [color] hat
+  # @param board [Board] Das aktuelle Spielbrett
+  # @param field Das zu überprüfende [Field]
+  # @param color Nach der zu suchenden [Color]
   def self.corners_on_color?(board, position, color)
     [Coordinates.new(1, 1), Coordinates.new(1, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 1)].any? do |it|
       board.in_bounds?(position + it) && board[position + it].color == color
     end
   end
 
-  # Return true if the given [Coordinates] are a corner.
+  # Überprüft, ob die gegebene [position] an einer Ecke des Boards liegt.
+  # @param position [Coordinates] Die zu überprüfenden Koordinaten
   def self.corner?(position)
     corner = [
-      Coordinates.new(0,0),
-      Coordinates.new(BOARD_SIZE-1, 0),
-      Coordinates.new(0, BOARD_SIZE-1),
-      Coordinates.new(BOARD_SIZE-1, BOARD_SIZE-1)
+      Coordinates.new(0, 0),
+      Coordinates.new(BOARD_SIZE - 1, 0),
+      Coordinates.new(0, BOARD_SIZE - 1),
+      Coordinates.new(BOARD_SIZE - 1, BOARD_SIZE - 1)
     ]
     corner.include? position
   end
 
-  # Check if the given [position] is already obstructed by another piece.
+  # Überprüft, ob die gegebene [position] schon mit einer Farbe belegt wurde.
+  # @param board [Board] Das aktuelle Spielbrett
+  # @param position [Coordinates] Die zu überprüfenden Koordinaten
   def self.obstructed?(board, position)
     !board[position].color.nil?
   end
@@ -234,10 +267,11 @@ class GameRuleLogic
   # --- Perform Move ------------------------------------------------------------
 
   # Führe den gegebenen [Move] im gebenenen [GameState] aus.
-  # @param gamestate der aktuelle Spielstand
+  # @param gamestate [GameState] der aktuelle Spielstand
   # @param move der auszuführende Zug
   def self.perform_move(gamestate, move)
     raise 'Invalid move!' unless valid_move?(gamestate, move)
+
     if move.instance_of? SetMove
       gamestate.undeployed_pieces(move.piece.color).delete(move.piece)
       # gamestate.deployed_pieces(move.piece.color).add(move.piece)
@@ -248,8 +282,8 @@ class GameRuleLogic
       end
 
       # If it was the last piece for this color, remove it from the turn queue
-      if gamestate.undeployed_pieces(move.piece.color).empty? then
-        gamestate.lastMoveMono += move.color to (move.piece.kind == PieceShape.MONO)
+      if gamestate.undeployed_pieces(move.piece.color).empty?
+        gamestate.lastMoveMono += move.color to(move.piece.kind == PieceShape.MONO)
         gamestate.remove_active_color
       end
     end
@@ -277,7 +311,7 @@ class GameRuleLogic
     SUM_MAX_SQUARES - undeployed.map(&:size).sum
   end
 
-  # Return a random pentomino which is not the `x` one (Used to get a valid starting piece).
+  # Gibt einen zufälligen Pentomino zurück, welcher nicht `x` ist.
   def self.get_random_pentomino
     PieceShape.map(&:value).select { |it| it.size == 5 && it != PieceShape::PENTO_X }
   end
@@ -285,17 +319,16 @@ class GameRuleLogic
   # Entferne alle Farben, die keine Steine mehr auf dem Feld platzieren können.
   def remove_invalid_colors(gamestate)
     return if gamestate.ordered_colors.empty?
+    return unless get_possible_moves(gamestate).empty?
 
-    if get_possible_moves(gamestate).empty?
-      gamestate.remove_active_color
-      remove_invalid_colors(gamestate)
-    end
+    gamestate.remove_active_color
+    remove_invalid_colors(gamestate)
   end
 
   # Prueft, ob ein Spieler im gegebenen GameState gewonnen hat.
   # @param gamestate [GameState] Der zu untersuchende GameState.
   # @return [Condition] nil, if the game is not won or a Condition indicating the winning player
-  def self.winning_condition(gamestate)
+  def self.winning_condition(_gamestate)
     raise 'Not implemented yet!'
   end
 end

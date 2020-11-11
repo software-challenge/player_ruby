@@ -12,7 +12,7 @@ class Field
   # @return [Coordinates] die X-Y-Koordinaten des Feldes
   attr_reader :coordinates
 
-  # Konstruktor
+  # Erstellt ein neues leeres Feld.
   #
   # @param x [Integer] X-Koordinate
   # @param y [Integer] Y-Koordinate
@@ -38,8 +38,7 @@ class Field
     coordinates.y
   end
 
-  # @return [Boolean] true, wenn das Feld nich durch einen Spielstein überdeckt
-  # ist, sonst false
+  # @return [Boolean] true, wenn das Feld nicht durch einen Spielstein überdeckt ist, sonst false
   def empty?
     color.nil?
   end

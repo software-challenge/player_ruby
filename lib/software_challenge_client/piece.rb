@@ -3,7 +3,7 @@
 # Ein Spielstein mit Ausrichtung, Koordinaten und Farbe
 class Piece
   # @!attribute [r] Farbe
-  # @return [PlayerColor]
+  # @return [Color]
   attr_reader :color
 
   # @!attribute [r] Form
@@ -24,6 +24,7 @@ class Piece
 
   attr_reader :coords
 
+  # Erstellt einen neuen leeren Spielstein.
   def initialize(color, kind, rotation = Rotation::NONE, is_flipped = false, position = Coordinates.origin)
     @color = color
     @kind = kind
