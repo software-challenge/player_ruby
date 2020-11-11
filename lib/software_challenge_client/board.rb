@@ -97,11 +97,21 @@ class Board
   #
   # @param color [Color] Die Farbe der Felder
   # @return [Array<Field>] Eine Liste aller felder, die die gegebene Farbe haben
-  def fields_of_color(color, fields = [Coordinates.new(0, 0), Coordinates.new(0, BOARD_SIZE - 1), Coordinates.new(BOARD_SIZE - 1, BOARD_SIZE - 1), Coordinates.new(BOARD_SIZE - 1, 0)].filter { |it| field_at(it).color == color })
+  def fields_of_color(color, fields = [Coordinates.new(0, 0),
+                                       Coordinates.new(0, BOARD_SIZE - 1),
+                                       Coordinates.new(BOARD_SIZE - 1, BOARD_SIZE - 1),
+                                       Coordinates.new(BOARD_SIZE - 1, 0)].filter { |it| field_at(it).color == color })
     copy = Array.new(fields)
 
     copy.each do |field|
-      [Coordinates.new(1, 0), Coordinates.new(1, -1), Coordinates.new(0, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 0), Coordinates.new(-1, 1), Coordinates.new(0, 1), Coordinates.new(1, 1)].each do |neighbor|
+      [Coordinates.new(1, 0),
+       Coordinates.new(1, -1),
+       Coordinates.new(0, -1),
+       Coordinates.new(-1, -1),
+       Coordinates.new(-1, 0),
+       Coordinates.new(-1, 1),
+       Coordinates.new(0, 1),
+       Coordinates.new(1, 1)].each do |neighbor|
         new_field = field + neighbor
         next unless Board.contains(new_field) && @fields[new_field.x][new_field.y].color == color
 
@@ -118,7 +128,7 @@ class Board
 
   # @param it [Coordinates] Die zu untersuchenden Koordinaten
   # @return [Boolean] Ob die gegebenen Koordinaten auf dem Board liegen oder nicht
-  def in_bounds?(it) 
+  def in_bounds?(it)
     it.x >= 0 && it.y >= 0 && it.x < BOARD_SIZE && it.y < BOARD_SIZE
   end
 
