@@ -1,4 +1,5 @@
 # encoding: utf-8
+# frozen_string_literal: true
 
 # Exception, die geworfen wird, wenn ein ungültiger Zug ausgeführt wird.
 # @see GameRuleLogic#perform_move

@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 require_relative 'player'
 
 # Das Ergebnis eines Spieles. Ist im `GameState#condition` zu finden, wenn das Spiel beendet wurde.
@@ -19,6 +20,7 @@ class Condition
     @reason = reason
   end
 
+  # Überprüfe ob es ein Unentschieden gab
   def draw?
     @winner.nil?
   end

@@ -1,35 +1,33 @@
-# encoding: UTF-8
+# encoding: utf-8
+# frozen_string_literal: true
 
-# Ein Feld des Spielfelds. Ein Spielfeld ist durch die Koordinaten eindeutig identifiziert.
+# Ein Feld des Spielfelds. Ein Spielfeld ist durch die Koordinaten eindeutig
+# identifiziert.
 class Field
-  # @!attribute [rw] pieces
-  # @return [Array<Piece>] Spielsteine auf dem Feld, beginnend beim untersten Stein
-  attr_accessor :pieces
+  # @!attribute [rw] color
+  # @return [Color] Farbe des überdeckenden Spielsteins, falls vorhanden, sonst
+  #                 nil
+  attr_accessor :color
   # @!attribute [r] coordinates
-  # @return [CubeCoordinates] die Cube-Coordinates des Feldes
+  # @return [Coordinates] die X-Y-Koordinaten des Feldes
   attr_reader :coordinates
-  # @!attribute [r] obstructed
-  # @return [Boolean] ob das Feld durch eine Brombeere blockiert ist
-  attr_reader :obstructed
 
-  # Konstruktor
+  # Erstellt ein neues leeres Feld.
   #
   # @param x [Integer] X-Koordinate
   # @param y [Integer] Y-Koordinate
-  # @param pieces [Array<Piece>] Spielsteine auf dem Feld
-  # @param obstructed [Boolean] Ob das Feld blockiert ist (Brombeere)
-  def initialize(x, y, pieces = [], obstructed = false)
-    @pieces = pieces
-    @coordinates = CubeCoordinates.new(x, y)
-    @obstructed = obstructed
+  # @param color [Color] Farbe des Spielsteins, der das Feld überdeckt, nil falls kein Spielstein es überdeckt
+  def initialize(x, y, color = nil)
+    @color = color
+    @coordinates = Coordinates.new(x, y)
   end
 
-  # Vergleicht zwei Felder. Felder sind gleich, wenn sie gleiche Koordinaten und gleichen Typ haben.
-  # @return [Boolean] true bei Gleichheit, false sonst.
+  # Vergleicht zwei Felder. Felder sind gleich, wenn sie gleiche Koordinaten und
+  # gleichen Typ haben.
+  # @return [Boolean] true bei Gleichheit, sonst false.
   def ==(other)
     coordinates == other.coordinates &&
-      obstructed == other.obstructed &&
-      pieces == other.pieces
+      color == other.color
   end
 
   def x
@@ -40,46 +38,13 @@ class Field
     coordinates.y
   end
 
-  def z
-    coordinates.z
-  end
-
-  # @return [Boolean] true, wenn eine Spielsteine auf dem Feld liegen und es nicht durch eine Brombeere blockiert ist
+  # @return [Boolean] true, wenn das Feld nicht durch einen Spielstein überdeckt ist, sonst false
   def empty?
-    pieces.empty? && !obstructed
-  end
-
-  # @return [Boolean] true, es nicht durch eine Brombeere blockiert ist
-  def obstructed?
-    obstructed
-  end
-
-  def add_piece(piece)
-    pieces.push(piece)
-  end
-
-  # Entfernt den obersten Spielstein
-  # @return [Piece] entfernten Spielstein oder nil
-  def remove_piece
-    pieces.pop
-  end
-
-  # @return [PlayerColor] Farbe des Spielers, der den obersten Spielstein kontrolliert. Ohne Spielsteine nil
-  def color
-    pieces.last&.color
-  end
-
-  def has_owner
-    !color.nil?
+    color.nil?
   end
 
   # @return [String] Textuelle Darstellung des Feldes.
   def to_s
-    s = "Feld #{coordinates}, "
-    if obstructed?
-      s += 'blockiert'
-    else
-      s += "Steine: #{pieces.map(&:to_s).join(', ')}"
-    end
+    empty? ? '_' : color.value
   end
 end

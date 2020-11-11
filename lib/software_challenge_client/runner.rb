@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 require_relative 'board'
 require_relative 'client_interface'
 require_relative 'network'
@@ -8,7 +9,7 @@ class Runner
   include Logging
 
   def initialize(host, port, client, reservation = nil)
-    logger.info 'Software Challenge 2019'
+    logger.info 'Software Challenge 2021'
     logger.info 'Ruby Client'
     logger.info "Host: #{host}"
     logger.info "Port: #{port}"

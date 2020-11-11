@@ -1,411 +1,334 @@
-# coding: utf-8
 # frozen_string_literal: true
 
 require_relative './util/constants'
 require_relative 'invalid_move_exception'
+require_relative 'set_move'
 
-# Methoden, welche die Spielregeln von Hive abbilden.
+require 'set'
+
+# Methoden, welche die Spielregeln von Blokus abbilden.
 #
-# Es gibt hier viele Helfermethoden, die von den beiden Hauptmethoden {GameRuleLogic#valid_move?} und {GameRuleLogic.possible_moves} benutzt werden.
+# Es gibt hier viele Helfermethoden, die von den beiden Hauptmethoden {GameRuleLogic#valid_move?}
+# und {GameRuleLogic.possible_moves} benutzt werden.
 class GameRuleLogic
-
   include Constants
 
-  # Fügt einem leeren Spielfeld drei Brombeeren hinzu.
+  SUM_MAX_SQUARES = 89
+
+  # --- Possible Moves ------------------------------------------------------------
+
+  # Gibt alle möglichen Züge für den Spieler zurück, der in der gamestate dran ist.
+  # Diese ist die wichtigste Methode dieser Klasse für Schüler.
   #
-  # Diese Methode ist dazu gedacht, ein initiales Spielbrett regelkonform zu generieren.
-  #
-  # @param board [Board] Das zu modifizierende Spielbrett. Es wird nicht
-  #   geprüft, ob sich auf dem Spielbrett bereits Brombeeren befinden.
-  # @return [Board] Das modifizierte Spielbrett.
-  def self.add_blocked_fields(board)
-    raise "todo"
-    board
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
+  def self.possible_moves(gamestate)
+    re = possible_setmoves(gamestate)
+
+    re << SkipMove.new unless gamestate.is_first_move?
+
+    re
   end
 
-  def self.get_neighbour_in_direction(board, coords, direction)
-    board.field_at(direction.translate(coords))
+  # Gibt einen zufälligen möglichen Zug zurück
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
+  def self.possible_move(gamestate)
+    possible_moves(gamestate).sample
   end
 
-  def self.get_neighbours(board, coordinates)
-    Direction.map { |d| get_neighbour_in_direction(board, coordinates, d) }.compact
-  end
-
-  def self.is_bee_blocked(board, color)
-    bee_fields = board.field_list.select { |f| f.pieces.include?(Piece.new(color, PieceType::BEE)) }
-    return false if bee_fields.empty?
-    return get_neighbours(board, bee_fields[0].coordinates).all? { |f| !f.empty? }
-  end
-
-  # Prueft, ob ein Spielzug fuer den gegebenen Gamestate valide ist
-  #
-  # @param gamestate [Gamestate]
-  # @param move [Move]
-  # @return [?]
-  def self.valid_move?(gamestate, move)
-    case move
-    when SetMove
-      validate_set_move(gamestate, move)
-    when DragMove
-      validate_drag_move(gamestate, move)
-    when SkipMove
-      validate_skip_move(gamestate, move)
+  # Gibt alle möglichen Legezüge zurück
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
+  def self.possible_setmoves(gamestate)
+    if gamestate.is_first_move?
+      possible_start_moves(gamestate)
+    else
+      all_possible_setmoves(gamestate).flatten
     end
   end
 
-  def self.is_on_board(coords)
-    shift = (BOARD_SIZE - 1) / 2
-    -shift <= coords.x && coords.x <= shift && -shift <= coords.y && coords.y <= shift
+  # Gibt alle möglichen Legezüge in der ersten Runde zurück
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
+  def self.possible_start_moves(gamestate)
+    color = gamestate.current_color
+    shape = gamestate.start_piece
+    area1 = shape.dimension
+    area2 = Coordinates.new(area1.y, area1.x)
+    moves = Set[]
+
+    # Hard code corners for most efficiency (and because a proper algorithm would be pretty illegible here)
+    # Upper Left
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(0, 0)))
+
+    # Upper Right
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, 0)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, 0)))
+
+    # Lower Left
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(0, BOARD_SIZE - area1.y)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(0, BOARD_SIZE - area2.y)))
+
+    # Lower Right
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, BOARD_SIZE - area1.y)))
+    moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, BOARD_SIZE - area2.y)))
+
+    moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
   end
 
-  def self.has_player_placed_bee(gamestate)
-    gamestate.deployed_pieces(gamestate.current_player_color).any? { |p| p.type == PieceType::BEE }
+  # Helper method to calculate all transformations of one shape on one spot
+  def self.moves_for_shape_on(color, shape, position)
+    moves = Set[]
+    Rotation.each do |r|
+      [true, false].each do |f|
+        moves << SetMove.new(Piece.new(color, shape, r, f, position))
+      end
+    end
+    moves
   end
 
-  def self.validate_set_move(gamestate, move)
-    unless is_on_board(move.destination)
-      raise InvalidMoveException.new("Piece has to be placed on board. Destination ${move.destination} is out of bounds.", move)
+  # Gib eine Liste aller möglichen Legezüge zurück, auch wenn es die erste Runde ist.
+  def self.all_possible_setmoves(gamestate)
+    moves = []
+    fields = valid_fields(gamestate)
+    gamestate.undeployed_pieces(gamestate.current_color).each do |p|
+      (moves << possible_moves_for_shape(gamestate, p, fields)).flatten
     end
-    unless gamestate.board.field_at(move.destination).empty?
-      raise InvalidMoveException.new("Set destination is not empty!", move)
-    end
+    moves
+  end
 
-    owned_fields = gamestate.board.fields_of_color(gamestate.current_player_color)
-    if owned_fields.empty?
-      other_player_fields = gamestate.board.fields_of_color(gamestate.other_player_color)
-      if !other_player_fields.empty?
-        unless other_player_fields.map{ |of| get_neighbours(gamestate.board, of.coordinates).map{ |n| n.coordinates } }.flatten.include?(move.destination)
-          raise InvalidMoveException.new("Piece has to be placed next to other players piece", move)
+  # Gibt eine Liste aller möglichen SetMoves für diese Form zurück.
+  # @param gamestate Der aktuelle Spielstand
+  # @param shape Die [PieceShape], die die Züge nutzen sollen
+  #
+  # @return Alle möglichen Züge mit der Form
+  def self.possible_moves_for_shape(gamestate, shape, fields = valid_fields(gamestate))
+    color = gamestate.current_color
+
+    moves = Set[]
+    fields.each do |field|
+      Rotation.each do |r|
+        [true, false].each do |f|
+          piece = Piece.new(color, shape, r, f, Coordinates.new(0, 0))
+          piece.coords.each do |pos|
+            moves << SetMove.new(Piece.new(color, shape, r, f, Coordinates.new(field.x - pos.x, field.y - pos.y)))
+          end
         end
       end
+    end
+    moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
+  end
+
+  # Gibt eine Liste aller Felder zurück, an denen möglicherweise Züge gemacht werden kann.
+  # @param gamestate Der aktuelle Spielstand
+  def self.valid_fields(gamestate)
+    color = gamestate.current_color
+    board = gamestate.board
+    fields = Set[]
+    board.fields_of_color(color).each do |field|
+      [Coordinates.new(field.x - 1, field.y - 1),
+       Coordinates.new(field.x - 1, field.y + 1),
+       Coordinates.new(field.x + 1, field.y - 1),
+       Coordinates.new(field.x + 1, field.y + 1)].each do |corner|
+        next unless Board.contains(corner)
+        next unless board[corner].empty?
+        next if neighbor_of_color?(board, Field.new(corner.x, corner.y), color)
+
+        fields << corner
+      end
+    end
+    fields
+  end
+
+  # Überprüft, ob das gegebene Feld ein Nachbarfeld mit der Farbe [color] hat
+  # @param board Das aktuelle Board
+  # @param field Das zu überprüfende Feld
+  # @param color Nach der zu suchenden Farbe
+  def self.neighbor_of_color?(board, field, color)
+    [Coordinates.new(field.x - 1, field.y),
+     Coordinates.new(field.x, field.y - 1),
+     Coordinates.new(field.x + 1, field.y),
+     Coordinates.new(field.x, field.y + 1)].any? do |neighbor|
+      Board.contains(neighbor) && board[neighbor].color == color
+    end
+  end
+
+  # # Return a list of all moves, impossible or not.
+  # # There's no real usage, except maybe for cases where no Move validation happens
+  # # if `Constants.VALIDATE_MOVE` is false, then this function should return the same
+  # # Set as `::getPossibleMoves`
+  # def self.get_all_set_moves()
+  #   moves = []
+  #   Color.each do |c|
+  #     PieceShape.each do |s|
+  #       Rotation.each do |r|
+  #         [false, true].each do |f|
+  #           (0..BOARD_SIZE-1).to_a.each do |x|
+  #             (0..BOARD_SIZE-1).to_a.each do |y|
+  #               moves << SetMove.new(Piece.new(c, s, r, f, Coordinates.new(x, y)))
+  #             end
+  #           end
+  #         end
+  #       end
+  #     end
+  #   end
+  #   moves
+  # end
+
+  # --- Move Validation ------------------------------------------------------------
+
+  # Prüft, ob der gegebene [Move] zulässig ist.
+  # @param gamestate der aktuelle Spielstand
+  # @param move der zu überprüfende Zug
+  #
+  # @return ob der Zug zulässig ist
+  def self.valid_move?(gamestate, move)
+    if move.instance_of? SkipMove
+      !gamestate.is_first_move?
     else
-      if gamestate.round == 3 && !has_player_placed_bee(gamestate) && move.piece.type != PieceType::BEE
-        raise InvalidMoveException.new("The bee must be placed in fourth round latest", move)
-      end
-
-      if !gamestate.undeployed_pieces(gamestate.current_player_color).include?(move.piece)
-        raise InvalidMoveException.new("Piece is not a undeployed piece of the current player", move)
-      end
-
-      destination_neighbours = get_neighbours(gamestate.board, move.destination)
-      if !destination_neighbours.any? { |f| f.color == gamestate.current_player_color }
-        raise InvalidMoveException.new("A newly placed piece must touch an own piece", move)
-      end
-      if destination_neighbours.any? { |f| f.color == gamestate.other_player_color }
-        raise InvalidMoveException.new("A newly placed is not allowed to touch an opponent's piece", move)
-      end
+      valid_set_move?(gamestate, move)
     end
+  end
+
+  # Prüft, ob der gegebene [SetMove] zulässig ist.
+  # @param gamestate [GameState] der aktuelle Spielstand
+  # @param move [SetMove] der zu überprüfende Zug
+  #
+  # @return ob der Zug zulässig ist
+  def self.valid_set_move?(gamestate, move)
+    # Check whether the color's move is currently active
+    return false if move.piece.color != gamestate.current_color
+
+    # Check whether the shape is valid
+    if gamestate.is_first_move?
+      return false if move.piece.kind != gamestate.start_piece
+    elsif !gamestate.undeployed_pieces(move.piece.color).include?(move.piece.kind)
+      return false
+    end
+
+    # Check whether the piece can be placed
+    move.piece.coords.each do |it|
+      return false unless gamestate.board.in_bounds?(it)
+      return false if obstructed?(gamestate.board, it)
+      return false if borders_on_color?(gamestate.board, it, move.piece.color)
+    end
+
+    if gamestate.is_first_move?
+      # Check if it is placed correctly in a corner
+      return false if move.piece.coords.none? { |it| corner?(it) }
+    else
+      # Check if the piece is connected to at least one tile of same color by corner
+      return false if move.piece.coords.none? { |it| corners_on_color?(gamestate.board, it, move.piece.color) }
+    end
+
     true
   end
 
-  def self.validate_skip_move(gamestate, move)
-    if !possible_moves(gamestate).empty?
-      raise InvalidMoveException.new("Skipping a turn is only allowed when no other moves can be made.", move)
-    end
-    if gamestate.round == 3 && !has_player_placed_bee(gamestate)
-      raise InvalidMoveException.new("The bee must be placed in fourth round latest", move)
-    end
-    true
-  end
-
-  def self.validate_drag_move(gamestate, move)
-    unless has_player_placed_bee(gamestate)
-      raise InvalidMoveException.new("You have to place the bee to be able to perform dragmoves", move)
-    end
-
-    if (!is_on_board(move.destination) || !is_on_board(move.start))
-      raise InvalidMoveException.new("The Move is out of bounds", move)
-    end
-
-    if (gamestate.board.field_at(move.start).pieces.empty?)
-      raise InvalidMoveException.new("There is no piece to move", move)
-    end
-
-    piece_to_drag = gamestate.board.field_at(move.start).pieces.last
-
-    if (piece_to_drag.owner != gamestate.current_player_color)
-      raise InvalidMoveException.new("Trying to move piece of the other player", move)
-    end
-
-    if (move.start == move.destination)
-      raise InvalidMoveException.new("Destination and start are equal", move)
-    end
-
-    if (!gamestate.board.field_at(move.destination).pieces.empty? && piece_to_drag.type != PieceType::BEETLE)
-      raise InvalidMoveException.new("Only beetles are allowed to climb on other Pieces", move)
-    end
-
-    board_without_piece = gamestate.board.clone
-    board_without_piece.field_at(move.start).pieces.pop
-
-    if (!is_swarm_connected(board_without_piece))
-      raise InvalidMoveException.new("Moving piece would disconnect swarm", move)
-    end
-
-    case piece_to_drag.type
-    when PieceType::ANT
-      validate_ant_move(board_without_piece, move)
-    when PieceType::BEE
-      validate_bee_move(board_without_piece, move)
-    when PieceType::BEETLE
-      validate_beetle_move(board_without_piece, move)
-    when PieceType::GRASSHOPPER
-      validate_grasshopper_move(board_without_piece, move)
-    when PieceType::SPIDER
-      validate_spider_move(board_without_piece, move)
-    end
-    true
-  end
-
-  def self.validate_ant_move(board, move)
-    visited_fields = [move.start]
-    index = 0
-    while index < visited_fields.size
-      current_field = visited_fields[index]
-      new_fields = accessible_neighbours_except(board, current_field, move.start).reject { |f| visited_fields.include? f }
-      return true if new_fields.map(&:coordinates).include?(move.destination)
-      visited_fields += new_fields
-      index += 1
-    end
-    raise InvalidMoveException.new("No path found for ant move", move)
-  end
-
-  def self.is_swarm_connected(board)
-    board_fields = board.field_list.select{ |f| !f.pieces.empty? }
-    return true if board_fields.empty?
-    visited_fields = board_fields.take 1
-    total_pieces = board.pieces.size
-    index = 0
-    while index < visited_fields.size
-      current_field = visited_fields[index]
-      occupied_neighbours =
-        get_neighbours(board, current_field.coordinates)
-          .filter { |f| !f.pieces.empty? }
-      occupied_neighbours -= visited_fields
-      visited_fields += occupied_neighbours
-      return true if visited_fields.sum{ |f| f.pieces.size } == total_pieces
-      index += 1
-    end
-    false
-  end
-
-  def self.validate_beetle_move(board, move)
-    validate_destination_next_to_start(move)
-    if ((shared_neighbours_of_two_coords(board, move.start, move.destination) + [board.field_at(move.destination), board.field_at(move.start)]).all? { |f| f.pieces.empty? })
-      raise InvalidMoveException.new("Beetle has to move along swarm", move)
-    end
-  end
-
-  def self.validate_destination_next_to_start(move)
-    if (!is_neighbour(move.start, move.destination))
-      raise InvalidMoveException.new("Destination field is not next to start field", move)
-    end
-  end
-
-  def self.is_neighbour(start, destination)
-    Direction.map do |d|
-      d.translate(start)
-    end.include?(destination)
-  end
-
-  def self.shared_neighbours_of_two_coords(board, first_coords, second_coords)
-    get_neighbours(board, first_coords) & get_neighbours(board, second_coords)
-  end
-
-  def self.validate_bee_move(board, move)
-    validate_destination_next_to_start(move)
-    if (!can_move_between(board, move.start, move.destination))
-      raise InvalidMoveException.new("There is no path to your destination", move)
-    end
-  end
-
-  def self.can_move_between(board, coords1, coords2)
-    shared = shared_neighbours_of_two_coords(board, coords1, coords2)
-    (shared.size == 1 || shared.any? { |n| n.empty? && !n.obstructed }) && shared.any? { |n| !n.pieces.empty? }
-  end
-
-  def self.validate_grasshopper_move(board, move)
-    if (!two_fields_on_one_straight(move.start, move.destination))
-      raise InvalidMoveException.new("Grasshopper can only move straight lines", move)
-    end
-    if (is_neighbour(move.start, move.destination))
-      raise InvalidMoveException.new("Grasshopper has to jump over at least one piece", move)
-    end
-    if (get_line_between_coords(board, move.start, move.destination).any? { |f| f.empty? })
-      raise InvalidMoveException.new("Grasshopper can only jump over occupied fields, not empty ones", move)
-    end
-  end
-
-  def self.two_fields_on_one_straight(coords1, coords2)
-    return coords1.x == coords2.x || coords1.y == coords2.y || coords1.z == coords2.z
-  end
-
-  def self.get_line_between_coords(board, start, destination)
-    if (!two_fields_on_one_straight(start, destination))
-      raise InvalidMoveException.new("destination is not in line with start")
-    end
-
-    # TODO use Direction shift
-    dX = start.x - destination.x
-    dY = start.y - destination.y
-    dZ = start.z - destination.z
-    d = (dX == 0) ? dY.abs : dX.abs
-    (1..(d-1)).to_a.map do |i|
-      board.field_at(
-        CubeCoordinates.new(
-          destination.x + i * (dX <=> 0),
-          destination.y + i * (dY <=> 0),
-          destination.z + i * (dZ <=> 0)
-        )
-      )
-    end
-  end
-  def self.accessible_neighbours_except(board, start, except)
-    get_neighbours(board, start).filter do |neighbour|
-      neighbour.empty? && can_move_between_except(board, start, neighbour, except) && neighbour.coordinates != except
-    end
-  end
-
-  def self.can_move_between_except(board, coords1, coords2, except)
-    shared = shared_neighbours_of_two_coords(board, coords1, coords2).reject do |f|
-      f.pieces.size == 1 && except == f.coordinates
-    end
-    (shared.size == 1 || shared.any? { |s| s.empty? && !s.obstructed }) && shared.any? { |s| !s.pieces.empty? }
-  end
-
-  def self.validate_spider_move(board, move)
-    found = get_accessible_neighbours(board, move.start).any? do |depth_one|
-      get_accessible_neighbours_except(board, depth_one, move.start).any? do |depth_two|
-        get_accessible_neighbours_except(board, depth_two, move.start).reject{ |f| f.coordinates == depth_one.coordinates }.any? { |f| move.destination == f.coordinates }
+  # Überprüft, ob das gegebene Feld ein Nachbarfeld mit der Farbe [color] hat
+  # @param board [Board] Das aktuelle Spielbrett
+  # @param field [Field] Das zu überprüfende Feld
+  # @param color [Color] Nach der zu suchenden Farbe
+  def self.borders_on_color?(board, position, color)
+    [Coordinates.new(1, 0), Coordinates.new(0, 1), Coordinates.new(-1, 0), Coordinates.new(0, -1)].any? do |it|
+      if board.in_bounds?(position + it)
+        board[position + it].color == color
+      else
+        false
       end
     end
-    return true if (found)
-    raise InvalidMoveException.new("No path found for spider move", move)
   end
 
-  def self.get_accessible_neighbours(board, start)
-    get_neighbours(board, start).filter do |neighbour|
-      neighbour.empty? && can_move_between(board, start, neighbour)
+  # Überprüft, ob das gegebene Feld ein diagonales Nachbarfeld mit der Farbe [color] hat
+  # @param board [Board] Das aktuelle Spielbrett
+  # @param field Das zu überprüfende [Field]
+  # @param color Nach der zu suchenden [Color]
+  def self.corners_on_color?(board, position, color)
+    [Coordinates.new(1, 1), Coordinates.new(1, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 1)].any? do |it|
+      board.in_bounds?(position + it) && board[position + it].color == color
     end
   end
 
-  def self.get_accessible_neighbours_except(board, start, except)
-    get_neighbours(board, start).filter do |neighbour|
-      neighbour.empty? &&
-        can_move_between_except(board, start, neighbour, except) &&
-        neighbour.coordinates != except
-    end
+  # Überprüft, ob die gegebene [position] an einer Ecke des Boards liegt.
+  # @param position [Coordinates] Die zu überprüfenden Koordinaten
+  def self.corner?(position)
+    corner = [
+      Coordinates.new(0, 0),
+      Coordinates.new(BOARD_SIZE - 1, 0),
+      Coordinates.new(0, BOARD_SIZE - 1),
+      Coordinates.new(BOARD_SIZE - 1, BOARD_SIZE - 1)
+    ]
+    corner.include? position
   end
 
+  # Überprüft, ob die gegebene [position] schon mit einer Farbe belegt wurde.
+  # @param board [Board] Das aktuelle Spielbrett
+  # @param position [Coordinates] Die zu überprüfenden Koordinaten
+  def self.obstructed?(board, position)
+    !board[position].color.nil?
+  end
+
+  # --- Perform Move ------------------------------------------------------------
+
+  # Führe den gegebenen [Move] im gebenenen [GameState] aus.
+  # @param gamestate [GameState] der aktuelle Spielstand
+  # @param move der auszuführende Zug
   def self.perform_move(gamestate, move)
-    raise "Invalid move!" unless valid_move?(gamestate, move)
-    case move
-    when SetMove
-      # delete first occurrence of piece
-      gamestate.undeployed_pieces(move.piece.color).delete_at(
-        gamestate.undeployed_pieces(move.piece.color).index(move.piece) ||
-        gamestate.undeployed_pieces(move.piece.color).length
-      )
-      gamestate.board.field_at(move.destination).add_piece(move.piece)
-    when DragMove
-      piece_to_move = gamestate.board.field_at(move.start).remove_piece
-      gamestate.board.field_at(move.destination).add_piece(piece_to_move)
+    raise 'Invalid move!' unless valid_move?(gamestate, move)
+
+    if move.instance_of? SetMove
+      gamestate.undeployed_pieces(move.piece.color).delete(move.piece)
+      # gamestate.deployed_pieces(move.piece.color).add(move.piece)
+
+      # Apply piece to board
+      move.piece.coords.each do |coord|
+        gamestate.board[coord].color = move.piece.color
+      end
+
+      # If it was the last piece for this color, remove it from the turn queue
+      if gamestate.undeployed_pieces(move.piece.color).empty?
+        gamestate.lastMoveMono += move.color to(move.piece.kind == PieceShape.MONO)
+        gamestate.remove_active_color
+      end
     end
     gamestate.turn += 1
+    gamestate.round += 1
     gamestate.last_move = move
   end
 
-  # all possible moves, but will *not* return the skip move if no other moves are possible!
-  def self.possible_moves(gamestate)
-    possible_set_moves(gamestate) + possible_drag_moves(gamestate)
-  end
+  # --- Other ------------------------------------------------------------
 
-  def self.possible_drag_moves(gamestate)
-    gamestate.board.fields_of_color(gamestate.current_player_color).flat_map do |start_field|
-      edge_targets = empty_fields_connected_to_swarm(gamestate.board)
-      additional_targets =
-        if start_field.pieces.last.type == PieceType::BEETLE
-          get_neighbours(gamestate.board, start_field).uniq
-        else
-          []
-        end
-      edge_targets + additional_targets.map do |destination|
-        move = DragMove.new(start_field, destination)
-        begin
-          valid_move?(gamestate, move)
-          move
-        rescue InvalidMoveException
-          nil
-        end
-      end.compact
+  # Berechne den Punktestand anhand der gegebenen [PieceShape]s.
+  # @param undeployed eine Sammlung aller nicht gelegten [PieceShape]s
+  # @param monoLast ob der letzte gelegte Stein das Monomino war
+  #
+  # @return die erreichte Punktezahl
+  def self.get_points_from_undeployed(undeployed, mono_last = false)
+    # If all pieces were placed:
+    if undeployed.empty?
+      # Return sum of all squares plus 15 bonus points
+      return SUM_MAX_SQUARES + 15 +
+             # If the Monomino was the last placed piece, add another 5 points
+             mono_last ? 5 : 0
     end
+    # One point per block per piece placed
+    SUM_MAX_SQUARES - undeployed.map(&:size).sum
   end
 
-  def self.empty_fields_connected_to_swarm(board)
-    board.field_list
-      .filter { |f| f.has_owner }
-      .flat_map { |f| get_neighbours(board, f).filter { f.empty? } }
-      .uniq
+  # Gibt einen zufälligen Pentomino zurück, welcher nicht `x` ist.
+  def self.get_random_pentomino
+    PieceShape.map(&:value).select { |it| it.size == 5 && it != PieceShape::PENTO_X }
   end
 
-  def self.possible_set_move_destinations(board, owner)
-    board.fields_of_color(owner)
-      .flat_map { |f| get_neighbours(board, f).filter { |f| f.empty? } }
-      .uniq
-      .filter { |f| get_neighbours(board, f).all? { |n| n.color != owner.opponent } }
-  end
+  # Entferne alle Farben, die keine Steine mehr auf dem Feld platzieren können.
+  def remove_invalid_colors(gamestate)
+    return if gamestate.ordered_colors.empty?
+    return unless get_possible_moves(gamestate).empty?
 
-  def self.possible_set_moves(gamestate)
-    undeployed = gamestate.undeployed_pieces(gamestate.current_player_color)
-    set_destinations =
-      if (undeployed.size == STARTING_PIECES.size)
-        # current player has not placed any pieces yet (first or second turn)
-        if (gamestate.undeployed_pieces(gamestate.other_player_color).size == STARTING_PIECES.size)
-          # other player also has not placed any pieces yet (first turn, all destinations allowed (except obstructed)
-          gamestate.board.field_list.filter { |f| f.empty? }
-        else
-          # other player placed a piece already
-          gamestate.board
-            .fields_of_color(gamestate.other_player_color)
-            .flat_map do |f|
-              GameRuleLogic.get_neighbours(gamestate.board, f).filter(&:empty?)
-            end
-        end
-      else
-        possible_set_move_destinations(gamestate.board, gamestate.current_player_color)
-      end
-
-    possible_piece_types =
-      if (!has_player_placed_bee(gamestate) && gamestate.turn > 5)
-        [PieceType::BEE]
-      else
-        undeployed.map(&:type).uniq
-      end
-    set_destinations
-      .flat_map do |d|
-        possible_piece_types.map do |u|
-          SetMove.new(Piece.new(gamestate.current_player_color, u), d)
-        end
-    end
+    gamestate.remove_active_color
+    remove_invalid_colors(gamestate)
   end
 
   # Prueft, ob ein Spieler im gegebenen GameState gewonnen hat.
   # @param gamestate [GameState] Der zu untersuchende GameState.
   # @return [Condition] nil, if the game is not won or a Condition indicating the winning player
-  def self.winning_condition(gamestate)
-    raise "Not implemented yet!"
-    winner_by_single_swarm = [PlayerColor::RED, PlayerColor::BLUE].select do |player_color|
-      GameRuleLogic.swarm_size(gamestate.board, player_color) ==
-        gamestate.board.fields_of_type(PlayerColor.field_type(player_color)).size
-    end
-    if winner_by_single_swarm.any? && gamestate.turn.even?
-      return Condition.new(nil, "Unentschieden.") if winner_by_single_swarm.size == 2
-      return Condition.new(winner_by_single_swarm.first, "Schwarm wurde vereint.")
-    end
-    player_with_biggest_swarm = [PlayerColor::RED, PlayerColor::BLUE].sort_by do |player_color|
-      GameRuleLogic.swarm_size(gamestate.board, player_color)
-    end.reverse.first
-    return Condition.new(player_with_biggest_swarm, "Rundenlimit erreicht, Schwarm mit den meisten Fischen gewinnt.") if gamestate.turn == 60
-    nil
+  def self.winning_condition(_gamestate)
+    raise 'Not implemented yet!'
   end
 end

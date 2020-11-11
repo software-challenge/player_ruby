@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: false
 
 require 'socket'
 require 'rexml/document'
@@ -122,5 +123,4 @@ class Network
   def emptyReceiveBuffer
     @receive_buffer = ''
   end
-
 end

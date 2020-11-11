@@ -5,42 +5,44 @@ require_relative './util/constants'
 require_relative 'game_state'
 require_relative 'field'
 
-# Ein Spielbrett fuer Hive
+# Ein Spielbrett fuer Blokus
 class Board
-
   include Constants
   # @!attribute [r] fields
   # @note Besser über die {#field} Methode auf Felder zugreifen.
   # @return [Array<Array<Field>>] Ein Feld wird an der Position entsprechend
-  #   seiner x und y CubeCoordinates im Array gespeichert.
+  #   seiner x und y Coordinates im Array gespeichert.
   attr_reader :fields
 
-  # Anzahl der Felder eines hexagonalen Spielfeldes
-  # @param radius [Integer] Radius des Spielfeldes
-  def self.field_amount(radius)
-    return 1 if radius == 1
-    (radius - 1) * 6 + Board.field_amount(radius - 1)
-  end
+  # @!attribute [r] deployed_blue_pieces
+  # @return [Array<PieceShape>] Die blauen, gesetzten Spielsteine
+  attr_accessor :deployed_blue_pieces
 
-  # Anzahl der Felder des fuer Hive verwendeten Spielfeldes
-  FIELD_AMOUNT = Board.field_amount((BOARD_SIZE + 1)/2)
+  # @!attribute [r] deployed_yellow_pieces
+  # @return [Array<PieceShape>] Die gelben, gesetzten Spielsteine
+  attr_accessor :deployed_yellow_pieces
+
+  # @!attribute [r] deployed_red_pieces
+  # @return [Array<PieceShape>] Die roten, gesetzten Spielsteine
+  attr_accessor :deployed_red_pieces
+
+  # @!attribute [r] deployed_green_pieces
+  # @return [Array<PieceShape>] Die grünen, gesetzten Spielsteine
+  attr_accessor :deployed_green_pieces
 
   # Erstellt ein neues leeres Spielbrett.
   def initialize(fields = [])
     @fields = Board.empty_game_field
-    fields.each{ |f| add_field(f) }
+    fields.each { |f| add_field(f) }
   end
 
   # @return [Array] leere Felder entsprechend des Spielbrettes angeordnet
   def self.empty_game_field
-    fields = []
-    (-SHIFT..SHIFT).to_a.each do |x|
-      fields[x + SHIFT] ||= []
-      ([-SHIFT, -x-SHIFT].max..[SHIFT, -x+SHIFT].min).to_a.each do |y|
-        fields[x + SHIFT][y + SHIFT] = Field.new(x, y)
+    (0...BOARD_SIZE).to_a.map do |x|
+      (0...BOARD_SIZE).to_a.map do |y|
+        Field.new(x, y)
       end
     end
-    fields
   end
 
   # Entfernt alle Felder des Spielfeldes
@@ -50,7 +52,7 @@ class Board
 
   # @return [Array] Liste aller Felder
   def field_list
-    @fields.flatten.select{ |e| !e.nil? }
+    @fields.flatten.reject(&:nil?)
   end
 
   # Vergleicht zwei Spielbretter. Gleichheit besteht, wenn zwei Spielbretter die
@@ -59,26 +61,27 @@ class Board
     field_list == other.field_list
   end
 
-  # Fügt ein Feld dem Spielbrett hinzu. Das übergebene Feld ersetzt das an den Koordinaten bestehende Feld.
+  # Fügt ein Feld dem Spielbrett hinzu. Das übergebene Feld ersetzt das an den
+  # Koordinaten bestehende Feld.
   #
   # @param field [Field] Das einzufügende Feld.
   def add_field(field)
-    @fields[field.x + SHIFT][field.y + SHIFT] = field
+    @fields[field.x][field.y] = field
   end
 
   # Zugriff auf die Felder des Spielfeldes
   #
   # @param x [Integer] Die X-Koordinate des Feldes.
   # @param y [Integer] Die Y-Koordinate des Feldes.
-  # @return [Field] Das Feld mit den gegebenen Koordinaten. Falls das Feld nicht exisitert, wird nil zurückgegeben.
+  # @return [Field] Das Feld mit den gegebenen Koordinaten. Falls das Feld nicht
+  #                 exisitert, wird nil zurückgegeben.
   def field(x, y)
-    return nil if (x < -SHIFT) || (y < -SHIFT)
-    fields.dig(x + SHIFT, y + SHIFT) # NOTE that #dig requires ruby 2.3+
+    fields.dig(x, y) # NOTE that #dig requires ruby 2.3+
   end
 
   # Zugriff auf die Felder des Spielfeldes über ein Koordinaten-Paar.
   #
-  # @param coordinates [CubeCoordinates] X- und Y-Koordinate als Paar, sonst wie
+  # @param coordinates [Coordinates] X- und Y-Koordinate als Paar, sonst wie
   # bei {Board#field}.
   #
   # @return [Field] Wie bei {Board#field}.
@@ -88,23 +91,60 @@ class Board
     field(coordinates.x, coordinates.y)
   end
 
-  # Liefert alle Felder die dem Spieler mit der gegebenen Farbe gehoeren
+  # TODO: Redo this recursively, starting from the corresponding corner and then moving alongside edges and corners
+
+  # Alle Felder einer bestimmten Farbe
   #
-  # @param color [PlayerColor] Die Spielerfarbe
-  # @return [Array<Field>] Alle Felder der angegebenen Farbe die das Spielbrett enthält.
-  def fields_of_color(color)
-    field_list.select{ |f| f.color == color }
+  # @param color [Color] Die Farbe der Felder
+  # @return [Array<Field>] Eine Liste aller felder, die die gegebene Farbe haben
+  def fields_of_color(color, fields = [Coordinates.new(0, 0),
+                                       Coordinates.new(0, BOARD_SIZE - 1),
+                                       Coordinates.new(BOARD_SIZE - 1, BOARD_SIZE - 1),
+                                       Coordinates.new(BOARD_SIZE - 1, 0)].filter { |it| field_at(it).color == color })
+    copy = Array.new(fields)
+
+    copy.each do |field|
+      [Coordinates.new(1, 0),
+       Coordinates.new(1, -1),
+       Coordinates.new(0, -1),
+       Coordinates.new(-1, -1),
+       Coordinates.new(-1, 0),
+       Coordinates.new(-1, 1),
+       Coordinates.new(0, 1),
+       Coordinates.new(1, 1)].each do |neighbor|
+        new_field = field + neighbor
+        next unless Board.contains(new_field) && @fields[new_field.x][new_field.y].color == color
+
+        fields << new_field unless fields.include?(new_field)
+      end
+    end
+
+    if copy.count == fields.count
+      fields
+    else
+      fields_of_color(color, fields)
+    end
   end
 
-  # @return [Array] Liste aller Spielsteine, die auf dem Spielbrett platziert wurden
-  def pieces
-    field_list.map(&:pieces).flatten
+  # @param it [Coordinates] Die zu untersuchenden Koordinaten
+  # @return [Boolean] Ob die gegebenen Koordinaten auf dem Board liegen oder nicht
+  def in_bounds?(it)
+    it.x >= 0 && it.y >= 0 && it.x < BOARD_SIZE && it.y < BOARD_SIZE
   end
 
-  # @param [PlayerColor] Spielerfarbe
-  # @return [Array] Liste aller Spielsteine eines Spielers, die auf dem Spielbrett platziert wurden
+  # @param color [Color] Die Farbe der Steine
+  # @return [Array<PieceShape>] Eine Liste aller Steintypen, die die gegebene Farbe noch nicht gespielt hat
   def deployed_pieces(color)
-    pieces.select { |p| p.color == color }
+    case color
+    when Color::RED
+      deployed_red_pieces
+    when Color::BLUE
+      deployed_blue_pieces
+    when Color::YELLOW
+      deployed_yellow_pieces
+    when Color::GREEN
+      deployed_green_pieces
+    end
   end
 
   # @return eine unabhaengige Kopie des Spielbretts
@@ -112,9 +152,26 @@ class Board
     Marshal.load(Marshal.dump(self))
   end
 
-  # Gibt eine textuelle Repräsentation des Spielbrettes aus.
-  def to_s
-    field_list.sort_by(&:z).map{ |f| f.obstructed ? 'OO' : f.empty? ? '--' : f.pieces.last.to_s }.join
+  # @param coords [Coordinates] Die Koordinaten des Felds
+  # @return Das Feld an den gegebenen Koordinaten
+  def [](coords)
+    field_at(coords)
   end
 
+  # Gibt eine textuelle Repräsentation des Spielbrettes aus.
+  def to_s
+    "\n" +
+      (0...BOARD_SIZE).to_a.map do |y|
+        (0...BOARD_SIZE).to_a.map do |x|
+          @fields[x][y].to_s
+        end.join(' ')
+      end.join("\n")
+  end
+
+  # @param position [Coordinates] Die zu überprüfenden Koordinaten
+  # @return Ob die gegebenen Koordinaten auf dem board liegen
+  def self.contains(position)
+    position.x >= 0 && position.x < BOARD_SIZE &&
+      position.y >= 0 && position.y < BOARD_SIZE
+  end
 end

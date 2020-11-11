@@ -1,0 +1,41 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Ruby - Main",
+            "type": "Ruby",
+            "request": "launch",
+            "program": "test/main.rb"
+        },
+        {
+            "name": "Ruby - Gem Main",
+            "type": "Ruby",
+            "request": "launch",
+            "program": "example/main.rb"
+        },
+        {
+            "name": "RSpec - Active spec File only",
+            "type": "Ruby",
+            "request": "launch",
+            "program": "C:/tools/ruby27/bin/rspec",
+            "args": [
+                "-I",
+                "${workspaceRoot}",
+                "${file}"
+            ]
+        },
+        {
+            "name": "RSpec - All",
+            "type": "Ruby",
+            "request": "launch",
+            "program": "C:/tools/ruby27/bin/rspec",
+            "args": [
+                "-I",
+                "${workspaceRoot}"
+            ]
+        },
+    ]
+}

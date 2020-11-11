@@ -3,7 +3,6 @@
 require 'socket'
 require_relative 'board'
 require_relative 'set_move'
-require_relative 'drag_move'
 require_relative 'skip_move'
 require_relative 'player'
 require_relative 'network'
@@ -41,7 +40,7 @@ class Protocol
   #
   # @param text [String] the xml-string that will be parsed
   def process_string(text)
-    logger.debug "Parse XML:\n#{text}\n----END XML"
+    #logger.debug "Parse XML:\n#{text}\n----END XML"
     begin
       REXML::Document.parse_stream(text, self)
     rescue REXML::ParseException => e
@@ -49,7 +48,6 @@ class Protocol
       raise e unless e.message =~ /Missing end tag/
     end
   end
-
 
   # called when text is encountered
   def text(text)
@@ -63,6 +61,33 @@ class Protocol
     case name
     when 'board'
       logger.debug @gamestate.board.to_s
+    when 'color'
+      if @context[:color] == :ordered_colors
+        @gamestate.ordered_colors << Color.to_a.find {|s| s.key == @context[:last_text].to_sym }
+      end
+    when 'shape'
+      case @context[:piece_target] 
+      when :blue_shapes
+        last = @context[:last_text]
+        arr = PieceShape.to_a
+        shape = arr.find {|s| s.key == @context[:last_text].to_sym }
+        @gamestate.undeployed_blue_pieces << shape
+      when :yellow_shapes
+        shape = PieceShape.to_a.find {|s| s.key == @context[:last_text].to_sym }
+        @gamestate.undeployed_yellow_pieces << shape
+      when :red_shapes
+        shape = PieceShape.to_a.find {|s| s.key == @context[:last_text].to_sym }
+        @gamestate.undeployed_red_pieces << shape
+      when :green_shapes
+        shape = PieceShape.to_a.find {|s| s.key == @context[:last_text].to_sym }
+        @gamestate.undeployed_green_pieces << shape
+      end
+    when 'yellowShapes'
+     
+    when 'redShapes'
+      
+    when 'greenShapes'
+      
     end
   end
 
@@ -97,59 +122,69 @@ class Protocol
     when 'state'
       logger.debug 'new gamestate'
       @gamestate = GameState.new
+      @gamestate.current_color_index = attrs['currentColorIndex'].to_i
       @gamestate.turn = attrs['turn'].to_i
-      @gamestate.start_player_color = attrs['startPlayerColor'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
-      @gamestate.current_player_color = attrs['currentPlayerColor'] == 'RED' ? PlayerColor::RED : PlayerColor::BLUE
-      logger.debug "Turn: #{@gamestate.turn}"
-    when 'red'
-      logger.debug 'new red player'
-      player = parsePlayer(attrs)
-      if player.color != PlayerColor::RED
-        throw new IllegalArgumentException("expected #{PlayerColor::RED} Player but got #{player.color}")
-      end
+      @gamestate.round = attrs['round'].to_i
+      @gamestate.start_piece = PieceShape.to_a.find {|s| s.key == attrs['startPiece'].to_sym }
+      logger.debug "Round: #{@gamestate.round}, Turn: #{@gamestate.turn}"
+    when 'first'
+      logger.debug 'new first player'
+      player = Player.new(PlayerType::ONE, attrs['displayName'])
       @gamestate.add_player(player)
       @context[:player] = player
-    when 'blue'
-      logger.debug 'new blue player'
-      player = parsePlayer(attrs)
-      if player.color != PlayerColor::BLUE
-        throw new IllegalArgumentException("expected #{PlayerColor::BLUE} Player but got #{player.color}")
-      end
+      @context[:color] = :one
+    when 'second'
+      logger.debug 'new second player'
+      player = Player.new(PlayerType::TWO, attrs['displayName'])
       @gamestate.add_player(player)
       @context[:player] = player
+      @context[:color] = :two
+    when 'orderedColors'
+      @context[:color] = :ordered_colors
+      @gamestate.ordered_colors = []
     when 'board'
       logger.debug 'new board'
-      @gamestate.board = Board.new
+      @gamestate.board = Board.new()
     when 'field'
       x = attrs['x'].to_i
       y = attrs['y'].to_i
-      obstructed = attrs['isObstructed'] == 'true'
-      field = Field.new(x, y, [], obstructed)
+      color = Color.find_by_key(attrs['content'].to_sym)
+      field = Field.new(x, y, color)
       @gamestate.board.add_field(field)
       @context[:piece_target] = :field
       @context[:field] = field
+    when 'blueShapes'
+      @context[:piece_target] = :blue_shapes
+      @gamestate.undeployed_blue_pieces = []
+    when 'yellowShapes'
+      @context[:piece_target] = :yellow_shapes
+      @gamestate.undeployed_yellow_pieces = []
+    when 'redShapes'
+      @context[:piece_target] = :red_shapes
+      @gamestate.undeployed_red_pieces = []
+    when 'greenShapes'
+      @context[:piece_target] = :green_shapes
+      @gamestate.undeployed_green_pieces = []
     when 'piece'
-      owner = PlayerColor.find_by_key(attrs['owner'].to_sym)
-      type = PieceType.find_by_key(attrs['type'].to_sym)
-      piece = Piece.new(owner, type)
+      color = Color.find_by_key(attrs['color'].to_sym)
+      kind = PieceShape.find_by_key(attrs['kind'].to_sym)
+      rotation = Rotation.find_by_key(attrs['rotation'].to_sym)
+      is_flipped = attrs['isFlipped'].downcase == "true"
+      piece = Piece.new(color, kind, rotation, is_flipped, Coordinates.origin)
       case @context[:piece_target]
-      when :field
-        @context[:field].add_piece(piece)
-      when :undeployed_red_pieces
-        @gamestate.undeployed_red_pieces << piece
-      when :undeployed_blue_pieces
+      when :blue_shapes
         @gamestate.undeployed_blue_pieces << piece
+      when :yellow_shapes
+        @gamestate.undeployed_yellow_pieces << piece
+      when :red_shapes 
+        @gamestate.green_red_pieces << piece
+      when :green_shapes
+        @gamestate.undeployed_green_pieces << piece
       when :last_move
         @context[:last_move_piece] = piece
       else
         raise "unknown piece target #{@context[:piece_target]}"
       end
-    when 'undeployedRedPieces'
-      @context[:piece_target] = :undeployed_red_pieces
-      @gamestate.undeployed_red_pieces = []
-    when 'undeployedBluePieces'
-      @context[:piece_target] = :undeployed_blue_pieces
-      @gamestate.undeployed_blue_pieces = []
     when 'lastMove'
       type = attrs['class']
       if type == 'skipmove'
@@ -158,24 +193,16 @@ class Protocol
         @context[:last_move_type] = type
         @context[:piece_target] = :last_move
       end
-    when 'start'
-      @context[:last_move_start] = CubeCoordinates.new(attrs['x'].to_i, attrs['y'].to_i, attrs['z'].to_i)
-    when 'destination'
-      destination = CubeCoordinates.new(attrs['x'].to_i, attrs['y'].to_i, attrs['z'].to_i)
-      case @context[:last_move_type]
-      when 'setmove'
-        @gamestate.last_move = SetMove.new(@context[:last_move_piece], destination)
-      when 'dragmove'
-        @gamestate.last_move = SetMove.new(@context[:last_move_start], destination)
-      end
+    when 'startColor'
+      @gamestate.start_color = Color::BLUE
     when 'winner'
-    # TODO
-      #winning_player = parsePlayer(attrs)
-      #@gamestate.condition = Condition.new(winning_player, @gamestate.condition.reason)
+      # TODO
+      # winning_player = parsePlayer(attrs)
+      # @gamestate.condition = Condition.new(winning_player, @gamestate.condition.reason)
     when 'score'
       # TODO
       # there are two score tags in the result, but reason attribute should be equal on both
-      #@gamestate.condition = Condition.new(@gamestate.condition.winner, attrs['reason'])
+      # @gamestate.condition = Condition.new(@gamestate.condition.winner, attrs['reason'])
     when 'left'
       logger.debug 'got left event, terminating'
       @network.disconnect
@@ -183,17 +210,6 @@ class Protocol
       logger.debug 'got left close connection event, terminating'
       @network.disconnect
     end
-  end
-
-  # Converts XML attributes for a Player to a new Player object
-  #
-  # @param attributes [Hash] Attributes for the new Player.
-  # @return [Player] The created Player object.
-  def parsePlayer(attributes)
-    Player.new(
-      PlayerColor.find_by_key(attributes['color'].to_sym),
-      attributes['displayName']
-    )
   end
 
   # send a xml document
@@ -228,26 +244,17 @@ class Protocol
     # structures.
     case move
     when SetMove
-      builder.data(class: 'setmove') do |data|
-        data.piece(owner: move.piece.owner.key, type: move.piece.type.key)
-        d = move.destination
-        data.destination(x: d.x, y: d.y, z: d.z)
-        move.hints.each do |hint|
-          data.hint(content: hint.content)
+      builder.data(class: 'sc.plugin2021.SetMove') do |data|
+        data.piece(color: move.piece.color, kind: move.piece.kind, rotation: move.piece.rotation, isFlipped: move.piece.is_flipped) do |piece|
+          piece.position(x: move.piece.position.x, y: move.piece.position.y)
         end
-      end
-    when DragMove
-      builder.data(class: 'dragmove') do |data|
-        s = move.start
-        data.start(x: s.x, y: s.y, z: s.z)
-        d = move.destination
-        data.destination(x: d.x, y: d.y, z: d.z)
         move.hints.each do |hint|
           data.hint(content: hint.content)
         end
       end
     when SkipMove
-      builder.data(class: 'skipmove') do |data|
+      builder.data(class: 'sc.plugin2021.SkipMove') do |data|
+        data.color(@gamestate.current_color.key.to_s)
         move.hints.each do |hint|
           data.hint(content: hint.content)
         end
@@ -255,5 +262,4 @@ class Protocol
     end
     builder.target!
   end
-
 end

@@ -1,4 +1,5 @@
 # encoding: utf-8
+# frozen_string_literal: true
 
 # Ein Hinweis, der zu einem Zug hinzugefügt werden kann. Z.B. zu
 # Diagnosezwecken. Der Hinweis wird in der grafischen Oberfläche angezeigt und

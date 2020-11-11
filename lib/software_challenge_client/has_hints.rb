@@ -1,5 +1,5 @@
+# frozen_string_literal: true
 module HasHints
-
   # @!attribute [r] hints
   # @return [Array<DebugHint>] Hinweise, die an den Zug angeheftet werden sollen. Siehe {DebugHint}.
   attr_reader :hints
