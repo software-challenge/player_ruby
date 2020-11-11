@@ -45,6 +45,8 @@ class GameRuleLogic
     end
   end
 
+  # Gibt alle möglichen Legezüge in der ersten Runde zurück
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.get_possible_start_moves(gamestate)
     color = gamestate.current_color
     shape = gamestate.start_piece
