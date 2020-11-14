@@ -108,12 +108,10 @@ class GameRuleLogic
 
     moves = Set[]
     fields.each do |field|
-      Rotation.each do |r|
-        [true, false].each do |f|
-          piece = Piece.new(color, shape, r, f, Coordinates.new(0, 0))
-          piece.coords.each do |pos|
-            moves << SetMove.new(Piece.new(color, shape, r, f, Coordinates.new(field.x - pos.x, field.y - pos.y)))
-          end
+      shape.unique_transforms().each do |t|
+        piece = Piece.new(color, shape, t.r, t.f, Coordinates.new(0, 0))
+        piece.coords.each do |pos|
+          moves << SetMove.new(Piece.new(color, shape, t.r, t.f, Coordinates.new(field.x - pos.x, field.y - pos.y)))
         end
       end
     end

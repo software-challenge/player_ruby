@@ -56,6 +56,9 @@ class PieceShape < TypesafeEnum::Base
   new :PENTO_X, [c(1, 0), c(0, 1), c(1, 1), c(2, 1), c(1, 2)]
   new :PENTO_Y, [c(0, 1), c(1, 0), c(1, 1), c(1, 2), c(1, 3)]
 
+  @transformations = nil
+  Transform = Struct.new(:r, :f, :coords)
+
   # Anzahl Felder, die der Stein belegt
   def size
     value.size
@@ -74,6 +77,27 @@ class PieceShape < TypesafeEnum::Base
   # Erzeugt eine nach Rotation und Flip transformierte Form
   def transform(rotation, flip)
     coordinates.rotate(rotation).flip(flip)
+  end
+
+  def unique_transforms()
+    if @transformations == nil then
+      existing_transforms = []
+
+      Rotation.each do |r|
+        [true, false].each do |f|
+          new_transform = Transform.new(r, f, transform(r, f))
+
+          if existing_transforms.all? { |t| t.coords != new_transform.coords } then
+            existing_transforms << new_transform
+          end
+        end
+      end
+
+      @transformations = existing_transforms
+      @transformations
+    else
+      @transformations
+    end
   end
 
   # Gibt den Form Namen zurück
