@@ -100,7 +100,7 @@ class Board
   def fields_of_color(color, fields = [Coordinates.new(0, 0),
                                        Coordinates.new(0, BOARD_SIZE - 1),
                                        Coordinates.new(BOARD_SIZE - 1, BOARD_SIZE - 1),
-                                       Coordinates.new(BOARD_SIZE - 1, 0)].filter { |it| field_at(it).color == color })
+                                       Coordinates.new(BOARD_SIZE - 1, 0)].select { |it| field_at(it).color == color })
     copy = Array.new(fields)
 
     copy.each do |field|

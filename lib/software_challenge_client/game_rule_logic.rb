@@ -70,7 +70,7 @@ class GameRuleLogic
     moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area1.x, BOARD_SIZE - area1.y)))
     moves.merge(moves_for_shape_on(color, shape, Coordinates.new(BOARD_SIZE - area2.x, BOARD_SIZE - area2.y)))
 
-    moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
+    moves.select { |m| valid_set_move?(gamestate, m) }.to_a
   end
 
   # Helper method to calculate all transformations of one shape on one spot
@@ -113,7 +113,7 @@ class GameRuleLogic
         end
       end
     end
-    moves.filter { |m| valid_set_move?(gamestate, m) }.to_a
+    moves.select { |m| valid_set_move?(gamestate, m) }.to_a
   end
 
   # Gibt eine Liste aller Felder zurück, an denen möglicherweise Züge gemacht werden kann.
