@@ -56,7 +56,7 @@ class PieceShape < TypesafeEnum::Base
   new :PENTO_X, [c(1, 0), c(0, 1), c(1, 1), c(2, 1), c(1, 2)]
   new :PENTO_Y, [c(0, 1), c(1, 0), c(1, 1), c(1, 2), c(1, 3)]
 
-  @transformations = nil
+  @transformations
   Transform = Struct.new(:r, :f, :coords)
 
   # Anzahl Felder, die der Stein belegt
@@ -80,7 +80,7 @@ class PieceShape < TypesafeEnum::Base
   end
 
   def unique_transforms()
-    if @transformations == nil then
+    if not defined? @transformations then
       existing_transforms = []
 
       Rotation.each do |r|
