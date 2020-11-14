@@ -73,7 +73,10 @@ class GameRuleLogic
     moves.select { |m| valid_set_move?(gamestate, m) }.to_a
   end
 
-  # Helper method to calculate all transformations of one shape on one spot
+  # Hilfsmethode um Legezüge für eine [PieceShape] zu berechnen.
+  # @param color [Color] Die Farbe der Spielsteine der Züge
+  # @param shape [PieceShape] Die Form der Spielsteine der Züge
+  # @param position [Coordinates] Die Position der Spielsteine der Züge
   def self.moves_for_shape_on(color, shape, position)
     moves = Set[]
     Rotation.each do |r|
@@ -85,6 +88,7 @@ class GameRuleLogic
   end
 
   # Gib eine Liste aller möglichen Legezüge zurück, auch wenn es die erste Runde ist.
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.all_possible_setmoves(gamestate)
     moves = []
     fields = valid_fields(gamestate)
@@ -95,7 +99,7 @@ class GameRuleLogic
   end
 
   # Gibt eine Liste aller möglichen SetMoves für diese Form zurück.
-  # @param gamestate Der aktuelle Spielstand
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
   # @param shape Die [PieceShape], die die Züge nutzen sollen
   #
   # @return Alle möglichen Züge mit der Form
@@ -117,7 +121,7 @@ class GameRuleLogic
   end
 
   # Gibt eine Liste aller Felder zurück, an denen möglicherweise Züge gemacht werden kann.
-  # @param gamestate Der aktuelle Spielstand
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
   def self.valid_fields(gamestate)
     color = gamestate.current_color
     board = gamestate.board
@@ -138,9 +142,9 @@ class GameRuleLogic
   end
 
   # Überprüft, ob das gegebene Feld ein Nachbarfeld mit der Farbe [color] hat
-  # @param board Das aktuelle Board
-  # @param field Das zu überprüfende Feld
-  # @param color Nach der zu suchenden Farbe
+  # @param board [Board] Das aktuelle Board
+  # @param field [Field] Das zu überprüfende Feld
+  # @param color [Color] Nach der zu suchenden Farbe
   def self.neighbor_of_color?(board, field, color)
     [Coordinates.new(field.x - 1, field.y),
      Coordinates.new(field.x, field.y - 1),
@@ -175,7 +179,7 @@ class GameRuleLogic
   # --- Move Validation ------------------------------------------------------------
 
   # Prüft, ob der gegebene [Move] zulässig ist.
-  # @param gamestate der aktuelle Spielstand
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
   # @param move der zu überprüfende Zug
   #
   # @return ob der Zug zulässig ist
@@ -237,8 +241,8 @@ class GameRuleLogic
 
   # Überprüft, ob das gegebene Feld ein diagonales Nachbarfeld mit der Farbe [color] hat
   # @param board [Board] Das aktuelle Spielbrett
-  # @param field Das zu überprüfende [Field]
-  # @param color Nach der zu suchenden [Color]
+  # @param position [Field] Das zu überprüfende Feld
+  # @param color [Color] Nach der zu suchenden Farbe
   def self.corners_on_color?(board, position, color)
     [Coordinates.new(1, 1), Coordinates.new(1, -1), Coordinates.new(-1, -1), Coordinates.new(-1, 1)].any? do |it|
       board.in_bounds?(position + it) && board[position + it].color == color
