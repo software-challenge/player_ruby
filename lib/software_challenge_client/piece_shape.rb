@@ -79,6 +79,9 @@ class PieceShape < TypesafeEnum::Base
     coordinates.rotate(rotation).flip(flip)
   end
 
+  # Gibt alle Kombinationen aus Rotation und Flipping zurück, welche zu einzigartigen 
+  # Koordinatenmengen dieser Form führen. 
+  # @return [Array<Transform>] Transform Structs mit Rotation r, Boolean f
   def unique_transforms()
     if not defined? @transformations then
       existing_transforms = []
