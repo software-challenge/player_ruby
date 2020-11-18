@@ -9,13 +9,6 @@ class Color < TypesafeEnum::Base
   new :RED, 'R'
   new :GREEN, 'G'
 
-  # Implementiert den [] Operator für diese Klasse
-  class << self
-    def [](digit)
-      constants.find { |const| const_get(const) == digit }
-    end
-  end
-
   # Gibt den color namen zurück
   def to_s
     self.key.to_s
