@@ -97,10 +97,9 @@ class PieceShape < TypesafeEnum::Base
       end
 
       @transformations = existing_transforms
-      @transformations
-    else
-      @transformations
     end
+
+    @transformations
   end
 
   # Gibt den Form Namen zurück
