@@ -90,7 +90,7 @@ class PieceShape < TypesafeEnum::Base
         [true, false].each do |f|
           new_transform = Transform.new(r, f, transform(r, f))
 
-          if existing_transforms.all? { |t| t.coords != new_transform.coords } then
+          if existing_transforms.none? { |t| t.coords == new_transform.coords } then
             existing_transforms << new_transform
           end
         end
