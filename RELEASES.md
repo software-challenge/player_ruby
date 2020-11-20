@@ -1,3 +1,7 @@
+= 21.0.1
+
+Improved performance and defined Ruby version 2.5.5 as minimum requirement
+
 = 21.0.0
 
 First version for game "Blokus"
