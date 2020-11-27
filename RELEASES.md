@@ -1,3 +1,7 @@
+= 21.0.2
+
+Fixed problem which caused `last_move` of a `GameState` always be `nil` (thanks to wollw!).
+
 = 21.0.1
 
 Improved performance and defined Ruby version 2.5.5 as minimum requirement
