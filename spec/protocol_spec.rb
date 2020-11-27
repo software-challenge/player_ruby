@@ -168,10 +168,10 @@ RSpec.describe Protocol do
       expect(subject.gamestate.player_two.name).to eq('UwU')
     end
 
-    it 'sets the player names' do
-      expect(subject.gamestate.last_move).not_to eq(nil)
+    it 'sets the last move' do
       expect(subject.gamestate.last_move.piece.kind).to eq(PieceShape::PENTO_V)
       expect(subject.gamestate.last_move.piece.color).to eq(Color::BLUE)
+      expect(subject.gamestate.last_move.piece.position.x).to eq(17)
     end
 
     it 'converts a setmove to xml' do

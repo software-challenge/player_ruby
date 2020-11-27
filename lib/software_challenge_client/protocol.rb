@@ -82,12 +82,6 @@ class Protocol
         shape = PieceShape.to_a.find {|s| s.key == @context[:last_text].to_sym }
         @gamestate.undeployed_green_pieces << shape
       end
-    when 'yellowShapes'
-     
-    when 'redShapes'
-      
-    when 'greenShapes'
-      
     end
   end
 
@@ -192,6 +186,14 @@ class Protocol
       else
         @context[:last_move_type] = type
         @context[:piece_target] = :last_move
+      end
+    when 'position'
+      case @context[:piece_target] 
+      when :last_move
+        x = attrs['x'].to_i
+        y = attrs['y'].to_i
+        piece = @context[:last_move_piece]
+        @gamestate.last_move = SetMove.new(Piece.new(piece.color, piece.kind, piece.rotation, piece.is_flipped, Coordinates.new(x, y)))
       end
     when 'startColor'
       @gamestate.start_color = Color::BLUE
