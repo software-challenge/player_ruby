@@ -168,6 +168,12 @@ RSpec.describe Protocol do
       expect(subject.gamestate.player_two.name).to eq('UwU')
     end
 
+    it 'sets the player names' do
+      expect(subject.gamestate.last_move).not_to eq(nil)
+      expect(subject.gamestate.last_move.piece.kind).to eq(PieceShape::PENTO_V)
+      expect(subject.gamestate.last_move.piece.color).to eq(Color::BLUE)
+    end
+
     it 'converts a setmove to xml' do
       move = SetMove.new(Piece.new(Color::BLUE, PieceShape::PENTO_T, Rotation::LEFT, false, Coordinates.new(4,2)))
       # NOTE that this is brittle because XML formatting (whitespace, attribute
