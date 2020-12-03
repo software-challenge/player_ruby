@@ -61,10 +61,7 @@ class Piece
   
   def ==(other)
     color == other.color &&
-      kind == other.kind &&
-      rotation == other.rotation &&
-      is_flipped == other.is_flipped &&
-      position == other.position
+    coords == other.coords
   end
 
   def to_s
