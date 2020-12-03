@@ -35,12 +35,33 @@ class Piece
     @coords = coords_priv
   end
 
+  # Dreht den Stein
+  def rotate!(rotation)
+    @rotation = @rotation.rotate(rotation)
+    @coords = coords_priv
+  end
+
+  # Flipped den Stein
+  def flip!(f = true)
+    @is_flipped = @is_flipped ^ f
+    @coords = coords_priv
+  end
+
+  # Setzt den Stein auf eine Position
+  def locate!(position)
+    @position = position
+    @coords = coords_priv
+  end
+
+  # Verschiebt den Stein
+  def move!(shift)
+    @position = position + shift
+    @coords = coords_priv
+  end
+
   def ==(other)
     color == other.color &&
-      kind == other.kind &&
-      rotation == other.rotation &&
-      is_flipped == other.is_flipped &&
-      position == other.position
+      coords == other.coords
   end
 
   def to_s
@@ -52,6 +73,7 @@ class Piece
   end
 
   private
+
   def coords_priv
     kind.transform(@rotation, @is_flipped).transform do |it|
       Coordinates.new(it.x + @position.x, it.y + @position.y)
