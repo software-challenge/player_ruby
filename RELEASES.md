@@ -1,3 +1,7 @@
+= 21.1.0
+
+Pieces are now mutable and `==` of pieces considers rotated shapes which result in the same covered board fields as equal.
+
 = 21.0.2
 
 Fixed problem which caused `last_move` of a `GameState` always be `nil` (thanks to wollw!).
