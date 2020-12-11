@@ -18,10 +18,12 @@ class Piece
   # @return [Boolean]
   attr_reader :is_flipped
 
-  # @!attribute [r] Koordinaten
+  # @!attribute [r] Position
   # @return [Coordinates]
   attr_reader :position
 
+  # @!attribute [r] Koordinatenmenge
+  # @return [CoordinateSet]
   attr_reader :coords
 
   # Erstellt einen neuen leeren Spielstein.
