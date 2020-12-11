@@ -22,6 +22,8 @@ class Piece
   # @return [Coordinates]
   attr_reader :position
 
+  # @!attribute [r] Ein Array der Positionsdaten aller Bestandteile von dem Stein in Board Koordinaten, also schon ggf. gedreht und um position versetzt.
+  # return [Array<Coordinates>]
   attr_reader :coords
 
   # Erstellt einen neuen leeren Spielstein.
