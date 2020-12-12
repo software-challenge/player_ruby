@@ -61,6 +61,7 @@ class Piece
     @coords = coords_priv
   end
 
+  # Gibt die Fläche der transformierten Steinform von diesem Stein zurück
   def area()
     CoordinateSet.new(coords).area
   end
