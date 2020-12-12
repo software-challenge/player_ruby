@@ -61,6 +61,10 @@ class Piece
     @coords = coords_priv
   end
 
+  def area()
+    CoordinateSet.new(coords).area
+  end
+
   def ==(other)
     color == other.color &&
       coords == other.coords
