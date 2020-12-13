@@ -34,6 +34,14 @@ class Coordinates
     Coordinates.new(x + other.x, y + other.y)
   end
 
+  def -(other)
+    Coordinates.new(x - other.x, y - other.y)
+  end
+
+  def *(num)
+    Coordinates.new(num.to_i * other.x, num.to_i * other.y)
+  end
+
   # Gibt eine textuelle Repräsentation der Koordinaten aus.
   def to_s
     "(#{x}, #{y})"
