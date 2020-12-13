@@ -48,4 +48,17 @@ RSpec.describe Piece do
     )
     expect(p.position).to be_a(Coordinates)
   end
+
+  it 'area methods' do
+    p = Piece.new(
+      Color::RED,
+      PieceShape::PENTO_L,
+      Rotation::RIGHT,
+      false,
+      Coordinates.new(18, 3)
+    )
+    
+    expect(p.area.x).to eq(p.kind.coordinates.area.y)
+    expect(p.area.y).to eq(p.kind.coordinates.area.x)
+  end
 end

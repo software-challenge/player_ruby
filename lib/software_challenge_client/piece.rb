@@ -22,8 +22,8 @@ class Piece
   # @return [Coordinates]
   attr_reader :position
 
-  # @!attribute [r] Koordinatenmenge
-  # @return [CoordinateSet]
+  # @!attribute [r] Ein Array der Positionsdaten aller Bestandteile von dem Stein in Board Koordinaten, also schon ggf. gedreht und um position versetzt.
+  # return [Array<Coordinates>]
   attr_reader :coords
 
   # Erstellt einen neuen leeren Spielstein.
@@ -59,6 +59,11 @@ class Piece
   def move!(shift)
     @position = position + shift
     @coords = coords_priv
+  end
+
+  # Gibt die Fläche der transformierten Steinform von diesem Stein zurück
+  def area()
+    CoordinateSet.new(coords).area
   end
 
   def ==(other)
