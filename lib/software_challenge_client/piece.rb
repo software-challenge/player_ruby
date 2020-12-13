@@ -18,12 +18,15 @@ class Piece
   # @return [Boolean]
   attr_reader :is_flipped
 
-  # @!attribute [r] Position
+  # @!attribute [r] Koordinaten
   # @return [Coordinates]
   attr_reader :position
 
+<<<<<<< HEAD
   # @!attribute [r] Ein Array der Positionsdaten aller Bestandteile von dem Stein in Board Koordinaten, also schon ggf. gedreht und um position versetzt.
   # return [Array<Coordinates>]
+=======
+>>>>>>> parent of e9dc7c0... Update piece.rb
   attr_reader :coords
 
   # Erstellt einen neuen leeren Spielstein.
