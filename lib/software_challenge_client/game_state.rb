@@ -70,7 +70,6 @@ class GameState
 
   # Erstellt einen neuen leeren Spielstand.
   def initialize
-    @current_color = Color::RED
     @start_color = Color::RED
     @board = Board.new
     @turn = 0

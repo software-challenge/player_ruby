@@ -196,7 +196,9 @@ class GameRuleLogic
   # @return ob der Zug zulässig ist
   def self.valid_set_move?(gamestate, move)
     # Check whether the color's move is currently active
-    return false if move.piece.color != gamestate.current_color
+    if move.piece.color != gamestate.current_color
+      return false 
+    end
 
     # Check whether the shape is valid
     if gamestate.is_first_move?
@@ -276,7 +278,6 @@ class GameRuleLogic
 
     if move.instance_of? SetMove
       gamestate.undeployed_pieces(move.piece.color).delete(move.piece)
-      # gamestate.deployed_pieces(move.piece.color).add(move.piece)
 
       # Apply piece to board
       move.piece.coords.each do |coord|
