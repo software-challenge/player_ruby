@@ -21,9 +21,6 @@ class GameState
   # @!attribute [rw] startColor
   # @return [Color] Die Farbe, die zuerst legen darf
   attr_accessor :start_color
-  # @!attribute [rw] current_color_index
-  # @return [Color] Der jetzige Index in der Zug Reihenfolge der Farben.
-  attr_accessor :current_color_index
   # @!attribute [rw] ordered_colors
   # @return [Array<Color>] Ein Array aller Farben die ziehen können in 
   #                        der Reihenfolge in der sie drankommen
@@ -82,6 +79,7 @@ class GameState
     @undeployed_red_pieces = PieceShape.to_a
     @undeployed_green_pieces = PieceShape.to_a
     @start_piece = GameRuleLogic.get_random_pentomino
+    @start_color = Color::BLUE
   end
 
   # Fügt einen Spieler zum Spielzustand hinzu.
@@ -108,6 +106,11 @@ class GameState
   # @return [PlayerType] Typ des Spielers, der gerade nicht an der Reihe ist.
   def other_player_type
     other_player.type
+  end
+
+  # @return [Color] Der jetzige Index in der Zug Reihenfolge der Farben.
+  def current_color_index
+    turn % 4
   end
 
   # @return [Color] Farbe, der gerade an der Reihe ist.

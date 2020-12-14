@@ -116,7 +116,6 @@ class Protocol
     when 'state'
       logger.debug 'new gamestate'
       @gamestate = GameState.new
-      @gamestate.current_color_index = attrs['currentColorIndex'].to_i
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.round = attrs['round'].to_i
       @gamestate.start_piece = PieceShape.to_a.find {|s| s.key == attrs['startPiece'].to_sym }
@@ -133,7 +132,7 @@ class Protocol
       @gamestate.add_player(player)
       @context[:player] = player
       @context[:color] = :two
-    when 'orderedColors'
+    when 'validColors'
       @context[:color] = :ordered_colors
       @gamestate.ordered_colors = []
     when 'board'

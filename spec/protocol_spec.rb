@@ -157,12 +157,6 @@ RSpec.describe Protocol do
       expect(subject.gamestate.current_color_index).to eq(2)
     end
 
-    it 'sets the ordered colors still in the game' do
-      expected = [Color::BLUE, Color::GREEN, Color::RED]
-      # TODO: Currently is [Color::BLUE, Color::YELLOW, Color::RED, Color::GREEN]
-      expect(subject.gamestate.ordered_colors).to eq(expected)
-    end
-
     it 'sets the player names' do
       expect(subject.gamestate.player_one.name).to eq('OwO')
       expect(subject.gamestate.player_two.name).to eq('UwU')

@@ -31,7 +31,6 @@ module GameStateHelpers
       board_fields << field_from_descriptor(field.coordinates, field_descriptors[field.y * BOARD_SIZE + field.x])
     end
     gamestate.ordered_colors = [ Color::BLUE, Color::YELLOW, Color::RED, Color::GREEN ]
-    gamestate.current_color_index = 0
     gamestate.start_piece = PieceShape::PENTO_V
     gamestate.turn = 4
     gamestate.round = 2
