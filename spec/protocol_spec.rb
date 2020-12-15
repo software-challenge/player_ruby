@@ -21,7 +21,7 @@ RSpec.describe Protocol do
       server_message <<-XML
       <room roomId="cb3bc426-5c70-48b9-9307-943bc328b503">
       <data class="memento">
-        <state class="state" currentColorIndex="2" turn="2" round="1" startPiece="PENTO_V">
+        <state class="state" turn="2" round="1" startPiece="PENTO_V">
           <startTeam class="team">ONE</startTeam>
           <board>
             <field x="17" y="0" content="BLUE"/>
@@ -122,11 +122,11 @@ RSpec.describe Protocol do
             <shape>PENTO_Y</shape>
           </greenShapes>
           <lastMoveMono class="linked-hash-map"/>
-          <orderedColors>
+          <validColors>
             <color>BLUE</color>
             <color>GREEN</color>
             <color>RED</color>
-          </orderedColors>
+          </validColors>
           <first displayName="OwO">
             <color class="team">ONE</color>
           </first>
@@ -155,12 +155,6 @@ RSpec.describe Protocol do
 
     it 'sets the current color' do
       expect(subject.gamestate.current_color_index).to eq(2)
-    end
-
-    it 'sets the ordered colors still in the game' do
-      expected = [Color::BLUE, Color::GREEN, Color::RED]
-      # TODO: Currently is [Color::BLUE, Color::YELLOW, Color::RED, Color::GREEN]
-      expect(subject.gamestate.ordered_colors).to eq(expected)
     end
 
     it 'sets the player names' do

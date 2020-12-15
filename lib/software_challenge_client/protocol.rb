@@ -62,8 +62,8 @@ class Protocol
     when 'board'
       logger.debug @gamestate.board.to_s
     when 'color'
-      if @context[:color] == :ordered_colors
-        @gamestate.ordered_colors << Color.to_a.find {|s| s.key == @context[:last_text].to_sym }
+      if @context[:color] == :valid_colors
+        @gamestate.valid_colors << Color.to_a.find {|s| s.key == @context[:last_text].to_sym }
       end
     when 'shape'
       case @context[:piece_target] 
@@ -116,7 +116,6 @@ class Protocol
     when 'state'
       logger.debug 'new gamestate'
       @gamestate = GameState.new
-      @gamestate.current_color_index = attrs['currentColorIndex'].to_i
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.round = attrs['round'].to_i
       @gamestate.start_piece = PieceShape.to_a.find {|s| s.key == attrs['startPiece'].to_sym }
@@ -133,9 +132,9 @@ class Protocol
       @gamestate.add_player(player)
       @context[:player] = player
       @context[:color] = :two
-    when 'orderedColors'
-      @context[:color] = :ordered_colors
-      @gamestate.ordered_colors = []
+    when 'validColors'
+      @context[:color] = :valid_colors
+      @gamestate.valid_colors = []
     when 'board'
       logger.debug 'new board'
       @gamestate.board = Board.new()
