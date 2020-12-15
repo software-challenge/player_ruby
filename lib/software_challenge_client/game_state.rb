@@ -14,6 +14,7 @@ class GameState
   # @!attribute [rw] turn
   # @return [Integer] Aktuelle Zugnummer (von 0 beginnend)
   attr_accessor :turn
+
   # @!attribute [rw] round
   # @return [Integer] Aktuelle Rundennummer (von 1 beginnend)
   attr_accessor :round
@@ -21,12 +22,14 @@ class GameState
   # @!attribute [rw] startColor
   # @return [Color] Die Farbe, die zuerst legen darf
   attr_accessor :start_color
-   # @!attribute [rw] valid_colors
-  # @return [Array<Color>] Ein Array aller Farben die ziehen können in 
+
+  # @!attribute [rw] valid_colors
+  # @return [Array<Color>] Ein Array aller Farben die ziehen können in
   #                        der Reihenfolge in der sie drankommen
   attr_accessor :valid_colors
+
   # @!attribute [rw] ordered_colors
-  # @return [Array<Color>] Ein Array aller Farben in 
+  # @return [Array<Color>] Ein Array aller Farben in
   #                        der Reihenfolge in der sie drankommen
   attr_accessor :ordered_colors
 
@@ -49,19 +52,24 @@ class GameState
   # @!attribute [r] player_one
   # @return [Player] Der erste Spieler
   attr_reader :player_one
+
   # @!attribute [r] player_two
   # @return [Player] Der zweite Spieler
   attr_reader :player_two
+
   # @!attribute [rw] board
   # @return [Board] Das aktuelle Spielbrett
   attr_accessor :board
+
   # @!attribute [rw] startPiece
   # @return [PieceShape] Der Stein, der im ersten Zug von allen Farben gelegt werden muss
   attr_accessor :start_piece
+
   # @!attribute [rw] last_move
   # @return [Move] Der zuletzt gemachte Zug (ist nil vor dem ersten Zug, also
   #                bei turn == 0)
   attr_accessor :last_move
+
   # @!attribute [rw] condition
   # @return [Condition] Gewinner und Gewinngrund, falls das Spiel bereits
   #                     entschieden ist, sonst nil.
@@ -74,8 +82,7 @@ class GameState
 
   # Erstellt einen neuen leeren Spielstand.
   def initialize
-    @start_color = Color::BLUE
-    @ordered_colors = [ Color::BLUE, Color::YELLOW, Color::RED, Color::GREEN ]
+    @ordered_colors = [Color::BLUE, Color::YELLOW, Color::RED, Color::GREEN]
     @board = Board.new
     @turn = 0
     @undeployed_blue_pieces = PieceShape.to_a
@@ -90,21 +97,22 @@ class GameState
   #
   # @param player [Player] Der hinzuzufügende Spieler.
   def add_player(player)
-    if player.type == PlayerType::ONE
+    case player.type
+    when PlayerType::ONE
       @player_one = player
-    elsif player.type == PlayerType::TWO
+    when PlayerType::TWO
       @player_two = player
     end
   end
 
   # @return [Player] Spieler, der gerade an der Reihe ist.
   def current_player
-    turn % 2 == 0 ? player_one : player_two
+    turn.even? ? player_one : player_two
   end
 
   # @return [Player] Spieler, der gerade nicht an der Reihe ist.
   def other_player
-    turn % 2 == 0 ? player_two : player_one
+    turn.even? ? player_two : player_one
   end
 
   # @return [PlayerType] Typ des Spielers, der gerade nicht an der Reihe ist.
@@ -124,7 +132,7 @@ class GameState
 
   # @return [Color] Farbe des aktuellen Spielers, die gerade nicht an der Reihe ist.
   def other_color
-    Color::find_by_ord((current_color.ord + 2) % 4)
+    Color.find_by_ord((current_color.ord + 2) % 4)
   end
 
   # @return [Array<PieceShape>] Array aller Shapes, der gegebenen Farbe, die noch nicht gelegt wurden
@@ -165,7 +173,7 @@ class GameState
     !condition.nil?
   end
 
-  # Entfernt die jetzige Farbe aus der Farbrotation 
+  # Entfernt die jetzige Farbe aus der Farbrotation
   def remove_active_color
     ordered_colors.delete current_color
   end
