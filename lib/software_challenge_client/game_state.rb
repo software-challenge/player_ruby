@@ -122,6 +122,11 @@ class GameState
     ordered_colors[current_color_index]
   end
 
+  # @return [Color] Farbe des aktuellen Spielers, die gerade nicht an der Reihe ist.
+  def other_color
+    Color::find_by_ord((current_color.ord + 2) % 4)
+  end
+
   # @return [Array<PieceShape>] Array aller Shapes, der gegebenen Farbe, die noch nicht gelegt wurden
   def undeployed_pieces(color)
     case color
