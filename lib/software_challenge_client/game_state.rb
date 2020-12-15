@@ -21,8 +21,12 @@ class GameState
   # @!attribute [rw] startColor
   # @return [Color] Die Farbe, die zuerst legen darf
   attr_accessor :start_color
-  # @!attribute [rw] ordered_colors
+   # @!attribute [rw] valid_colors
   # @return [Array<Color>] Ein Array aller Farben die ziehen können in 
+  #                        der Reihenfolge in der sie drankommen
+  attr_accessor :valid_colors
+  # @!attribute [rw] ordered_colors
+  # @return [Array<Color>] Ein Array aller Farben in 
   #                        der Reihenfolge in der sie drankommen
   attr_accessor :ordered_colors
 
@@ -70,7 +74,8 @@ class GameState
 
   # Erstellt einen neuen leeren Spielstand.
   def initialize
-    @start_color = Color::RED
+    @start_color = Color::BLUE
+    @ordered_colors = [ Color::BLUE, Color::YELLOW, Color::RED, Color::GREEN ]
     @board = Board.new
     @turn = 0
     @undeployed_blue_pieces = PieceShape.to_a
