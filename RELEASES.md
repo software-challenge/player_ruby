@@ -1,3 +1,7 @@
+= 21.2.0
+
+Adjustments for Backend version 21.2.0
+
 = 21.1.0
 
 Pieces are now mutable and `==` of pieces considers rotated shapes which result in the same covered board fields as equal.
