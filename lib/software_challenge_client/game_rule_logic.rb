@@ -195,31 +195,28 @@ class GameRuleLogic
   #
   # @return ob der Zug zulässig ist
   def self.valid_set_move?(gamestate, move)
-    # Check whether the color's move is currently active
-    if move.piece.color != gamestate.current_color
-      return false 
-    end
+    return false if move.piece.color != gamestate.current_color
 
-    # Check whether the shape is valid
     if gamestate.is_first_move?
+      # on first turn, only the start piece is allowed
       return false if move.piece.kind != gamestate.start_piece
-    elsif !gamestate.undeployed_pieces(move.piece.color).include?(move.piece.kind)
-      return false
-    end
-
-    # Check whether the piece can be placed
-    move.piece.coords.each do |it|
-      return false unless gamestate.board.in_bounds?(it)
-      return false if obstructed?(gamestate.board, it)
-      return false if borders_on_color?(gamestate.board, it, move.piece.color)
-    end
-
-    if gamestate.is_first_move?
-      # Check if it is placed correctly in a corner
+      # and it may only be placed in a corner
       return false if move.piece.coords.none? { |it| corner?(it) }
     else
-      # Check if the piece is connected to at least one tile of same color by corner
+      # in all other turns, only unused pieces may be placed
+      return false unless gamestate.undeployed_pieces(move.piece.color).include?(move.piece.kind)
+      # and it needs to be connected to another piece of the same color
       return false if move.piece.coords.none? { |it| corners_on_color?(gamestate.board, it, move.piece.color) }
+    end
+
+    # all parts of the piece need to be
+    move.piece.coords.each do |it|
+      # - on the board
+      return false unless gamestate.board.in_bounds?(it)
+      # - on a empty field
+      return false if obstructed?(gamestate.board, it)
+      # - not next to a field occupied by the same color
+      return false if borders_on_color?(gamestate.board, it, move.piece.color)
     end
 
     true
