@@ -14,7 +14,11 @@ class Coordinates
   def ==(other)
     x == other.x && y == other.y
   end
-
+  
+  def eql?(other)
+   x.eql?(other.x) && y.eql?(other.y)
+  end
+  
   # Gibt die Ursprungs-Koordinaten (0, 0) zurück.
   def self.origin
     Coordinates.new(0, 0)
