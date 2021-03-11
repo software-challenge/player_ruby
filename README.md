@@ -1,3 +1,5 @@
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/CAU-Kiel-Tech-Inf/client-ruby)
+
 # Software-Challenge Client
 
 This gem includes everything to build a client for the coding
