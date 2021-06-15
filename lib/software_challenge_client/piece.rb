@@ -6,84 +6,66 @@ class Piece
   # @return [Color]
   attr_reader :color
 
-  # @!attribute [r] Form
-  # @return [PieceShape]
-  attr_reader :kind
-
-  # @!attribute [r] Drehung
-  # @return [Rotation]
-  attr_reader :rotation
-
-  # @!attribute [r] Ob der Stein an der Y-Achse gespiegelt ist
-  # @return [Boolean]
-  attr_reader :is_flipped
+  # @!attribute [r] Typ des Spielsteins
+  # @return [PieceType]
+  attr_reader :type
 
   # @!attribute [r] Koordinaten
   # @return [Coordinates]
   attr_reader :position
 
-  # @!attribute [r] Ein Array der Positionsdaten aller Bestandteile von dem Stein in Board Koordinaten, also schon ggf. gedreht und um position versetzt.
-  # return [Array<Coordinates>]
-  attr_reader :coords
+  # @!attribute [r] tower_height
+  # @return [Integer] Die Anzahl Spielsteine unter diesem
+  attr_reader :tower_height
 
   # Erstellt einen neuen leeren Spielstein.
-  def initialize(color, kind, rotation = Rotation::NONE, is_flipped = false, position = Coordinates.origin)
+  def initialize(color, type, position = Coordinates.origin)
     @color = color
-    @kind = kind
-    @rotation = rotation
-    @is_flipped = is_flipped
+    @type = type
     @position = position
-
-    @coords = coords_priv
+    @tower_height = 0
   end
 
-  # Dreht den Stein
-  def rotate!(rotation)
-    @rotation = @rotation.rotate(rotation)
-    @coords = coords_priv
-  end
+  # Berechnet die Koordinaten zu denen sich dieser Spielstein bewegen könnte.
+  #
+  # @return [Array<Coordinates>] Die Zielkoordinaten 
+  def target_coords
+    ydir = 0
+    if color == Color::RED
+      ydir = 1
+    else
+      ydir = -1
+    end
 
-  # Flipped den Stein
-  def flip!(f = true)
-    @is_flipped = @is_flipped ^ f
-    @coords = coords_priv
-  end
+    case type
+    when PieceType::COCKLE
+      coords = [Coordinates.new(-1,ydir), Coordinates.new(1,ydir)]
+    when PieceType::GULL
+      coords = [Coordinates.new(1,0), Coordinates.new(-1,0), Coordinates.new(0,1), 
+        Coordinates.new(0,-1)]
+    when PieceType::STARFISH
+      coords = [Coordinates.new(0,ydir), Coordinates.new(1,1), Coordinates.new(-1,1), 
+        Coordinates.new(1,-1), Coordinates.new(-1,-1)]
+    when PieceType::SEAL
+      coords = [Coordinates.new(-1,2), Coordinates.new(1,2), Coordinates.new(-2,1), 
+        Coordinates.new(2,1), Coordinates.new(-1,-2), Coordinates.new(1,-2), 
+        Coordinates.new(-2,-1), Coordinates.new(2,-1)]
+    end
 
-  # Setzt den Stein auf eine Position
-  def locate!(position)
-    @position = position
-    @coords = coords_priv
-  end
-
-  # Verschiebt den Stein
-  def move!(shift)
-    @position = position + shift
-    @coords = coords_priv
-  end
-
-  # Gibt die Fläche der transformierten Steinform von diesem Stein zurück
-  def area()
-    CoordinateSet.new(coords).area
+    coords.map{ |x| x + position }.to_a
   end
 
   def ==(other)
     color == other.color &&
-      coords == other.coords
+      coords == other.coords &&
+      type == other.type
   end
 
   def to_s
-    "#{color.key} #{kind.key} at #{position} rotation #{rotation.key}#{is_flipped ? ' (flipped)' : ''}"
+    "#{color.key} #{type.key} at #{position}"
   end
 
   def inspect
     to_s
-  end
-
-  private
-
-  def coords_priv
-    kind.transform(@rotation, @is_flipped).transform do |it|
-      Coordinates.new(it.x + @position.x, it.y + @position.y)
-    end.coordinates
   end
 end

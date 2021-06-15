@@ -2,12 +2,11 @@
 
 require 'typesafe_enum'
 
-# Die Spielsteinfarben. BLUE, YELLOW, RED und GREEN
+# TODO 2022: Replace with bool?
+# Die Spielsteinfarben. BLUE, und RED
 class Color < TypesafeEnum::Base
   new :BLUE, 'B'
-  new :YELLOW, 'Y'
   new :RED, 'R'
-  new :GREEN, 'G'
 
   # Gibt den color namen zurück
   def to_s

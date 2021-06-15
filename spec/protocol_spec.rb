@@ -21,122 +21,36 @@ RSpec.describe Protocol do
       server_message <<-XML
       <room roomId="cb3bc426-5c70-48b9-9307-943bc328b503">
       <data class="memento">
-        <state class="state" turn="2" round="1" startPiece="PENTO_V">
-          <startTeam class="team">ONE</startTeam>
+        <state class="state" turn="1" round="0">
           <board>
-            <field x="17" y="0" content="BLUE"/>
-            <field x="18" y="0" content="BLUE"/>
-            <field x="19" y="0" content="BLUE"/>
-            <field x="17" y="1" content="BLUE"/>
-            <field x="17" y="2" content="BLUE"/>
+            <field x="0" y="0" color="RED" type="COCKLE"/>
+            <field x="1" y="0" color="RED" type="SEAL"/>
+            <field x="2" y="0" color="RED" type="STARFISH"/>
+            <field x="3" y="0" color="RED" type="GULL"/>
+            <field x="4" y="0" color="RED" type="COCKLE"/>
+            <field x="5" y="0" color="RED" type="STARFISH"/>
+            <field x="6" y="0" color="RED" type="SEAL"/>
+            <field x="7" y="0" color="RED" type="GULL"/>
+            <field x="0" y="7" color="BLUE" type="COCKLE"/>
+            <field x="1" y="7" color="BLUE" type="SEAL"/>
+            <field x="2" y="7" color="BLUE" type="STARFISH"/>
+            <field x="3" y="7" color="BLUE" type="GULL"/>
+            <field x="4" y="7" color="BLUE" type="COCKLE"/>
+            <field x="5" y="7" color="BLUE" type="STARFISH"/>
+            <field x="6" y="7" color="BLUE" type="SEAL"/>
+            <field x="7" y="7" color="BLUE" type="GULL"/>
           </board>
-          <blueShapes class="linked-hash-set">
-            <shape>MONO</shape>
-            <shape>DOMINO</shape>
-            <shape>TRIO_L</shape>
-            <shape>TRIO_I</shape>
-            <shape>TETRO_O</shape>
-            <shape>TETRO_T</shape>
-            <shape>TETRO_I</shape>
-            <shape>TETRO_L</shape>
-            <shape>TETRO_Z</shape>
-            <shape>PENTO_L</shape>
-            <shape>PENTO_T</shape>
-            <shape>PENTO_S</shape>
-            <shape>PENTO_Z</shape>
-            <shape>PENTO_I</shape>
-            <shape>PENTO_P</shape>
-            <shape>PENTO_W</shape>
-            <shape>PENTO_U</shape>
-            <shape>PENTO_R</shape>
-            <shape>PENTO_X</shape>
-            <shape>PENTO_Y</shape>
-          </blueShapes>
-          <yellowShapes class="linked-hash-set">
-            <shape>MONO</shape>
-            <shape>DOMINO</shape>
-            <shape>TRIO_L</shape>
-            <shape>TRIO_I</shape>
-            <shape>TETRO_O</shape>
-            <shape>TETRO_T</shape>
-            <shape>TETRO_I</shape>
-            <shape>TETRO_L</shape>
-            <shape>TETRO_Z</shape>
-            <shape>PENTO_L</shape>
-            <shape>PENTO_T</shape>
-            <shape>PENTO_V</shape>
-            <shape>PENTO_S</shape>
-            <shape>PENTO_Z</shape>
-            <shape>PENTO_I</shape>
-            <shape>PENTO_P</shape>
-            <shape>PENTO_W</shape>
-            <shape>PENTO_U</shape>
-            <shape>PENTO_R</shape>
-            <shape>PENTO_X</shape>
-            <shape>PENTO_Y</shape>
-          </yellowShapes>
-          <redShapes class="linked-hash-set">
-            <shape>MONO</shape>
-            <shape>DOMINO</shape>
-            <shape>TRIO_L</shape>
-            <shape>TRIO_I</shape>
-            <shape>TETRO_O</shape>
-            <shape>TETRO_T</shape>
-            <shape>TETRO_I</shape>
-            <shape>TETRO_L</shape>
-            <shape>TETRO_Z</shape>
-            <shape>PENTO_L</shape>
-            <shape>PENTO_T</shape>
-            <shape>PENTO_V</shape>
-            <shape>PENTO_S</shape>
-            <shape>PENTO_Z</shape>
-            <shape>PENTO_I</shape>
-            <shape>PENTO_P</shape>
-            <shape>PENTO_W</shape>
-            <shape>PENTO_U</shape>
-            <shape>PENTO_R</shape>
-            <shape>PENTO_X</shape>
-            <shape>PENTO_Y</shape>
-          </redShapes>
-          <greenShapes class="linked-hash-set">
-            <shape>MONO</shape>
-            <shape>DOMINO</shape>
-            <shape>TRIO_L</shape>
-            <shape>TRIO_I</shape>
-            <shape>TETRO_O</shape>
-            <shape>TETRO_T</shape>
-            <shape>TETRO_I</shape>
-            <shape>TETRO_L</shape>
-            <shape>TETRO_Z</shape>
-            <shape>PENTO_L</shape>
-            <shape>PENTO_T</shape>
-            <shape>PENTO_V</shape>
-            <shape>PENTO_S</shape>
-            <shape>PENTO_Z</shape>
-            <shape>PENTO_I</shape>
-            <shape>PENTO_P</shape>
-            <shape>PENTO_W</shape>
-            <shape>PENTO_U</shape>
-            <shape>PENTO_R</shape>
-            <shape>PENTO_X</shape>
-            <shape>PENTO_Y</shape>
-          </greenShapes>
-          <lastMoveMono class="linked-hash-map"/>
-          <validColors>
-            <color>BLUE</color>
-            <color>GREEN</color>
-            <color>RED</color>
-          </validColors>
           <first displayName="OwO">
-            <color class="team">ONE</color>
+            <color>RED</color>
           </first>
           <second displayName="UwU">
-            <color class="team">TWO</color>
+            <color>BLUE</color>
           </second>
-          <lastMove class="sc.plugin2021.SetMove">
-            <piece color="BLUE" kind="PENTO_V" rotation="RIGHT" isFlipped="false">
-              <position x="17" y="0"/>
+          <lastMove class="sc.plugin2022.Move">
+            <piece color="BLUE" type="STARFISH">
+              <position x="2" y="7"/>
             </piece>
+            <target x="2" y="6">
           </lastMove>
           <startColor>BLUE</startColor>
         </state>
