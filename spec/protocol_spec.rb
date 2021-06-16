@@ -60,15 +60,7 @@ RSpec.describe Protocol do
     end
 
     it 'sets the current turn' do
-      expect(subject.gamestate.turn).to eq(2)
-    end
-
-    it 'sets the start color' do
-      expect(subject.gamestate.start_color).to eq(Color::BLUE)
-    end
-
-    it 'sets the current color' do
-      expect(subject.gamestate.current_color_index).to eq(2)
+      expect(subject.gamestate.turn).to eq(1)
     end
 
     it 'sets the player names' do
@@ -83,14 +75,15 @@ RSpec.describe Protocol do
     end
 
     it 'converts a setmove to xml' do
-      move = SetMove.new(Piece.new(Color::BLUE, PieceShape::PENTO_T, Rotation::LEFT, false, Coordinates.new(4,2)))
+      move = SetMove.new(Piece.new(Color::BLUE, PieceType::GULL, Coordinates.new(4,2)), Coordinates.new(4,3))
       # NOTE that this is brittle because XML formatting (whitespace, attribute
       # order) is arbitrary.
       expect(subject.move_to_xml(move)).to eq <<~XML
-      <data class="sc.plugin2021.SetMove">
-        <piece color="BLUE" kind="PENTO_T" rotation="LEFT" isFlipped="false">
+      <data class="sc.plugin2022.SetMove">
+        <piece color="BLUE" type="GULL">
           <position x="4" y="2"/>
         </piece>
+        <target x="4" y="3">
       </data>
       XML
     end
@@ -100,14 +93,12 @@ RSpec.describe Protocol do
       # NOTE that this is brittle because XML formatting (whitespace, attribute
       # order) is arbitrary.
       expect(subject.move_to_xml(move)).to eq <<~XML
-      <data class="sc.plugin2021.SkipMove">
-        <color>RED</color>
-      </data>
+      <data class="sc.plugin2022.SkipMove">
       XML
     end
 
     xit 'updates the last move' do
-      move = Move.new(8, 9, Direction::DOWN)
+      move = Move.new(Piece.new(Color::BLUE, PieceType::STARFISH, Coordinates.new(2, 7)), Coordinates.new(2, 6))
       expect(subject.gamestate.last_move).to eq(move)
     end
   end
@@ -152,150 +143,27 @@ RSpec.describe Protocol do
       subject.gamestate.board.clear
       server_message <<-XML
       <board>
-      <field x="0" y="0" content="BLUE"/>
-      <field x="1" y="0" content="RED"/>
-      <field x="2" y="0" content="RED"/>
-      <field x="3" y="0" content="RED"/>
-      <field x="8" y="0" content="RED"/>
-      <field x="12" y="0" content="RED"/>
-      <field x="13" y="0" content="RED"/>
-      <field x="14" y="0" content="RED"/>
-      <field x="15" y="0" content="RED"/>
-      <field x="16" y="0" content="RED"/>
-      <field x="19" y="0" content="RED"/>
-      <field x="0" y="1" content="BLUE"/>
-      <field x="1" y="1" content="BLUE"/>
-      <field x="2" y="1" content="BLUE"/>
-      <field x="4" y="1" content="RED"/>
-      <field x="5" y="1" content="RED"/>
-      <field x="6" y="1" content="RED"/>
-      <field x="8" y="1" content="RED"/>
-      <field x="9" y="1" content="RED"/>
-      <field x="10" y="1" content="RED"/>
-      <field x="11" y="1" content="RED"/>
-      <field x="17" y="1" content="RED"/>
-      <field x="18" y="1" content="RED"/>
-      <field x="19" y="1" content="RED"/>
-      <field x="1" y="2" content="BLUE"/>
-      <field x="2" y="2" content="RED"/>
-      <field x="3" y="2" content="BLUE"/>
-      <field x="4" y="2" content="BLUE"/>
-      <field x="6" y="2" content="RED"/>
-      <field x="7" y="2" content="RED"/>
-      <field x="18" y="2" content="RED"/>
-      <field x="0" y="3" content="BLUE"/>
-      <field x="1" y="3" content="RED"/>
-      <field x="2" y="3" content="BLUE"/>
-      <field x="3" y="3" content="RED"/>
-      <field x="4" y="3" content="RED"/>
-      <field x="5" y="3" content="RED"/>
-      <field x="6" y="3" content="BLUE"/>
-      <field x="8" y="3" content="RED"/>
-      <field x="0" y="4" content="RED"/>
-      <field x="1" y="4" content="RED"/>
-      <field x="2" y="4" content="BLUE"/>
-      <field x="4" y="4" content="RED"/>
-      <field x="5" y="4" content="BLUE"/>
-      <field x="6" y="4" content="BLUE"/>
-      <field x="8" y="4" content="RED"/>
-      <field x="0" y="5" content="BLUE"/>
-      <field x="1" y="5" content="BLUE"/>
-      <field x="2" y="5" content="BLUE"/>
-      <field x="4" y="5" content="BLUE"/>
-      <field x="5" y="5" content="BLUE"/>
-      <field x="6" y="5" content="RED"/>
-      <field x="7" y="5" content="RED"/>
-      <field x="8" y="5" content="RED"/>
-      <field x="3" y="6" content="BLUE"/>
-      <field x="6" y="6" content="BLUE"/>
-      <field x="0" y="7" content="BLUE"/>
-      <field x="1" y="7" content="BLUE"/>
-      <field x="2" y="7" content="BLUE"/>
-      <field x="3" y="7" content="BLUE"/>
-      <field x="5" y="7" content="BLUE"/>
-      <field x="6" y="7" content="BLUE"/>
-      <field x="0" y="8" content="YELLOW"/>
-      <field x="1" y="8" content="YELLOW"/>
-      <field x="4" y="8" content="BLUE"/>
-      <field x="6" y="8" content="BLUE"/>
-      <field x="0" y="9" content="GREEN"/>
-      <field x="1" y="9" content="YELLOW"/>
-      <field x="2" y="9" content="BLUE"/>
-      <field x="3" y="9" content="BLUE"/>
-      <field x="4" y="9" content="BLUE"/>
-      <field x="7" y="9" content="GREEN"/>
-      <field x="0" y="10" content="GREEN"/>
-      <field x="1" y="10" content="YELLOW"/>
-      <field x="2" y="10" content="GREEN"/>
-      <field x="3" y="10" content="YELLOW"/>
-      <field x="5" y="10" content="BLUE"/>
-      <field x="6" y="10" content="GREEN"/>
-      <field x="7" y="10" content="GREEN"/>
-      <field x="0" y="11" content="GREEN"/>
-      <field x="1" y="11" content="YELLOW"/>
-      <field x="2" y="11" content="GREEN"/>
-      <field x="3" y="11" content="YELLOW"/>
-      <field x="4" y="11" content="BLUE"/>
-      <field x="5" y="11" content="BLUE"/>
-      <field x="7" y="11" content="GREEN"/>
-      <field x="0" y="12" content="YELLOW"/>
-      <field x="1" y="12" content="GREEN"/>
-      <field x="2" y="12" content="YELLOW"/>
-      <field x="3" y="12" content="YELLOW"/>
-      <field x="7" y="12" content="GREEN"/>
-      <field x="0" y="13" content="YELLOW"/>
-      <field x="1" y="13" content="GREEN"/>
-      <field x="2" y="13" content="GREEN"/>
-      <field x="4" y="13" content="GREEN"/>
-      <field x="5" y="13" content="GREEN"/>
-      <field x="6" y="13" content="GREEN"/>
-      <field x="0" y="14" content="YELLOW"/>
-      <field x="2" y="14" content="YELLOW"/>
-      <field x="3" y="14" content="GREEN"/>
-      <field x="6" y="14" content="GREEN"/>
-      <field x="7" y="14" content="GREEN"/>
-      <field x="0" y="15" content="YELLOW"/>
-      <field x="2" y="15" content="YELLOW"/>
-      <field x="4" y="15" content="YELLOW"/>
-      <field x="6" y="15" content="YELLOW"/>
-      <field x="8" y="15" content="GREEN"/>
-      <field x="9" y="15" content="GREEN"/>
-      <field x="10" y="15" content="GREEN"/>
-      <field x="11" y="15" content="GREEN"/>
-      <field x="0" y="16" content="YELLOW"/>
-      <field x="2" y="16" content="YELLOW"/>
-      <field x="4" y="16" content="YELLOW"/>
-      <field x="6" y="16" content="YELLOW"/>
-      <field x="11" y="16" content="GREEN"/>
-      <field x="1" y="17" content="YELLOW"/>
-      <field x="3" y="17" content="YELLOW"/>
-      <field x="4" y="17" content="YELLOW"/>
-      <field x="5" y="17" content="YELLOW"/>
-      <field x="7" y="17" content="YELLOW"/>
-      <field x="12" y="17" content="GREEN"/>
-      <field x="13" y="17" content="GREEN"/>
-      <field x="14" y="17" content="GREEN"/>
-      <field x="15" y="17" content="GREEN"/>
-      <field x="16" y="17" content="GREEN"/>
-      <field x="18" y="17" content="GREEN"/>
-      <field x="1" y="18" content="YELLOW"/>
-      <field x="2" y="18" content="YELLOW"/>
-      <field x="6" y="18" content="YELLOW"/>
-      <field x="7" y="18" content="YELLOW"/>
-      <field x="17" y="18" content="GREEN"/>
-      <field x="18" y="18" content="GREEN"/>
-      <field x="0" y="19" content="YELLOW"/>
-      <field x="1" y="19" content="YELLOW"/>
-      <field x="3" y="19" content="YELLOW"/>
-      <field x="5" y="19" content="YELLOW"/>
-      <field x="6" y="19" content="YELLOW"/>
-      <field x="18" y="19" content="GREEN"/>
-      <field x="19" y="19" content="GREEN"/>
+            <field x="0" y="0" color="RED" type="COCKLE"/>
+            <field x="1" y="0" color="RED" type="SEAL"/>
+            <field x="2" y="0" color="RED" type="STARFISH"/>
+            <field x="3" y="0" color="RED" type="GULL"/>
+            <field x="4" y="0" color="RED" type="COCKLE"/>
+            <field x="5" y="0" color="RED" type="STARFISH"/>
+            <field x="6" y="0" color="RED" type="SEAL"/>
+            <field x="7" y="0" color="RED" type="GULL"/>
+            <field x="0" y="7" color="BLUE" type="COCKLE"/>
+            <field x="1" y="7" color="BLUE" type="SEAL"/>
+            <field x="2" y="7" color="BLUE" type="STARFISH"/>
+            <field x="3" y="7" color="BLUE" type="GULL"/>
+            <field x="4" y="7" color="BLUE" type="COCKLE"/>
+            <field x="5" y="7" color="BLUE" type="STARFISH"/>
+            <field x="6" y="7" color="BLUE" type="SEAL"/>
+            <field x="7" y="7" color="BLUE" type="GULL"/>
     </board>
       XML
       board = subject.gamestate.board
-      expect(board.field(6, 18)).to eq(Field.new(6, 18, Color::YELLOW))
-      expect(board.field(18, 18)).to eq(Field.new(18, 18, Color::GREEN))
+      expect(board.field(3, 0)).to eq(Field.new(3, 0, Piece.new(Color::RED, PieceType::GULL, Coordinates.new(3, 0))))
+      expect(board.field(6, 7)).to eq(Field.new(6, 7, Piece.new(Color::BLUE, PieceType::SEAL, Coordinates.new(6, 7))))
       expect(board.fields_of_color(Color::RED)).not_to be_empty
     end
   end
