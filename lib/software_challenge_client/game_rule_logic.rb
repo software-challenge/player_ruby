@@ -24,7 +24,7 @@ class GameRuleLogic
   def self.possible_moves(gamestate)
     moves = []
     pieces = []
-    if gamestate.current_color == Color::RED:
+    if gamestate.current_color == Color::RED
       pieces = gamestate.red_pieces
     else
       pieces = gamestate.blue_pieces
