@@ -2,8 +2,9 @@
 # frozen_string_literal: true
 require 'socket'
 require_relative 'board'
-require_relative 'set_move'
+require_relative 'move'
 require_relative 'skip_move'
+require_relative 'piece_type'
 require_relative 'player'
 require_relative 'network'
 require_relative 'client_interface'
@@ -61,27 +62,6 @@ class Protocol
     case name
     when 'board'
       logger.debug @gamestate.board.to_s
-    when 'color'
-      if @context[:color] == :valid_colors
-        @gamestate.valid_colors << Color.to_a.find {|s| s.key == @context[:last_text].to_sym }
-      end
-    when 'shape'
-      case @context[:piece_target] 
-      when :blue_shapes
-        last = @context[:last_text]
-        arr = PieceShape.to_a
-        shape = arr.find {|s| s.key == @context[:last_text].to_sym }
-        @gamestate.undeployed_blue_pieces << shape
-      when :yellow_shapes
-        shape = PieceShape.to_a.find {|s| s.key == @context[:last_text].to_sym }
-        @gamestate.undeployed_yellow_pieces << shape
-      when :red_shapes
-        shape = PieceShape.to_a.find {|s| s.key == @context[:last_text].to_sym }
-        @gamestate.undeployed_red_pieces << shape
-      when :green_shapes
-        shape = PieceShape.to_a.find {|s| s.key == @context[:last_text].to_sym }
-        @gamestate.undeployed_green_pieces << shape
-      end
     end
   end
 
@@ -118,17 +98,16 @@ class Protocol
       @gamestate = GameState.new
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.round = attrs['round'].to_i
-      @gamestate.start_piece = PieceShape.to_a.find {|s| s.key == attrs['startPiece'].to_sym }
       logger.debug "Round: #{@gamestate.round}, Turn: #{@gamestate.turn}"
     when 'first'
       logger.debug 'new first player'
-      player = Player.new(PlayerType::ONE, attrs['displayName'])
+      player = Player.new(PlayerType::ONE, attrs['displayName'], attrs['amber'])
       @gamestate.add_player(player)
       @context[:player] = player
       @context[:color] = :one
     when 'second'
       logger.debug 'new second player'
-      player = Player.new(PlayerType::TWO, attrs['displayName'])
+      player = Player.new(PlayerType::TWO, attrs['displayName'], attrs['amber'])
       @gamestate.add_player(player)
       @context[:player] = player
       @context[:color] = :two
@@ -141,43 +120,12 @@ class Protocol
     when 'field'
       x = attrs['x'].to_i
       y = attrs['y'].to_i
-      color = Color.find_by_key(attrs['content'].to_sym)
-      field = Field.new(x, y, color)
+      color = Color.find_by_key(attrs['color'].to_sym)
+      type = PieceType.find_by_key(attrs['type'].to_sym)
+      field = Field.new(x, y, Piece.new(color, type, Coordinates.new(x, y)))
       @gamestate.board.add_field(field)
       @context[:piece_target] = :field
       @context[:field] = field
-    when 'blueShapes'
-      @context[:piece_target] = :blue_shapes
-      @gamestate.undeployed_blue_pieces = []
-    when 'yellowShapes'
-      @context[:piece_target] = :yellow_shapes
-      @gamestate.undeployed_yellow_pieces = []
-    when 'redShapes'
-      @context[:piece_target] = :red_shapes
-      @gamestate.undeployed_red_pieces = []
-    when 'greenShapes'
-      @context[:piece_target] = :green_shapes
-      @gamestate.undeployed_green_pieces = []
-    when 'piece'
-      color = Color.find_by_key(attrs['color'].to_sym)
-      kind = PieceShape.find_by_key(attrs['kind'].to_sym)
-      rotation = Rotation.find_by_key(attrs['rotation'].to_sym)
-      is_flipped = attrs['isFlipped'].downcase == "true"
-      piece = Piece.new(color, kind, rotation, is_flipped, Coordinates.origin)
-      case @context[:piece_target]
-      when :blue_shapes
-        @gamestate.undeployed_blue_pieces << piece
-      when :yellow_shapes
-        @gamestate.undeployed_yellow_pieces << piece
-      when :red_shapes 
-        @gamestate.green_red_pieces << piece
-      when :green_shapes
-        @gamestate.undeployed_green_pieces << piece
-      when :last_move
-        @context[:last_move_piece] = piece
-      else
-        raise "unknown piece target #{@context[:piece_target]}"
-      end
     when 'lastMove'
       type = attrs['class']
       if type == 'skipmove'
@@ -192,10 +140,8 @@ class Protocol
         x = attrs['x'].to_i
         y = attrs['y'].to_i
         piece = @context[:last_move_piece]
-        @gamestate.last_move = SetMove.new(Piece.new(piece.color, piece.kind, piece.rotation, piece.is_flipped, Coordinates.new(x, y)))
+        @gamestate.last_move = Move.new(Piece.new(piece.color, piece.type, Coordinates.new(x, y)))
       end
-    when 'startColor'
-      @gamestate.start_color = Color::BLUE
     when 'winner'
       # TODO
       # winning_player = parsePlayer(attrs)

@@ -40,10 +40,10 @@ RSpec.describe Protocol do
             <field x="6" y="7" color="BLUE" type="SEAL"/>
             <field x="7" y="7" color="BLUE" type="GULL"/>
           </board>
-          <first displayName="OwO">
+          <first displayName="OwO" amber="0">
             <color>RED</color>
           </first>
-          <second displayName="UwU">
+          <second displayName="UwU" amber="1">
             <color>BLUE</color>
           </second>
           <lastMove class="sc.plugin2022.Move">
@@ -52,7 +52,6 @@ RSpec.describe Protocol do
             </piece>
             <target x="2" y="6">
           </lastMove>
-          <startColor>BLUE</startColor>
         </state>
       </data>
     </room>
