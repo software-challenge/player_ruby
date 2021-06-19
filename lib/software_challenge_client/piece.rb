@@ -57,7 +57,7 @@ class Piece
 
   def ==(other)
     color == other.color &&
-      coords == other.coords &&
+      position == other.position &&
       type == other.type
   end
 

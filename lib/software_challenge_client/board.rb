@@ -24,6 +24,8 @@ class Board
 
   # Erstellt ein neues leeres Spielbrett.
   def initialize(fields = [])
+    @blue_pieces = []
+    @red_pieces = []
     @fields = Board.empty_game_field
     fields.each { |f| add_field(f) }
   end
@@ -59,6 +61,14 @@ class Board
   # @param field [Field] Das einzufügende Feld.
   def add_field(field)
     @fields[field.x][field.y] = field
+
+    if !field.piece.nil?
+      if field.piece.color == Color::RED
+        @red_pieces << field
+      else 
+        @blue_pieces << field
+      end
+    end
   end
 
   # Zugriff auf die Felder des Spielfeldes

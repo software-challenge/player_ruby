@@ -6,7 +6,10 @@ include GameStateHelpers
 include Constants
 
 RSpec.describe Board do
-  subject(:board) { Board.new }
+  subject(:board) {
+    Board.new([Field.new(0,0, Piece.new(Color::RED, PieceType::COCKLE, Coordinates.new(0,0))), 
+      Field.new(3,1, Piece.new(Color::RED, PieceType::GULL, Coordinates.new(3,1)))])
+  }
 
   it 'should have fields initialized' do
     expect(board.field_list.size).to eq(BOARD_SIZE**2)
@@ -19,7 +22,7 @@ RSpec.describe Board do
   it 'should be comparable' do
     clone = board.clone
     expect(clone).to eq(board)
-    clone.field(0, 0).color = Color::RED
+    clone.field(0, 0).piece.color = Color::RED
     expect(clone).not_to eq(board)
   end
 

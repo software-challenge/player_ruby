@@ -18,18 +18,9 @@ class Player
   # Konstruktor
   # @param type [Color] Rot oder blau
   # @param name [String] Name
-  def initialize(type, name)
-    @type = type
-    @name = name
-    @amber = 0
-  end
-
-  # Konstruktor
-  # @param type [Color] Rot oder blau
-  # @param name [String] Name
-  # @param amber [Integer] Amount of Amber
-  def initialize(type, name, amber)
-    @type = type
+  # @param amber [Integer] Menge des Bernsteins die der Spieler hat
+  def initialize(color, name, amber = 0)
+    @color = color
     @name = name
     @amber = amber
   end
