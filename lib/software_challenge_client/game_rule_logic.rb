@@ -112,8 +112,8 @@ class GameRuleLogic
       end
       
       # Update board fields
-      gamestate.board[move.piece.position] = nil
-      gamestate.board[move.target_coords] = move.Piece
+      gamestate.board.add_field(Field.new(move.piece.position.x, move.piece.position.y, nil))
+      gamestate.board.add_field(Field.new(move.target_coords.x, move.target_coords.y, move.Piece))
 
       if move.piece != nil
         move.piece.coordinates = move.target_coords

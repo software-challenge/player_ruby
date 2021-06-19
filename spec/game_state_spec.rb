@@ -24,7 +24,7 @@ RSpec.describe GameState do
   end
 
   it 'holds the board' do
-    expect(subject.field(0, 0)).to eq(Field.new(0, 0, Color::RED))
+    expect(subject.field(0, 0)).to eq(Field.new(0, 0, Piece.new(Color::RED, PieceType::COCKLE, Coordinates.new(0,0))))
   end
 
   it 'is clonable' do
@@ -47,14 +47,13 @@ RSpec.describe GameState do
       gamestate.perform!(move)
     end.not_to raise_error
     expect do
-      move = SetMove.new(
+      move = Move.new(
         Piece.new(
-          gamestate.current_color,
-          gamestate.undeployed_pieces(gamestate.current_color).first,
-          Rotation::NONE,
-          false,
-          Coordinates.new(18, 3)
-        )
+          Color::BLUE,
+          PieceType::GULL,
+          Coordinates.new(2, 7)
+        ),
+        Coordinates.new(2, 6)
       )
       gamestate.perform!(move)
     end.not_to raise_error

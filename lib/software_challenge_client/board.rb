@@ -63,10 +63,10 @@ class Board
     @fields[field.x][field.y] = field
 
     if !field.piece.nil?
-      if field.piece.color == Color::RED
-        @red_pieces << field
+      if field.color == Color::RED
+        @red_pieces << field.piece
       else 
-        @blue_pieces << field
+        @blue_pieces << field.piece
       end
     end
   end
@@ -91,6 +91,21 @@ class Board
   # @see #field
   def field_at(coordinates)
     field(coordinates.x, coordinates.y)
+  end
+
+  def fields_of_color(color)
+    fields = []
+
+    (0...BOARD_SIZE).to_a.map do |x|
+      (0...BOARD_SIZE).to_a.map do |y|
+        f = field_at(x,y)
+        if (f.color == color)
+          fields << f
+        end
+      end
+    end
+
+    fields
   end
 
   # @param it [Coordinates] Die zu untersuchenden Koordinaten

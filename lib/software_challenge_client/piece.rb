@@ -26,6 +26,10 @@ class Piece
     @tower_height = 0
   end
 
+  def set_color(color)
+    @color = color
+  end
+
   # Berechnet die Koordinaten zu denen sich dieser Spielstein bewegen könnte.
   #
   # @return [Array<Coordinates>] Die Zielkoordinaten 

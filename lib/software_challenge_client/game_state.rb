@@ -58,10 +58,10 @@ class GameState
   #
   # @param player [Player] Der hinzuzufügende Spieler.
   def add_player(player)
-    case player.type
-    when PlayerType::ONE
+    case player.color
+    when Color::RED
       @player_one = player
-    when PlayerType::TWO
+    when Color::BLUE
       @player_two = player
     end
   end
