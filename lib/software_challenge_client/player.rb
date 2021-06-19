@@ -24,6 +24,16 @@ class Player
     @amber = 0
   end
 
+  # Konstruktor
+  # @param type [Color] Rot oder blau
+  # @param name [String] Name
+  # @param amber [Integer] Amount of Amber
+  def initialize(type, name, amber)
+    @type = type
+    @name = name
+    @amber = amber
+  end
+
   def ==(other)
     color == other.color
   end
