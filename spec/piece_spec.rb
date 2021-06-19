@@ -6,8 +6,8 @@ RSpec.describe Piece do
   subject(:piece) { Piece.new }
 
   it 'has a sensible string representation' do
-    expect(Piece.new(Color::RED, PieceShape::MONO).to_s).to eq("RED MONO at (0, 0) rotation NONE")
-    expect(Piece.new(Color::RED, PieceShape::MONO, Rotation::LEFT, true).to_s).to eq("RED MONO at (0, 0) rotation LEFT (flipped)")
+    expect(Piece.new(Color::RED, PieceType::COCKLE).to_s).to eq("RED COCKLE at (0, 0)")
+    expect(Piece.new(Color::RED, PieceShape::STARFISH, Coordinates.new(3,4)).to_s).to eq("RED STARFISH at (3, 4)")
   end
 
   def c(x, y)
