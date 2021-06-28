@@ -30,11 +30,10 @@ RSpec.describe GameState do
   it 'is clonable' do
     clone = gamestate.clone
     clone.turn += 1
-    clone.board.add_field(Field.new(0, 0, Color::BLUE))
+    clone.board.add_field(Field.new(0, 0, Piece.new(Color::BLUE, PieceType::COCKLE, Coordinates.new(0,0))))
     # if clone is independent, changes will not affect the original gamestate
     expect(gamestate.turn).to_not eq(clone.turn)
     expect(gamestate.board.field(0, 0)).to_not eq(clone.board.field(0, 0))
-    expect(gamestate.current_color_index).to_not eq(clone.current_color_index)
   end
 
   it 'returns all own fields' do
