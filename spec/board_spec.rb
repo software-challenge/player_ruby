@@ -22,7 +22,7 @@ RSpec.describe Board do
   it 'should be comparable' do
     clone = board.clone
     expect(clone).to eq(board)
-    clone.field(0, 0).piece.color = Color::RED
+    clone.add_field(Field.new(1,0,Piece.new(Color::RED, PieceType::COCKLE)))
     expect(clone).not_to eq(board)
   end
 
