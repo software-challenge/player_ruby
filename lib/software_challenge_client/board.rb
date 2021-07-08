@@ -98,7 +98,7 @@ class Board
 
     (0...BOARD_SIZE).to_a.map do |x|
       (0...BOARD_SIZE).to_a.map do |y|
-        f = field_at(x,y)
+        f = field(x,y)
         if (f.color == color)
           fields << f
         end
