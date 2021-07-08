@@ -2,7 +2,7 @@
 
 require_relative './util/constants'
 require_relative 'invalid_move_exception'
-require_relative 'set_move'
+require_relative 'move'
 
 require 'set'
 
@@ -116,7 +116,7 @@ class GameRuleLogic
       gamestate.board.add_field(Field.new(move.target_coords.x, move.target_coords.y, move.piece))
 
       if move.piece != nil
-        move.piece.coordinates = move.target_coords
+        move.piece.set_position(move.target_coords)
       end
 
       # TODO 2022: Missed some perform logic?

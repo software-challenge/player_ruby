@@ -21,7 +21,7 @@ module SoftwareChallengeClient
   require 'software_challenge_client/protocol.rb'
   require 'software_challenge_client/rotation.rb'
   require 'software_challenge_client/runner.rb'
-  require 'software_challenge_client/set_move.rb'
+  require 'software_challenge_client/move.rb'
   require 'software_challenge_client/skip_move.rb'
   require 'software_challenge_client/util/constants.rb'
   require 'software_challenge_client/version.rb'
