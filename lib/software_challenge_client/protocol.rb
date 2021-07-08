@@ -101,13 +101,13 @@ class Protocol
       logger.debug "Round: #{@gamestate.round}, Turn: #{@gamestate.turn}"
     when 'first'
       logger.debug 'new first player'
-      player = Player.new(PlayerType::ONE, attrs['displayName'], attrs['amber'])
+      player = Player.new(Color::RED, attrs['displayName'], attrs['amber'])
       @gamestate.add_player(player)
       @context[:player] = player
       @context[:color] = :one
     when 'second'
       logger.debug 'new second player'
-      player = Player.new(PlayerType::TWO, attrs['displayName'], attrs['amber'])
+      player = Player.new(Color::BLUE, attrs['displayName'], attrs['amber'])
       @gamestate.add_player(player)
       @context[:player] = player
       @context[:color] = :two
@@ -134,13 +134,18 @@ class Protocol
         @context[:last_move_type] = type
         @context[:piece_target] = :last_move
       end
+    when 'piece'
+      case @context[:piece_target] 
+      when :last_move
+        @context[:last_move_piece] = Piece.new(Color.find_by_key(attrs['color'].to_sym), PieceType.find_by_key(attrs['type'].to_sym))
+      end
     when 'position'
       case @context[:piece_target] 
       when :last_move
         x = attrs['x'].to_i
         y = attrs['y'].to_i
         piece = @context[:last_move_piece]
-        @gamestate.last_move = Move.new(Piece.new(piece.color, piece.type, Coordinates.new(x, y)))
+        @gamestate.last_move = Move.new(Piece.new(piece.color, piece.type, Coordinates.new(x, y)), Coordinates.new(x, y))
       end
     when 'winner'
       # TODO
@@ -190,18 +195,18 @@ class Protocol
     # because XML-generation should be decoupled from internal data
     # structures.
     case move
-    when SetMove
-      builder.data(class: 'sc.plugin2021.SetMove') do |data|
-        data.piece(color: move.piece.color, kind: move.piece.kind, rotation: move.piece.rotation, isFlipped: move.piece.is_flipped) do |piece|
+    when Move
+      builder.data(class: 'sc.plugin2022.Move') do |data|
+        data.piece(color: move.piece.color, type: move.piece.type) do |piece|
           piece.position(x: move.piece.position.x, y: move.piece.position.y)
         end
         move.hints.each do |hint|
           data.hint(content: hint.content)
         end
+        data.target(x: move.target_coords.x, y: move.target_coords.y)
       end
     when SkipMove
-      builder.data(class: 'sc.plugin2021.SkipMove') do |data|
-        data.color(@gamestate.current_color.key.to_s)
+      builder.data(class: 'sc.plugin2022.SkipMove') do |data|
         move.hints.each do |hint|
           data.hint(content: hint.content)
         end
