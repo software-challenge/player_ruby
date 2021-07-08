@@ -37,7 +37,7 @@ RSpec.describe GameState do
   end
 
   it 'returns all own fields' do
-    expect(gamestate.own_fields.size).to eq(4)
+    expect(gamestate.own_fields.size).to eq(8)
   end
 
   it 'performs moves' do
