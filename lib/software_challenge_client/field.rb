@@ -25,7 +25,7 @@ class Field
   # den gleichen Spielstein haben.
   # @return [Boolean] true bei Gleichheit, sonst false.
   def ==(other)
-    coordinates == other.coordinates && piece == other.piece
+    !other.nil? && coordinates == other.coordinates && piece == other.piece
   end
 
   def x

@@ -59,8 +59,13 @@ class Piece
     coords.map{ |x| x + position }.to_a
   end
 
+  def set_position(coords)
+    @position = coords
+  end
+
   def ==(other)
-    color == other.color &&
+    !other.nil? &&
+      color == other.color &&
       position == other.position &&
       type == other.type
   end
