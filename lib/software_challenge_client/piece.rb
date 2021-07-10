@@ -66,6 +66,10 @@ class Piece
     "#{color.key} #{type.key} at #{position}"
   end
 
+  def to_ss
+    "#{color.key.to_s[0]}#{type.key.to_s[0]}"
+  end
+
   def inspect
     to_s
   end
