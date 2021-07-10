@@ -17,7 +17,7 @@ module SoftwareChallengeClient
   require 'software_challenge_client/piece.rb'
   require 'software_challenge_client/piece_shape.rb'
   require 'software_challenge_client/player.rb'
-  require 'software_challenge_client/player_type.rb'
+  require 'software_challenge_client/team.rb'
   require 'software_challenge_client/protocol.rb'
   require 'software_challenge_client/rotation.rb'
   require 'software_challenge_client/runner.rb'

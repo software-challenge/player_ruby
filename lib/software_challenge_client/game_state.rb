@@ -86,8 +86,8 @@ class GameState
     turn.even? ? player_two : player_one
   end
 
-  # @return [PlayerType] Typ des Spielers, der gerade nicht an der Reihe ist.
-  def other_player_type
+  # @return [Team] Typ des Spielers, der gerade nicht an der Reihe ist.
+  def other_team
     other_player.type
   end
 

@@ -5,7 +5,7 @@
 include GameStateHelpers
 
 RSpec.describe Field do
-  subject(:field) { Field.new(0, 0, Piece.new(Color::RED, PieceType::COCKLE)) }
+  subject(:field) { Field.new(0, 0, Piece.new(Color::RED, PieceType::Herzmuschel)) }
 
   it 'is empty without a piece' do
     expect(Field.new(0, 0)).to be_empty
@@ -23,6 +23,6 @@ RSpec.describe Field do
 
   it 'is comparable' do
     field.piece.set_color(Color::RED)
-    expect(field).to eq(Field.new(0, 0, Piece.new(Color::RED, PieceType::COCKLE)))
+    expect(field).to eq(Field.new(0, 0, Piece.new(Color::RED, PieceType::Herzmuschel)))
   end
 end

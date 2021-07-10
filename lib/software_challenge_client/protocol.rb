@@ -62,6 +62,16 @@ class Protocol
     case name
     when 'board'
       logger.debug @gamestate.board.to_s
+    when 'team'
+      @context[:team] = @context[:last_text]
+    when 'int'
+      if @context[:team] == "ONE"
+        logger.info 'Got player one amber'
+        @gamestate.player_one = Player.new(Color::RED, "ONE", @context[:last_text].to_i)
+      else
+        logger.info 'Got player two amber'
+        @gamestate.player_two = Player.new(Color::BLUE, "TWO", @context[:last_text].to_i)
+      end
     end
   end
 
@@ -97,56 +107,30 @@ class Protocol
       logger.debug 'new gamestate'
       @gamestate = GameState.new
       @gamestate.turn = attrs['turn'].to_i
-      @gamestate.round = attrs['round'].to_i
+      @gamestate.round = @gamestate.turn / 2
       logger.debug "Round: #{@gamestate.round}, Turn: #{@gamestate.turn}"
-    when 'first'
-      logger.debug 'new first player'
-      player = Player.new(Color::RED, attrs['displayName'], attrs['amber'])
-      @gamestate.add_player(player)
-      @context[:player] = player
-      @context[:color] = :one
-    when 'second'
-      logger.debug 'new second player'
-      player = Player.new(Color::BLUE, attrs['displayName'], attrs['amber'])
-      @gamestate.add_player(player)
-      @context[:player] = player
-      @context[:color] = :two
-    when 'validColors'
-      @context[:color] = :valid_colors
-      @gamestate.valid_colors = []
     when 'board'
       logger.debug 'new board'
       @gamestate.board = Board.new()
-    when 'field'
-      x = attrs['x'].to_i
-      y = attrs['y'].to_i
-      color = Color.find_by_key(attrs['color'].to_sym)
-      type = PieceType.find_by_key(attrs['type'].to_sym)
-      field = Field.new(x, y, Piece.new(color, type, Coordinates.new(x, y)))
-      @gamestate.board.add_field(field)
-      @context[:piece_target] = :field
-      @context[:field] = field
-    when 'lastMove'
-      type = attrs['class']
-      if type == 'skipmove'
-        @gamestate.last_move = SkipMove.new
-      else
-        @context[:last_move_type] = type
-        @context[:piece_target] = :last_move
-      end
+    when 'pieces'
+      @context[:entry] = :pieces
+    when 'coordinates'
+      @context[:x] = attrs['x'].to_i
+      @context[:y] = attrs['y'].to_i
     when 'piece'
-      case @context[:piece_target] 
-      when :last_move
-        @context[:last_move_piece] = Piece.new(Color.find_by_key(attrs['color'].to_sym), PieceType.find_by_key(attrs['type'].to_sym))
-      end
-    when 'position'
-      case @context[:piece_target] 
-      when :last_move
-        x = attrs['x'].to_i
-        y = attrs['y'].to_i
-        piece = @context[:last_move_piece]
-        @gamestate.last_move = Move.new(Piece.new(piece.color, piece.type, Coordinates.new(x, y)), Coordinates.new(x, y))
-      end
+      x = @context[:x]
+      y = @context[:y]
+      team = Team.find_by_key(attrs['team'].to_sym)
+      type = PieceType.find_by_key(attrs['type'].to_sym)
+      count = attrs['count'].to_i
+      field = Field.new(x, y, Piece.new(team, type, Coordinates.new(x, y), count))
+      @gamestate.board.add_field(field)
+    when 'from'
+      @context[:from] = Coordinates.new(attrs['x'].to_i, attrs['y'].to_i)
+    when 'to'
+      @gamestate.last_move = Move.new(@context[:from], Coordinates.new(attrs['x'].to_i, attrs['y'].to_i))
+    when 'ambers'
+      @context[:entry] = :ambers
     when 'winner'
       # TODO
       # winning_player = parsePlayer(attrs)

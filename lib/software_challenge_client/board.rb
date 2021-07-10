@@ -63,7 +63,7 @@ class Board
     @fields[field.x][field.y] = field
 
     if !field.piece.nil?
-      if field.color == Color::RED
+      if field.team == Team::ONE
         @red_pieces << field.piece
       else 
         @blue_pieces << field.piece

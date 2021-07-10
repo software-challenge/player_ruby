@@ -19,39 +19,92 @@ RSpec.describe Protocol do
 
     before do
       server_message <<-XML
-      <room roomId="cb3bc426-5c70-48b9-9307-943bc328b503">
+      <room roomId="e870dd98-7300-437a-a16c-1ee317dfb63e">
       <data class="memento">
-        <state class="state" turn="1" round="0">
+        <state class="state" turn="3">
+          <startTeam class="team">ONE</startTeam>
           <board>
-            <field x="0" y="0" color="RED" type="COCKLE"/>
-            <field x="1" y="0" color="RED" type="SEAL"/>
-            <field x="2" y="0" color="RED" type="STARFISH"/>
-            <field x="3" y="0" color="RED" type="GULL"/>
-            <field x="4" y="0" color="RED" type="COCKLE"/>
-            <field x="5" y="0" color="RED" type="STARFISH"/>
-            <field x="6" y="0" color="RED" type="SEAL"/>
-            <field x="7" y="0" color="RED" type="GULL"/>
-            <field x="0" y="7" color="BLUE" type="COCKLE"/>
-            <field x="1" y="7" color="BLUE" type="SEAL"/>
-            <field x="2" y="7" color="BLUE" type="STARFISH"/>
-            <field x="3" y="7" color="BLUE" type="GULL"/>
-            <field x="4" y="7" color="BLUE" type="COCKLE"/>
-            <field x="5" y="7" color="BLUE" type="STARFISH"/>
-            <field x="6" y="7" color="BLUE" type="SEAL"/>
-            <field x="7" y="7" color="BLUE" type="GULL"/>
+            <pieces>
+              <entry>
+                <coordinates x="0" y="0"/>
+                <piece type="Herzmuschel" team="ONE" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="7" y="7"/>
+                <piece type="Herzmuschel" team="TWO" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="0" y="1"/>
+                <piece type="Robbe" team="ONE" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="0" y="2"/>
+                <piece type="Robbe" team="ONE" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="0" y="3"/>
+                <piece type="Herzmuschel" team="ONE" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="0" y="4"/>
+                <piece type="Seestern" team="ONE" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="0" y="5"/>
+                <piece type="Moewe" team="ONE" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="0" y="6"/>
+                <piece type="Seestern" team="ONE" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="0" y="7"/>
+                <piece type="Moewe" team="ONE" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="7" y="0"/>
+                <piece type="Moewe" team="TWO" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="7" y="1"/>
+                <piece type="Seestern" team="TWO" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="7" y="2"/>
+                <piece type="Moewe" team="TWO" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="7" y="3"/>
+                <piece type="Seestern" team="TWO" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="7" y="4"/>
+                <piece type="Herzmuschel" team="TWO" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="7" y="5"/>
+                <piece type="Robbe" team="TWO" count="1"/>
+              </entry>
+              <entry>
+                <coordinates x="7" y="6"/>
+                <piece type="Robbe" team="TWO" count="1"/>
+              </entry>
+            </pieces>
           </board>
-          <first displayName="OwO" amber="0">
-            <color>RED</color>
-          </first>
-          <second displayName="UwU" amber="1">
-            <color>BLUE</color>
-          </second>
-          <lastMove class="sc.plugin2022.Move">
-            <piece color="BLUE" type="STARFISH">
-              <position x="2" y="7"/>
-            </piece>
-            <target x="2" y="6">
+          <lastMove>
+            <from x="4" y="4"/>
+            <to x="5" y="6"/>
           </lastMove>
+          <ambers enum-type="team">
+            <entry>
+              <team>ONE</team>
+              <int>1</int>
+            </entry>
+            <entry>
+              <team>TWO</team>
+              <int>0</int>
+            </entry>
+          </ambers>
         </state>
       </data>
     </room>
@@ -59,12 +112,7 @@ RSpec.describe Protocol do
     end
 
     it 'sets the current turn' do
-      expect(subject.gamestate.turn).to eq(1)
-    end
-
-    it 'sets the player names' do
-      expect(subject.gamestate.player_one.name).to eq('OwO')
-      expect(subject.gamestate.player_two.name).to eq('UwU')
+      expect(subject.gamestate.turn).to eq(3)
     end
 
     it 'sets the last move' do
@@ -74,7 +122,7 @@ RSpec.describe Protocol do
     end
 
     it 'converts a setmove to xml' do
-      move = Move.new(Piece.new(Color::BLUE, PieceType::GULL, Coordinates.new(4,2)), Coordinates.new(4,3))
+      move = Move.new(Coordinates.new(4,2), Coordinates.new(4,3))
       # NOTE that this is brittle because XML formatting (whitespace, attribute
       # order) is arbitrary.
       expect(subject.move_to_xml(move)).to eq <<~XML

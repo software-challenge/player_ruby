@@ -2,9 +2,9 @@
 
 # Ein Spielstein mit Ausrichtung, Koordinaten und Farbe
 class Piece
-  # @!attribute [r] Farbe
-  # @return [Color]
-  attr_reader :color
+  # @!attribute [r] Team
+  # @return [Team]
+  attr_reader :team
 
   # @!attribute [r] Typ des Spielsteins
   # @return [PieceType]
@@ -15,19 +15,19 @@ class Piece
   attr_reader :position
 
   # @!attribute [r] tower_height
-  # @return [Integer] Die Anzahl Spielsteine unter diesem
-  attr_reader :tower_height
+  # @return [Integer] Die Anzahl Spielsteine übereinander inklusive des obersten
+  attr_reader :height
 
-  # Erstellt einen neuen leeren Spielstein.
-  def initialize(color, type, position = Coordinates.origin)
-    @color = color
+  # Erstellt einen neuen Spielstein.
+  def initialize(team, type, position = Coordinates.origin, height = 0)
+    @team = team
     @type = type
     @position = position
-    @tower_height = 0
+    @height = height
   end
 
   def set_color(color)
-    @color = color
+    @team = color.to_t
   end
 
   # Berechnet die Koordinaten zu denen sich dieser Spielstein bewegen könnte.
@@ -42,7 +42,7 @@ class Piece
     end
 
     case type
-    when PieceType::COCKLE
+    when PieceType::Herzmuschel
       coords = [Coordinates.new(-1,ydir), Coordinates.new(1,ydir)]
     when PieceType::GULL
       coords = [Coordinates.new(1,0), Coordinates.new(-1,0), Coordinates.new(0,1), 
@@ -65,13 +65,13 @@ class Piece
 
   def ==(other)
     !other.nil? &&
-      color == other.color &&
+      team == other.team &&
       position == other.position &&
       type == other.type
   end
 
   def to_s
-    "#{color.key} #{type.key} at #{position}"
+    "#{team.key} #{type.key} at #{position}"
   end
 
   def inspect

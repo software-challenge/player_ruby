@@ -6,14 +6,18 @@ require_relative 'has_hints'
 class Move
   include HasHints
 
-  attr_reader :piece
+  # @!attribute [r] Koordinaten von dem der Spielstein in diesem Zug wegbewegt wird
+  # @return [Coordinates]
+  attr_reader :from
 
-  attr_reader :target_coords
+  # @!attribute [r] Koordinaten zu denen der Spielstein in diesem Zug hinbewegt wird
+  # @return [Coordinates]
+  attr_reader :to
 
   # Erstellt ein neuen leeren Legezug.
-  def initialize(piece, target_coords)
-    @piece = piece
-    @target_coords = target_coords
+  def initialize(from, to)
+    @from = from
+    @to = to
     @hints = []
   end
 

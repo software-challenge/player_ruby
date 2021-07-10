@@ -36,12 +36,16 @@ class Field
     coordinates.y
   end
 
-  def color
+  def team
     if piece.nil?
       nil
     else
-      piece.color
+      piece.team
     end
+  end
+
+  def color
+    team.to_c
   end
 
   # @return [Boolean] true, wenn das Feld nicht durch einen Spielstein überdeckt ist, sonst false
