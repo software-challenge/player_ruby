@@ -67,10 +67,10 @@ class Protocol
     when 'int'
       if @context[:team] == "ONE"
         logger.info 'Got player one amber'
-        @gamestate.player_one = Player.new(Color::RED, "ONE", @context[:last_text].to_i)
+        @gamestate.add_player(Player.new(Color::RED, "ONE", @context[:last_text].to_i))
       else
         logger.info 'Got player two amber'
-        @gamestate.player_two = Player.new(Color::BLUE, "TWO", @context[:last_text].to_i)
+        @gamestate.add_player(Player.new(Color::BLUE, "TWO", @context[:last_text].to_i))
       end
     end
   end
@@ -128,7 +128,8 @@ class Protocol
     when 'from'
       @context[:from] = Coordinates.new(attrs['x'].to_i, attrs['y'].to_i)
     when 'to'
-      @gamestate.last_move = Move.new(@context[:from], Coordinates.new(attrs['x'].to_i, attrs['y'].to_i))
+      from = @context[:from]
+      @gamestate.last_move = Move.new(@gamestate.field(from.x, from.y).piece, Coordinates.new(attrs['x'].to_i, attrs['y'].to_i))
     when 'ambers'
       @context[:entry] = :ambers
     when 'winner'
@@ -174,28 +175,17 @@ class Protocol
   # @param move [Move] The move to convert to XML.
   def move_to_xml(move)
     builder = Builder::XmlMarkup.new(indent: 2)
+
     # Converting every the move here instead of requiring the Move
     # class interface to supply a method which returns the XML
     # because XML-generation should be decoupled from internal data
     # structures.
-    case move
-    when Move
-      builder.data(class: 'sc.plugin2022.Move') do |data|
-        data.piece(color: move.piece.color, type: move.piece.type) do |piece|
-          piece.position(x: move.piece.position.x, y: move.piece.position.y)
-        end
-        move.hints.each do |hint|
-          data.hint(content: hint.content)
-        end
-        data.target(x: move.target_coords.x, y: move.target_coords.y)
-      end
-    when SkipMove
-      builder.data(class: 'sc.plugin2022.SkipMove') do |data|
-        move.hints.each do |hint|
-          data.hint(content: hint.content)
-        end
-      end
+
+    builder.Move do |m|
+      m.from(x: move.from.x, y: move.from.y)
+      m.to(x: move.to.x, y: move.to.y)
     end
+
     builder.target!
   end
 end

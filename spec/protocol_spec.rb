@@ -92,8 +92,8 @@ RSpec.describe Protocol do
             </pieces>
           </board>
           <lastMove>
-            <from x="4" y="4"/>
-            <to x="5" y="6"/>
+            <from x="7" y="2"/>
+            <to x="6" y="2"/>
           </lastMove>
           <ambers enum-type="team">
             <entry>
@@ -116,32 +116,20 @@ RSpec.describe Protocol do
     end
 
     it 'sets the last move' do
-      expect(subject.gamestate.last_move.piece.type).to eq(PieceType::Seestern)
+      expect(subject.gamestate.last_move.piece.type).to eq(PieceType::Moewe)
       expect(subject.gamestate.last_move.piece.color).to eq(Color::BLUE)
-      expect(subject.gamestate.last_move.piece.position.x).to eq(2)
+      expect(subject.gamestate.last_move.piece.position.y).to eq(2)
     end
 
     it 'converts a setmove to xml' do
-      move = Move.new(Coordinates.new(4,2), Coordinates.new(4,3))
+      move = Move.new(subject.gamestate.board.field(7,0).piece, Coordinates.new(6,0))
       # NOTE that this is brittle because XML formatting (whitespace, attribute
       # order) is arbitrary.
       expect(subject.move_to_xml(move)).to eq <<~XML
-      <data class="sc.plugin2022.Move">
-        <piece color="BLUE" type="GULL">
-          <position x="4" y="2"/>
-        </piece>
-        <target x="4" y="3"/>
-      </data>
-      XML
-    end
-  
-    it 'converts a skipmove to xml' do
-      move = SkipMove.new
-      # NOTE that this is brittle because XML formatting (whitespace, attribute
-      # order) is arbitrary.
-      expect(subject.move_to_xml(move)).to eq <<~XML
-      <data class="sc.plugin2022.SkipMove">
-      </data>
+      <Move>
+        <from x="7" y="0"/>
+        <to x="6" y="0"/>
+      </Move>
       XML
     end
 
@@ -190,28 +178,78 @@ RSpec.describe Protocol do
     it 'creates the new board in the gamestate' do
       subject.gamestate.board.clear
       server_message <<-XML
-      <board>
-            <field x="0" y="0" color="RED" type="COCKLE"/>
-            <field x="1" y="0" color="RED" type="SEAL"/>
-            <field x="2" y="0" color="RED" type="STARFISH"/>
-            <field x="3" y="0" color="RED" type="GULL"/>
-            <field x="4" y="0" color="RED" type="COCKLE"/>
-            <field x="5" y="0" color="RED" type="STARFISH"/>
-            <field x="6" y="0" color="RED" type="SEAL"/>
-            <field x="7" y="0" color="RED" type="GULL"/>
-            <field x="0" y="7" color="BLUE" type="COCKLE"/>
-            <field x="1" y="7" color="BLUE" type="SEAL"/>
-            <field x="2" y="7" color="BLUE" type="STARFISH"/>
-            <field x="3" y="7" color="BLUE" type="GULL"/>
-            <field x="4" y="7" color="BLUE" type="COCKLE"/>
-            <field x="5" y="7" color="BLUE" type="STARFISH"/>
-            <field x="6" y="7" color="BLUE" type="SEAL"/>
-            <field x="7" y="7" color="BLUE" type="GULL"/>
-    </board>
+        <board>
+          <pieces>
+            <entry>
+              <coordinates x="0" y="0"/>
+              <piece type="Herzmuschel" team="ONE" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="7" y="7"/>
+              <piece type="Herzmuschel" team="TWO" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="0" y="1"/>
+              <piece type="Robbe" team="ONE" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="0" y="2"/>
+              <piece type="Robbe" team="ONE" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="0" y="3"/>
+              <piece type="Herzmuschel" team="ONE" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="0" y="4"/>
+              <piece type="Seestern" team="ONE" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="0" y="5"/>
+              <piece type="Moewe" team="ONE" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="0" y="6"/>
+              <piece type="Seestern" team="ONE" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="0" y="7"/>
+              <piece type="Moewe" team="ONE" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="7" y="0"/>
+              <piece type="Moewe" team="TWO" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="7" y="1"/>
+              <piece type="Seestern" team="TWO" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="7" y="2"/>
+              <piece type="Moewe" team="TWO" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="7" y="3"/>
+              <piece type="Seestern" team="TWO" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="7" y="4"/>
+              <piece type="Herzmuschel" team="TWO" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="7" y="5"/>
+              <piece type="Robbe" team="TWO" count="1"/>
+            </entry>
+            <entry>
+              <coordinates x="7" y="6"/>
+              <piece type="Robbe" team="TWO" count="1"/>
+            </entry>
+          </pieces>
+        </board>
       XML
       board = subject.gamestate.board
-      expect(board.field(3, 0)).to eq(Field.new(3, 0, Piece.new(Color::RED, PieceType::GULL, Coordinates.new(3, 0))))
-      expect(board.field(6, 7)).to eq(Field.new(6, 7, Piece.new(Color::BLUE, PieceType::Robbe, Coordinates.new(6, 7))))
+      expect(board.field(0, 3)).to eq(Field.new(0, 3, Piece.new(Color::RED, PieceType::Herzmuschel, Coordinates.new(0, 3))))
+      expect(board.field(7, 6)).to eq(Field.new(7, 6, Piece.new(Color::BLUE, PieceType::Robbe, Coordinates.new(7, 6))))
       expect(board.red_pieces).not_to be_empty
     end
   end

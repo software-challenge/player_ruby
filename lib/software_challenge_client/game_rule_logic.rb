@@ -91,7 +91,7 @@ class GameRuleLogic
     raise 'Invalid move!' unless valid_move?(gamestate, move)
 
     if move.instance_of? Move
-      target_field = gamestate.board[move.target_coords]
+      target_field = gamestate.board[move.to]
 
       # Update board pieces if one is stepped on
       if not target_field.empty?
@@ -106,17 +106,17 @@ class GameRuleLogic
         # Check for high tower
         if move.piece.tower_height >= 3
           gamestate.current_player.amber++
-          gamestate.board[move.target_coords] = nil
+          gamestate.board[move.to] = nil
           move.piece = nil
         end
       end
       
       # Update board fields
       gamestate.board.add_field(Field.new(move.piece.position.x, move.piece.position.y, nil))
-      gamestate.board.add_field(Field.new(move.target_coords.x, move.target_coords.y, move.piece))
+      gamestate.board.add_field(Field.new(move.to.x, move.to.y, move.piece))
 
       if move.piece != nil
-        move.piece.set_position(move.target_coords)
+        move.piece.set_position(move.to)
       end
 
       # TODO 2022: Missed some perform logic?
