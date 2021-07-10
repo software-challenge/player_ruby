@@ -62,15 +62,23 @@ class Protocol
     case name
     when 'board'
       logger.debug @gamestate.board.to_s
+    when 'startTeam'
+      @gamestate.add_player(Player.new(Color::RED, "ONE", 0))
+      @gamestate.add_player(Player.new(Color::BLUE, "TWO", 0))
+      if @context[:last_text] == "ONE"
+        @gamestate.start_team = @gamestate.player_one
+      else
+        @gamestate.start_team = @gamestate.player_two
+      end
     when 'team'
       @context[:team] = @context[:last_text]
     when 'int'
       if @context[:team] == "ONE"
         logger.info 'Got player one amber'
-        @gamestate.add_player(Player.new(Color::RED, "ONE", @context[:last_text].to_i))
+        @gamestate.player_one.amber = @context[:last_text].to_i
       else
         logger.info 'Got player two amber'
-        @gamestate.add_player(Player.new(Color::BLUE, "TWO", @context[:last_text].to_i))
+        @gamestate.player_two.amber = @context[:last_text].to_i
       end
     end
   end
