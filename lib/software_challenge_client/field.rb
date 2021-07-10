@@ -40,7 +40,7 @@ class Field
     if piece.nil?
       nil
     else
-      piece.team
+      piece.color.to_t
     end
   end
 
@@ -48,7 +48,7 @@ class Field
     if piece.nil?
       nil
     else
-      piece.team.to_c
+      piece.color
     end
   end
 

@@ -24,13 +24,13 @@ RSpec.describe GameState do
   end
 
   it 'holds the board' do
-    expect(subject.field(0, 0)).to eq(Field.new(0, 0, Piece.new(Team::ONE, PieceType::Herzmuschel, Coordinates.new(0,0))))
+    expect(subject.field(0, 0)).to eq(Field.new(0, 0, Piece.new(Color::RED, PieceType::Herzmuschel, Coordinates.new(0,0))))
   end
 
   it 'is clonable' do
     clone = gamestate.clone
     clone.turn += 1
-    clone.board.add_field(Field.new(0, 0, Piece.new(Team::TWO, PieceType::Herzmuschel, Coordinates.new(0,0))))
+    clone.board.add_field(Field.new(0, 0, Piece.new(Color::BLUE, PieceType::Herzmuschel, Coordinates.new(0,0))))
     # if clone is independent, changes will not affect the original gamestate
     expect(gamestate.turn).to_not eq(clone.turn)
     expect(gamestate.board.field(0, 0)).to_not eq(clone.board.field(0, 0))

@@ -123,7 +123,7 @@ class Protocol
       team = Team.find_by_key(attrs['team'].to_sym)
       type = PieceType.find_by_key(attrs['type'].to_sym)
       count = attrs['count'].to_i
-      field = Field.new(x, y, Piece.new(team, type, Coordinates.new(x, y), count))
+      field = Field.new(x, y, Piece.new(team.to_c, type, Coordinates.new(x, y), count))
       @gamestate.board.add_field(field)
     when 'from'
       @context[:from] = Coordinates.new(attrs['x'].to_i, attrs['y'].to_i)

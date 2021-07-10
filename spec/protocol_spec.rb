@@ -146,7 +146,7 @@ RSpec.describe Protocol do
     end
 
     xit 'updates the last move' do
-      move = Move.new(Piece.new(Team::TWO, PieceType::Seestern, Coordinates.new(2, 7)), Coordinates.new(2, 6))
+      move = Move.new(Piece.new(Color::BLUE, PieceType::Seestern, Coordinates.new(2, 7)), Coordinates.new(2, 6))
       expect(subject.gamestate.last_move).to eq(move)
     end
   end
@@ -210,8 +210,8 @@ RSpec.describe Protocol do
     </board>
       XML
       board = subject.gamestate.board
-      expect(board.field(3, 0)).to eq(Field.new(3, 0, Piece.new(Team::ONE, PieceType::GULL, Coordinates.new(3, 0))))
-      expect(board.field(6, 7)).to eq(Field.new(6, 7, Piece.new(Team::TWO, PieceType::Robbe, Coordinates.new(6, 7))))
+      expect(board.field(3, 0)).to eq(Field.new(3, 0, Piece.new(Color::RED, PieceType::GULL, Coordinates.new(3, 0))))
+      expect(board.field(6, 7)).to eq(Field.new(6, 7, Piece.new(Color::BLUE, PieceType::Robbe, Coordinates.new(6, 7))))
       expect(board.red_pieces).not_to be_empty
     end
   end

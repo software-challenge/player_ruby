@@ -23,7 +23,7 @@ module GameStateHelpers
       end
       type = PieceType.find_by_value(descriptor[1])
 
-      piece = Piece.new(color.to_t, type, coordinates)
+      piece = Piece.new(color, type, coordinates)
     end
     
     Field.new(coordinates.x, coordinates.y, piece)

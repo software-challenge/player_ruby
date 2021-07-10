@@ -2,9 +2,9 @@
 
 # Ein Spielstein mit Ausrichtung, Koordinaten und Farbe
 class Piece
-  # @!attribute [r] Team
-  # @return [Team]
-  attr_reader :team
+  # @!attribute [r] Color
+  # @return [Color]
+  attr_reader :color
 
   # @!attribute [r] Typ des Spielsteins
   # @return [PieceType]
@@ -19,15 +19,15 @@ class Piece
   attr_reader :height
 
   # Erstellt einen neuen Spielstein.
-  def initialize(team, type, position = Coordinates.origin, height = 0)
-    @team = team
+  def initialize(color, type, position = Coordinates.origin, height = 0)
+    @color = color
     @type = type
     @position = position
     @height = height
   end
 
   def set_color(color)
-    @team = color.to_t
+    @color = color
   end
 
   # Berechnet die Koordinaten zu denen sich dieser Spielstein bewegen könnte.
@@ -35,7 +35,7 @@ class Piece
   # @return [Array<Coordinates>] Die Zielkoordinaten 
   def target_coords
     ydir = 0
-    if team.to_c == Color::RED
+    if color == Color::RED
       ydir = 1
     else
       ydir = -1
@@ -65,13 +65,13 @@ class Piece
 
   def ==(other)
     !other.nil? &&
-      team == other.team &&
+    color == other.color &&
       position == other.position &&
       type == other.type
   end
 
   def to_s
-    "#{team.key} #{type.key} at #{position}"
+    "#{color.key} #{type.key} at #{position}"
   end
 
   def inspect
