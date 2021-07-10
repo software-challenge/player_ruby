@@ -7,8 +7,8 @@ include Constants
 
 RSpec.describe Board do
   subject(:board) {
-    Board.new([Field.new(0,0, Piece.new(Team::RED, PieceType::Herzmuschel, Coordinates.new(0,0))), 
-      Field.new(3,1, Piece.new(Color::RED, PieceType::GULL, Coordinates.new(3,1)))])
+    Board.new([Field.new(0,0, Piece.new(Team::ONE, PieceType::Herzmuschel, Coordinates.new(0,0))), 
+      Field.new(3,1, Piece.new(Team::ONE, PieceType::GULL, Coordinates.new(3,1)))])
   }
 
   it 'should have fields initialized' do
@@ -22,7 +22,7 @@ RSpec.describe Board do
   it 'should be comparable' do
     clone = board.clone
     expect(clone).to eq(board)
-    clone.add_field(Field.new(1,0,Piece.new(Color::RED, PieceType::Herzmuschel)))
+    clone.add_field(Field.new(1,0,Piece.new(Team::ONE, PieceType::Herzmuschel)))
     expect(clone).not_to eq(board)
   end
 

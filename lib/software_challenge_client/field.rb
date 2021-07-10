@@ -45,7 +45,11 @@ class Field
   end
 
   def color
-    team.to_c
+    if piece.nil?
+      nil
+    else
+      piece.team.to_c
+    end
   end
 
   # @return [Boolean] true, wenn das Feld nicht durch einen Spielstein überdeckt ist, sonst false

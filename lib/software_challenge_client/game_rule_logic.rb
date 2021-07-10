@@ -64,11 +64,11 @@ class GameRuleLogic
   def self.valid_move?(gamestate, move)
     return true if move.instance_of? SkipMove
 
-    return false unless gamestate.board.in_bounds?(move.target_coords)
+    return false unless gamestate.board.in_bounds?(move.to)
 
-    return false if gamestate.board.field_at(move.target_coords).color == move.piece.color
+    return false if gamestate.board.field_at(move.to).color == move.piece.color
 
-    return false unless move.piece.target_coords.include? move.target_coords
+    return false unless move.piece.target_coords.include? move.to
 
     # TODO 2022: Forgot checks?
 

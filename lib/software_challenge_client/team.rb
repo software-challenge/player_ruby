@@ -16,7 +16,7 @@ class Team < TypesafeEnum::Base
 
   # Gibt die zugehörige Farbe zurück
   def to_c
-    if self == :ONE
+    if self.key == :ONE
       Color::RED
     else
       Color::BLUE
