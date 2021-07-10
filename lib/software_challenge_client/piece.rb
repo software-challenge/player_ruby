@@ -2,17 +2,17 @@
 
 # Ein Spielstein mit Ausrichtung, Koordinaten und Farbe
 class Piece
-  # @!attribute [r] Color
+  # @!attribute [rw] Color
   # @return [Color]
-  attr_reader :color
+  attr_accessor :color
 
   # @!attribute [r] Typ des Spielsteins
   # @return [PieceType]
   attr_reader :type
 
-  # @!attribute [r] Koordinaten
+  # @!attribute [rw] Koordinaten
   # @return [Coordinates]
-  attr_reader :position
+  attr_accessor :position
 
   # @!attribute [r] tower_height
   # @return [Integer] Die Anzahl Spielsteine übereinander inklusive des obersten
@@ -24,10 +24,6 @@ class Piece
     @type = type
     @position = position
     @height = height
-  end
-
-  def set_color(color)
-    @color = color
   end
 
   # Berechnet die Koordinaten zu denen sich dieser Spielstein bewegen könnte.
@@ -59,13 +55,9 @@ class Piece
     coords.map{ |x| x + position }.to_a
   end
 
-  def set_position(coords)
-    @position = coords
-  end
-
   def ==(other)
     !other.nil? &&
-    color == other.color &&
+      color == other.color &&
       position == other.position &&
       type == other.type
   end

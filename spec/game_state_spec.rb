@@ -11,14 +11,14 @@ RSpec.describe GameState do
   before do
     board =
       <<~BOARD
-      RC RS RR RC RG RG RR RS 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      BS BR BG BC BR BG BC BS 
+      RC __ __ __ __ __ __ BS 
+      RS __ __ __ __ __ __ BR 
+      RR __ __ __ __ __ __ BG 
+      RC __ __ __ __ __ __ BC 
+      RG __ __ __ __ __ __ BR 
+      RG __ __ __ __ __ __ BG 
+      RR __ __ __ __ __ __ BC 
+      RS __ __ __ __ __ __ BS 
       BOARD
     state_from_string!(board, gamestate)
   end
@@ -41,18 +41,18 @@ RSpec.describe GameState do
   end
 
   it 'performs moves' do
-    expect do
-      move = SkipMove.new
-      gamestate.perform!(move)
-    end.not_to raise_error
+    # expect do
+    #   move = SkipMove.new
+    #   gamestate.perform!(move)
+    # end.not_to raise_error
     expect do
       move = Move.new(
         Piece.new(
-          Team::TWO,
+          Color::RED,
           PieceType::Moewe,
-          Coordinates.new(2, 7)
+          Coordinates.new(0, 4)
         ),
-        Coordinates.new(2, 6)
+        Coordinates.new(1, 4)
       )
       gamestate.perform!(move)
     end.not_to raise_error

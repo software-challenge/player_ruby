@@ -27,6 +27,10 @@ class GameState
   # @return [Player] Der zweite Spieler
   attr_reader :player_two
 
+  # @!attribute [rw] start_team
+  # @return [Team] Der Spieler der zuerst zieht
+  attr_accessor :start_team
+
   # @!attribute [rw] board
   # @return [Board] Das aktuelle Spielbrett
   attr_accessor :board
@@ -89,21 +93,6 @@ class GameState
   # @return [Team] Typ des Spielers, der gerade nicht an der Reihe ist.
   def other_team
     other_player.type
-  end
-
-  # @return [Color] Der jetzige Index in der Zug Reihenfolge der Farben.
-  def current_color_index
-    turn % 2
-  end
-
-  # @return [Color] Farbe, der gerade an der Reihe ist.
-  def current_color
-    Color.find_by_ord(current_color_index)
-  end
-
-  # @return [Color] Farbe des aktuellen Spielers, die gerade nicht an der Reihe ist.
-  def other_color
-    Color.find_by_ord((turn+1)%2)
   end
 
   # @return [Bool] Ob diese gamestate in der ersten Runde ist
@@ -174,6 +163,6 @@ class GameState
 
   # @return [Array<Field>] Alle Felder mit Blöcken des Spielers, der gerade an der Reihe ist.
   def own_fields
-    board.fields_of_color(current_color)
+    board.fields_of_color(current_player.color)
   end
 end

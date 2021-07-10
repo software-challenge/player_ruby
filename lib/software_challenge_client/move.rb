@@ -14,9 +14,9 @@ class Move
   # @return [Coordinates]
   attr_reader :to
 
-  # @!attribute [r] Der Spielstein, der bewegt wird
+  # @!attribute [rw] Der Spielstein, der bewegt wird
   # @return [Piece]
-  attr_reader :piece
+  attr_accessor :piece
 
   # Erstellt ein neuen leeren Legezug.
   def initialize(piece, to)

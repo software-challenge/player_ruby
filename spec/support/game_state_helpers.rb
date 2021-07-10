@@ -37,8 +37,10 @@ module GameStateHelpers
     fields.each do |field|
       board_fields << field_from_descriptor(field.coordinates, field_descriptors[field.y * BOARD_SIZE + field.x])
     end
-    gamestate.turn = 3
+    gamestate.turn = 4
     gamestate.round = 2
+    gamestate.add_player(Player.new(Color::RED, "ONE", 0))
+    gamestate.add_player(Player.new(Color::BLUE, "TWO", 0))
     gamestate.board = Board.new(board_fields)
   end
 end

@@ -11,9 +11,9 @@ class Player
   # @return [Color] erster (Color::RED) oder zweiter (Color::BLUE) Spieler
   attr_reader :color
 
-  # @!attribute [r] amber
+  # @!attribute [rw] amber
   # @return [Integer] Anzahl Bernsteine die dieser Spieler gesammelt hat
-  attr_reader :amber
+  attr_accessor :amber
 
   # Konstruktor
   # @param type [Color] Rot oder blau

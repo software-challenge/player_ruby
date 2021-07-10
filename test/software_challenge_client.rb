@@ -20,11 +20,11 @@ module SoftwareChallengeClient
   require './lib/software_challenge_client/piece_shape.rb'
   require './lib/software_challenge_client/piece_type.rb'
   require './lib/software_challenge_client/player.rb'
-  require './lib/software_challenge_client/team.rb'
   require './lib/software_challenge_client/protocol.rb'
   require './lib/software_challenge_client/rotation.rb'
   require './lib/software_challenge_client/runner.rb'
   require './lib/software_challenge_client/skip_move.rb'
+  require './lib/software_challenge_client/team.rb'
   require './lib/software_challenge_client/util/constants.rb'
   require './lib/software_challenge_client/version.rb'
 end

@@ -115,6 +115,11 @@ RSpec.describe Protocol do
       expect(subject.gamestate.turn).to eq(3)
     end
 
+    it 'sets the players' do
+      expect(subject.gamestate.player_one).to eq(Player.new(Color::RED, "ONE", 1))
+      expect(subject.gamestate.player_two).to eq(Player.new(Color::BLUE, "TWO", 0))
+    end
+
     it 'sets the last move' do
       expect(subject.gamestate.last_move.piece.type).to eq(PieceType::Moewe)
       expect(subject.gamestate.last_move.piece.color).to eq(Color::BLUE)

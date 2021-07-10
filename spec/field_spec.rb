@@ -12,7 +12,7 @@ RSpec.describe Field do
   end
 
   it 'is not empty with a color' do
-    field.piece.set_color(Color::RED)
+    field.piece.color = Color::RED
     expect(field).to_not be_empty
   end
 
@@ -22,7 +22,7 @@ RSpec.describe Field do
   end
 
   it 'is comparable' do
-    field.piece.set_color(Color::RED)
+    field.piece.color = Color::RED
     expect(field).to eq(Field.new(0, 0, Piece.new(Color::RED, PieceType::Herzmuschel)))
   end
 end

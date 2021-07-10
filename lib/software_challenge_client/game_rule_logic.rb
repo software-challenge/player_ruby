@@ -24,7 +24,7 @@ class GameRuleLogic
   def self.possible_moves(gamestate)
     moves = []
     pieces = []
-    if gamestate.current_color == Color::RED
+    if gamestate.current_player.color == Color::RED
       pieces = gamestate.red_pieces
     else
       pieces = gamestate.blue_pieces
@@ -62,7 +62,7 @@ class GameRuleLogic
   #
   # @return ob der Zug zulässig ist
   def self.valid_move?(gamestate, move)
-    return true if move.instance_of? SkipMove
+    return false unless gamestate.current_player.color == move.piece.color
 
     return false unless gamestate.board.in_bounds?(move.to)
 
@@ -116,7 +116,7 @@ class GameRuleLogic
       gamestate.board.add_field(Field.new(move.to.x, move.to.y, move.piece))
 
       if move.piece != nil
-        move.piece.set_position(move.to)
+        move.piece.position = move.to
       end
 
       # TODO 2022: Missed some perform logic?
