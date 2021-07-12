@@ -18,19 +18,20 @@ class Move
   # @return [Piece]
   attr_accessor :piece
 
-  # Erstellt ein neuen leeren Legezug.
-  def initialize(piece, to)
-    @from = piece.position
+  # Erstellt ein neuen Zug.
+  def initialize(from, to, piece = nil)
+    @from = from
     @to = to
     @piece = piece
     @hints = []
   end
 
   def ==(other)
-    piece == other.piece
+    from == other.from &&
+      to == other.to
   end
 
   def to_s
-    "Move(#{piece})"
+    "Move(#{from}->#{to})"
   end
 end

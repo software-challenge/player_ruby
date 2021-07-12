@@ -49,7 +49,7 @@ class GameRuleLogic
   def self.moves_for_piece(gamestate, piece)
     moves = Set[]
     piece.target_coords.each do |c| 
-      moves << Move.new(piece, c)
+      moves << Move.new(piece.position, c, piece)
     end
     moves.select { |m| valid_move?(gamestate, m) }.to_a
   end

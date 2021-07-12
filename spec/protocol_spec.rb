@@ -121,25 +121,24 @@ RSpec.describe Protocol do
     end
 
     it 'sets the last move' do
-      expect(subject.gamestate.last_move.piece.type).to eq(PieceType::Moewe)
-      expect(subject.gamestate.last_move.piece.color).to eq(Color::BLUE)
-      expect(subject.gamestate.last_move.piece.position.y).to eq(2)
+      expect(subject.gamestate.last_move.from.y).to eq(2)
+      expect(subject.gamestate.last_move.to.x).to eq(6)
     end
 
     it 'converts a setmove to xml' do
-      move = Move.new(subject.gamestate.board.field(7,0).piece, Coordinates.new(6,0))
+      move = Move.new(Coordinates.new(7,0), Coordinates.new(6,0), subject.gamestate.board.field(7,0).piece)
       # NOTE that this is brittle because XML formatting (whitespace, attribute
       # order) is arbitrary.
       expect(subject.move_to_xml(move)).to eq <<~XML
-      <Move>
+      <data class="Move">
         <from x="7" y="0"/>
         <to x="6" y="0"/>
-      </Move>
+      </data>
       XML
     end
 
     xit 'updates the last move' do
-      move = Move.new(Piece.new(Color::BLUE, PieceType::Seestern, Coordinates.new(2, 7)), Coordinates.new(2, 6))
+      move = Move.new(Coordinates.new(2, 7), Coordinates.new(2, 6), Piece.new(Color::BLUE, PieceType::Seestern, Coordinates.new(2, 7)))
       expect(subject.gamestate.last_move).to eq(move)
     end
   end
