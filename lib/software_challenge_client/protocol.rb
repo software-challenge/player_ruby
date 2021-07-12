@@ -136,7 +136,7 @@ class Protocol
       @context[:from] = Coordinates.new(attrs['x'].to_i, attrs['y'].to_i)
     when 'to'
       from = @context[:from]
-      @gamestate.last_move = Move.new(@gamestate.field(from.x, from.y).piece, Coordinates.new(attrs['x'].to_i, attrs['y'].to_i))
+      @gamestate.last_move = Move.new(Coordinates.new(from.x, from.y), Coordinates.new(attrs['x'].to_i, attrs['y'].to_i))
     when 'ambers'
       @context[:entry] = :ambers
     when 'winner'
@@ -188,11 +188,11 @@ class Protocol
     # because XML-generation should be decoupled from internal data
     # structures.
 
-    builder.Move do |m|
-      m.from(x: move.from.x, y: move.from.y)
-      m.to(x: move.to.x, y: move.to.y)
+    builder.data(class: 'Move') do |d|
+      d.from(x: move.from.x, y: move.from.y)
+      d.to(x: move.to.x, y: move.to.y)
     end
-
+    
     builder.target!
   end
 end
