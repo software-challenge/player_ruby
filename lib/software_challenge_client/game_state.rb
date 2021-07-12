@@ -54,8 +54,6 @@ class GameState
   def initialize
     @board = Board.new
     @turn = 0
-    @undeployed_blue_pieces = PieceShape.to_a
-    @undeployed_red_pieces = PieceShape.to_a
   end
 
   # Fügt einen Spieler zum Spielzustand hinzu.
