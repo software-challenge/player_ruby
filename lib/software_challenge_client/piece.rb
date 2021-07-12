@@ -30,21 +30,21 @@ class Piece
   #
   # @return [Array<Coordinates>] Die Zielkoordinaten 
   def target_coords
-    ydir = 0
+    xdir = 0
     if color == Color::RED
-      ydir = 1
+      xdir = 1
     else
-      ydir = -1
+      xdir = -1
     end
 
     case type
     when PieceType::Herzmuschel
-      coords = [Coordinates.new(-1,ydir), Coordinates.new(1,ydir)]
+      coords = [Coordinates.new(xdir,-1), Coordinates.new(xdir,1)]
     when PieceType::Moewe
       coords = [Coordinates.new(1,0), Coordinates.new(-1,0), Coordinates.new(0,1), 
         Coordinates.new(0,-1)]
     when PieceType::Seestern
-      coords = [Coordinates.new(0,ydir), Coordinates.new(1,1), Coordinates.new(-1,1), 
+      coords = [Coordinates.new(xdir,0), Coordinates.new(1,1), Coordinates.new(-1,1), 
         Coordinates.new(1,-1), Coordinates.new(-1,-1)]
     when PieceType::Robbe
       coords = [Coordinates.new(-1,2), Coordinates.new(1,2), Coordinates.new(-2,1), 
