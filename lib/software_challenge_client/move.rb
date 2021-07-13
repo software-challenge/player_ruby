@@ -31,6 +31,7 @@ class Move
       to == other.to
   end
 
+  # @return [String] Gibt die String-Repräsentation zurück
   def to_s
     "Move(#{from}->#{to})"
   end

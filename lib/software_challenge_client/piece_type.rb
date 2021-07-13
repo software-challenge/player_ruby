@@ -9,7 +9,7 @@ class PieceType < TypesafeEnum::Base
   new :Seestern, 'S'
   new :Robbe, 'R'
 
-  # Gibt den color namen zurück
+  # @return [String] Gibt den color namen zurück
   def to_s
     self.key.to_s
   end

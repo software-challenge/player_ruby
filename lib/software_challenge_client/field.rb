@@ -7,6 +7,7 @@ class Field
   # @!attribute [r] coordinates
   # @return [Coordinates] die X-Y-Koordinaten des Feldes
   attr_reader :coordinates
+
   # @!attribute [r] piece
   # @return [Piece] das Piece auf diesem Feld, falls vorhanden, sonst nil
   attr_reader :piece
@@ -28,14 +29,17 @@ class Field
     !other.nil? && coordinates == other.coordinates && piece == other.piece
   end
 
+  # @return [Integer] X-Koordinate des Felds
   def x
     coordinates.x
   end
 
+  # @return [Integer] Y-Koordinate des Felds
   def y
     coordinates.y
   end
 
+  # @return [Team] Team des Pieces auf dem Feld
   def team
     if piece.nil?
       nil
@@ -44,6 +48,7 @@ class Field
     end
   end
 
+  # @return [PieceColor] Farbe des Pieces auf dem Feld
   def color
     if piece.nil?
       nil
