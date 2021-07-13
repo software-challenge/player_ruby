@@ -62,10 +62,12 @@ class Piece
       type == other.type
   end
 
+  # @return [String] Gibt die String-Repräsentation zurück
   def to_s
     "#{color.key} #{type.key} at #{position}"
   end
 
+  # @return [String] Gibt eine Kurzfassung der String-Repräsentation zurück
   def to_ss
     "#{color.key.to_s[0]}#{type.key.to_s[0]}"
   end
