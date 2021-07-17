@@ -8,9 +8,9 @@ class Field
   # @return [Coordinates] die X-Y-Koordinaten des Feldes
   attr_reader :coordinates
 
-  # @!attribute [r] piece
+  # @!attribute [rw] piece
   # @return [Piece] das Piece auf diesem Feld, falls vorhanden, sonst nil
-  attr_reader :piece
+  attr_accessor :piece
 
   # Erstellt ein neues leeres Feld.
   #

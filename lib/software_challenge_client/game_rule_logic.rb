@@ -79,7 +79,7 @@ class GameRuleLogic
   # @param board [Board] Das aktuelle Spielbrett
   # @param position [Coordinates] Die zu überprüfenden Koordinaten
   def self.obstructed?(board, position)
-    !board[position].color.nil?
+    !board.field_at(position).empty?
   end
 
   # --- Perform Move ------------------------------------------------------------
@@ -106,16 +106,15 @@ class GameRuleLogic
         # Check for high tower
         if move.piece.tower_height >= 3
           gamestate.current_player.amber++
-          gamestate.board[move.to] = nil
+          gamestate.board.field_at(move.to).piece = nil
           move.piece = nil
         end
       end
       
       # Update board fields
-      gamestate.board.add_field(Field.new(move.piece.position.x, move.piece.position.y, nil))
-      gamestate.board.add_field(Field.new(move.to.x, move.to.y, move.piece))
-
+      gamestate.board.field_at(move.from).piece = nil
       if move.piece != nil
+        gamestate.board.field_at(move.to).piece = move.piece
         move.piece.position = move.to
       end
 
@@ -123,7 +122,6 @@ class GameRuleLogic
     end
 
     gamestate.turn += 1
-    gamestate.round += 1
     gamestate.last_move = move
   end
 
