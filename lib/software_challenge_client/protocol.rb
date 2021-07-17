@@ -96,7 +96,7 @@ class Protocol
     when 'data'
       logger.debug "data(class) : #{attrs['class']}"
       @context[:data_class] = attrs['class']
-      if attrs['class'] == 'sc.framework.plugins.protocol.MoveRequest'
+      if attrs['class'] == 'moveRequest'
         @client.gamestate = gamestate
         move = @client.move_requested
         sendString(move_to_xml(move))
@@ -188,7 +188,7 @@ class Protocol
     # because XML-generation should be decoupled from internal data
     # structures.
 
-    builder.data(class: 'Move') do |d|
+    builder.data(class: 'move') do |d|
       d.from(x: move.from.x, y: move.from.y)
       d.to(x: move.to.x, y: move.to.y)
     end
