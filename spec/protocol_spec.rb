@@ -130,7 +130,7 @@ RSpec.describe Protocol do
       # NOTE that this is brittle because XML formatting (whitespace, attribute
       # order) is arbitrary.
       expect(subject.move_to_xml(move)).to eq <<~XML
-      <data class="Move">
+      <data class="move">
         <from x="7" y="0"/>
         <to x="6" y="0"/>
       </data>
