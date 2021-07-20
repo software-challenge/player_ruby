@@ -10,3 +10,6 @@
 /bin/
 /vendor
 /spec/examples.txt
+/test/
+*.gem
+test/client.rb
