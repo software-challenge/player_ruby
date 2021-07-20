@@ -4,6 +4,7 @@ require_relative './util/constants'
 require_relative 'player'
 require_relative 'board'
 require_relative 'condition'
+require_relative 'color'
 
 # Ein Spielzustand. Wird vom Server an die Computerspieler übermittelt und
 # enthält alles, was der Computerspieler wissen muss, um einen Zug zu machen.
@@ -66,16 +67,6 @@ class GameState
     when Color::BLUE
       @player_two = player
     end
-  end
-
-  # @return [Array<Piece>] Die aktiven roten Spielsteine
-  def red_pieces
-    board.red_pieces
-  end
-
-  # @return [Array<Piece>] Die aktiven blauen Spielsteine
-  def blue_pieces
-    board.blue_pieces
   end
 
   # @return [Player] Spieler, der gerade an der Reihe ist.

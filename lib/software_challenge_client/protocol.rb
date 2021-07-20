@@ -183,6 +183,10 @@ class Protocol
   def move_to_xml(move)
     builder = Builder::XmlMarkup.new(indent: 2)
 
+    if move.nil?
+      raise 'nil moves are not sendable!'
+    end
+
     # Converting every the move here instead of requiring the Move
     # class interface to supply a method which returns the XML
     # because XML-generation should be decoupled from internal data

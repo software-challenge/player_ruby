@@ -126,7 +126,7 @@ RSpec.describe Protocol do
     end
 
     it 'converts a setmove to xml' do
-      move = Move.new(Coordinates.new(7,0), Coordinates.new(6,0), subject.gamestate.board.field(7,0).piece)
+      move = Move.new(Coordinates.new(7,0), Coordinates.new(6,0))
       # NOTE that this is brittle because XML formatting (whitespace, attribute
       # order) is arbitrary.
       expect(subject.move_to_xml(move)).to eq <<~XML
@@ -254,7 +254,6 @@ RSpec.describe Protocol do
       board = subject.gamestate.board
       expect(board.field(0, 3)).to eq(Field.new(0, 3, Piece.new(Color::RED, PieceType::Herzmuschel, Coordinates.new(0, 3))))
       expect(board.field(7, 6)).to eq(Field.new(7, 6, Piece.new(Color::BLUE, PieceType::Robbe, Coordinates.new(7, 6))))
-      expect(board.red_pieces).not_to be_empty
     end
   end
 end

@@ -24,18 +24,13 @@ class GameRuleLogic
   # @return [Array<Move>] Die möglichen Moves
   def self.possible_moves(gamestate)
     moves = []
-    pieces = []
-    if gamestate.current_player.color == Color::RED
-      pieces = gamestate.red_pieces
-    else
-      pieces = gamestate.blue_pieces
+    fields = gamestate.board.fields_of_color(gamestate.current_player.color)
+
+    fields.each do |f|
+      moves.push(*moves_for_piece(gamestate, f.piece))
     end
 
-    pieces.each do |p|
-      moves.push(*moves_for_piece(gamestate, p))
-    end
-
-    moves
+    moves.select { |m| valid_move?(gamestate, m) }.to_a
   end
 
   # Gibt einen zufälligen möglichen Zug zurück
@@ -54,7 +49,7 @@ class GameRuleLogic
   def self.moves_for_piece(gamestate, piece)
     moves = Set[]
     piece.target_coords.each do |c| 
-      moves << Move.new(piece.position, c, piece)
+      moves << Move.new(piece.position, c)
     end
     moves.select { |m| valid_move?(gamestate, m) }.to_a
   end
@@ -67,13 +62,13 @@ class GameRuleLogic
   #
   # @return ob der Zug zulässig ist
   def self.valid_move?(gamestate, move)
-    return false unless gamestate.current_player.color == move.piece.color
+    return false unless gamestate.current_player.color == move.piece(gamestate).color
 
     return false unless gamestate.board.in_bounds?(move.to)
 
-    return false if gamestate.board.field_at(move.to).color == move.piece.color
+    return false if gamestate.board.field_at(move.to).color == move.piece(gamestate).color
 
-    return false unless move.piece.target_coords.include? move.to
+    return false unless move.piece(gamestate).target_coords.include? move.to
 
     # TODO 2022: Forgot checks?
 
@@ -99,36 +94,23 @@ class GameRuleLogic
   def self.perform_move(gamestate, move)
     raise 'Invalid move!' unless valid_move?(gamestate, move)
 
-    if move.instance_of? Move
-      target_field = gamestate.board[move.to]
+    from_field = gamestate.board.field_at(move.from)
+    to_field = gamestate.board.field_at(move.to)
 
-      # Update board pieces if one is stepped on
-      if not target_field.empty?
-        if target_field.piece.color == COLOR::BLUE
-          gamestate.board.red_pieces.remove(target_field.piece)
-        else
-          gamestate.board.blue_pieces.remove(target_field.piece)
-        end
+    # Update board pieces if one is stepped on
+    if not to_field.empty?
+      from_field.piece.height = from_field.piece.height + 1
 
-        move.piece.tower_height++
-
-        # Check for high tower
-        if move.piece.tower_height >= 3
-          gamestate.current_player.amber++
-          gamestate.board.field_at(move.to).piece = nil
-          move.piece = nil
-        end
+      # Check for high tower
+      if from_field.piece.height >= 3
+        gamestate.current_player.amber = gamestate.current_player.amber + 1
+        to_field.piece = nil
       end
-      
-      # Update board fields
-      gamestate.board.field_at(move.from).piece = nil
-      if move.piece != nil
-        gamestate.board.field_at(move.to).piece = move.piece
-        move.piece.position = move.to
-      end
-
-      # TODO 2022: Missed some perform logic?
     end
+    
+    # Update board fields
+    to_field.piece = from_field.piece
+    from_field.piece = nil
 
     gamestate.turn += 1
     gamestate.last_move = move

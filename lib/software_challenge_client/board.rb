@@ -8,24 +8,15 @@ require_relative 'field'
 # Ein Spielbrett fuer Ostseeschach 
 class Board
   include Constants
+
   # @!attribute [r] fields
   # @note Besser über die {#field} Methode auf Felder zugreifen.
   # @return [Array<Array<Field>>] Ein Feld wird an der Position entsprechend
   #   seiner x und y Coordinates im Array gespeichert.
   attr_reader :fields
 
-  # @!attribute [r] deployed_blue_pieces
-  # @return [Array<Piece>] Die blauen, gesetzten Spielsteine
-  attr_accessor :blue_pieces
-
-  # @!attribute [r] deployed_red_pieces
-  # @return [Array<Piece>] Die roten, gesetzten Spielsteine
-  attr_accessor :red_pieces
-
   # Erstellt ein neues leeres Spielbrett.
   def initialize(fields = [])
-    @blue_pieces = []
-    @red_pieces = []
     @fields = Board.empty_game_field
     fields.each { |f| add_field(f) }
   end
@@ -61,14 +52,6 @@ class Board
   # @param field [Field] Das einzufügende Feld.
   def add_field(field)
     @fields[field.x][field.y] = field
-
-    if !field.piece.nil?
-      if field.color == Color::RED
-        @red_pieces << field.piece
-      else 
-        @blue_pieces << field.piece
-      end
-    end
   end
 
   # Zugriff auf die Felder des Spielfeldes
@@ -112,17 +95,6 @@ class Board
   # @return [Boolean] Ob die gegebenen Koordinaten auf dem Board liegen oder nicht
   def in_bounds?(it)
     it.x >= 0 && it.y >= 0 && it.x < BOARD_SIZE && it.y < BOARD_SIZE
-  end
-
-  # @param color [Color] Die Farbe der Steine
-  # @return [Array<PieceShape>] Eine Liste aller Steintypen, die die gegebene Farbe gespielt hat
-  def deployed_pieces(color)
-    case color
-    when Color::RED
-      red_pieces
-    when Color::BLUE
-      blue_pieces
-    end
   end
 
   # @return eine unabhaengige Kopie des Spielbretts

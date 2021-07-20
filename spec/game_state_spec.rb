@@ -48,12 +48,7 @@ RSpec.describe GameState do
     expect do
       move = Move.new(
         Coordinates.new(0, 4),
-        Coordinates.new(1, 4),
-        Piece.new(
-          Color::RED,
-          PieceType::Moewe,
-          Coordinates.new(0, 4)
-        )
+        Coordinates.new(1, 4)
       )
       gamestate.perform!(move)
     end.not_to raise_error

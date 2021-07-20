@@ -14,16 +14,19 @@ class Move
   # @return [Coordinates]
   attr_reader :to
 
-  # @!attribute [rw] Der Spielstein, der bewegt wird
-  # @return [Piece]
-  attr_accessor :piece
-
   # Erstellt ein neuen Zug.
-  def initialize(from, to, piece = nil)
+  def initialize(from, to)
     @from = from
     @to = to
-    @piece = piece
     @hints = []
+  end
+
+  def piece(gamestate)
+    gamestate.board.field_at(from).piece
+  end
+
+  def piece_t(gamestate)
+    gamestate.board.field_at(to).piece
   end
 
   def ==(other)
