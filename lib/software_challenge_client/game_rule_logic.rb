@@ -19,8 +19,9 @@ class GameRuleLogic
 
   # Gibt alle möglichen Züge für den Spieler zurück, der in der gamestate dran ist.
   # Diese ist die wichtigste Methode dieser Klasse für Schüler.
-  #
   # @param gamestate [GameState] Der zu untersuchende Spielstand.
+  #
+  # @return [Array<Move>] Die möglichen Moves
   def self.possible_moves(gamestate)
     moves = []
     pieces = []
@@ -39,6 +40,8 @@ class GameRuleLogic
 
   # Gibt einen zufälligen möglichen Zug zurück
   # @param gamestate [GameState] Der zu untersuchende Spielstand.
+  #
+  # @return [Move] Ein möglicher Move
   def self.possible_move(gamestate)
     possible_moves(gamestate).sample
   end
@@ -46,6 +49,8 @@ class GameRuleLogic
   # Hilfsmethode um Legezüge für einen [Piece] zu berechnen.
   # @param gamestate [GameState] Der zu untersuchende Spielstand.
   # @param piece [Piece] Der Typ des Spielsteines
+  #
+  # @return [Array<Move>] Die möglichen Moves
   def self.moves_for_piece(gamestate, piece)
     moves = Set[]
     piece.target_coords.each do |c| 
@@ -75,9 +80,11 @@ class GameRuleLogic
     true
   end
 
-  # Überprüft, ob die gegebene [position] schon mit einer Farbe belegt wurde.
+  # Überprüft, ob die gegebene [position] mit einem Spielstein belegt ist.
   # @param board [Board] Das aktuelle Spielbrett
   # @param position [Coordinates] Die zu überprüfenden Koordinaten
+  #
+  # @return [Boolean] Ob die position belegt wurde
   def self.obstructed?(board, position)
     !board.field_at(position).empty?
   end
@@ -87,6 +94,8 @@ class GameRuleLogic
   # Führe den gegebenen [Move] im gebenenen [GameState] aus.
   # @param gamestate [GameState] der aktuelle Spielstand
   # @param move der auszuführende Zug
+  #
+  # @return [GameState] Der theoretische GameState
   def self.perform_move(gamestate, move)
     raise 'Invalid move!' unless valid_move?(gamestate, move)
 
@@ -129,6 +138,7 @@ class GameRuleLogic
 
   # Prueft, ob ein Spieler im gegebenen GameState gewonnen hat.
   # @param gamestate [GameState] Der zu untersuchende GameState.
+  #
   # @return [Condition] nil, if the game is not won or a Condition indicating the winning player
   def self.winning_condition(gamestate)
     if gamestate.player_one.amber >= 2
