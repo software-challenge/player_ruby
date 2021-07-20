@@ -137,8 +137,8 @@ RSpec.describe Protocol do
       XML
     end
 
-    xit 'updates the last move' do
-      move = Move.new(Coordinates.new(2, 7), Coordinates.new(2, 6), Piece.new(Color::BLUE, PieceType::Seestern, Coordinates.new(2, 7)))
+    it 'updates the last move' do
+      move = Move.new(Coordinates.new(7, 2), Coordinates.new(6, 2))
       expect(subject.gamestate.last_move).to eq(move)
     end
   end

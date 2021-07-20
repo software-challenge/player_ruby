@@ -44,6 +44,4 @@ RSpec.describe GameStateHelpers do
       state_from_string!(board, gamestate)
     end.to raise_error(GameStateHelpers::BoardFormatError)
   end
-
-  it 'updates undeployed pieces'
 end
