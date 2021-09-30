@@ -97,6 +97,7 @@ class Protocol
       # logger.debug "data(class) : #{attrs['class']}"
       @context[:data_class] = attrs['class']
       if attrs['class'] == 'moveRequest'
+        gamestate.board.update_cover
         @client.gamestate = gamestate
         move = @client.move_requested
         sendString(move_to_xml(move))

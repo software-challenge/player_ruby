@@ -12,6 +12,7 @@ class Field
   # @return [Piece] das Piece auf diesem Feld, falls vorhanden, sonst nil
   attr_accessor :piece
 
+  attr_accessor :covered_by
   # Erstellt ein neues leeres Feld.
   #
   # @param x [Integer] X-Koordinate
@@ -20,6 +21,7 @@ class Field
   def initialize(x, y, piece = nil)
     @piece = piece
     @coordinates = Coordinates.new(x, y)
+    @covered = {Color::RED => 0,Color::BLUE => 0}
   end
 
   # Vergleicht zwei Felder. Felder sind gleich, wenn sie gleiche Koordinaten und
@@ -62,6 +64,15 @@ class Field
     piece.nil?
   end
 
+  # @return [Integer] Anzahl der Figuren der Farbe color, die dieses Feld decken
+  def covered(color)
+    return @covered[color]
+  end
+
+  def add_covered(color, value=1)
+    @covered[color]+=value
+  end
+  
   # @return [String] Textuelle Darstellung des Feldes.
   def to_s
     empty? ? '__' : piece.to_ss

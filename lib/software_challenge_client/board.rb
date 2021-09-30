@@ -21,6 +21,18 @@ class Board
     fields.each { |f| add_field(f) }
   end
 
+  def update_cover
+    fields_of_color(Color::RED).each do |field|
+      field.piece.target_coords.each do |coord|
+        field(coord).add_covered(Color::RED)
+      end
+    end
+    fields_of_color(Color::BLUE).each do |field|
+      field.piece.target_coords.each do |coord|
+        field(coord).add_covered(Color::BLUE)
+      end
+    end
+  end
   # @return [Array] leere Felder entsprechend des Spielbrettes angeordnet
   def self.empty_game_field
     (0...BOARD_SIZE).to_a.map do |x|
