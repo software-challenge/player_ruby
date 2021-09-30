@@ -118,7 +118,7 @@ class GameState
   # Ermittelt die Punkte eines Spielers. Wenn das Spiel durch Erreichen des
   # Rundenlimits beendet wird, hat der Spieler mit den meisten Punkten gewonnen.
   #
-  # @param player [Player] Der Spieler, dessen Punkte berechnet werden sollen.
+  # @param _player [Player] Der Spieler, dessen Punkte berechnet werden sollen.
   # @return [Integer] Die Punkte des Spielers
   def points_for_player(_player)
     # TODO

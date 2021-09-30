@@ -16,7 +16,7 @@ class Player
   attr_accessor :amber
 
   # Konstruktor
-  # @param type [Color] Rot oder blau
+  # @param color [Color] Rot oder blau
   # @param name [String] Name
   # @param amber [Integer] Menge des Bernsteins die der Spieler hat
   def initialize(color, name, amber = 0)

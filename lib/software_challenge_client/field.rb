@@ -12,12 +12,10 @@ class Field
   # @return [Piece] das Piece auf diesem Feld, falls vorhanden, sonst nil
   attr_accessor :piece
 
-  attr_accessor :covered_by
   # Erstellt ein neues leeres Feld.
   #
   # @param x [Integer] X-Koordinate
   # @param y [Integer] Y-Koordinate
-  # @param color [Color] Farbe des Spielsteins, der das Feld überdeckt, nil falls kein Spielstein es überdeckt
   def initialize(x, y, piece = nil)
     @piece = piece
     @coordinates = Coordinates.new(x, y)
