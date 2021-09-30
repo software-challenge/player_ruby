@@ -25,7 +25,8 @@ class Board
     [Color::RED,Color::BLUE].each do |color|
       fields_of_color(color).each do |field|
         field.piece.target_coords.each do |coord|
-          field(coord).add_covered(color)
+          target_field = field_at(coord)
+          target_field.add_covered(color) unless target_field.nil?
         end
       end
     end
@@ -97,7 +98,7 @@ class Board
         end
       end
     end
-
+    
     fields
   end
 
@@ -124,6 +125,16 @@ class Board
       (0...BOARD_SIZE).to_a.map do |y|
         (0...BOARD_SIZE).to_a.map do |x|
           @fields[x][y].to_s
+        end.join(' ')
+      end.join("\n")
+  end
+
+   # Gibt eine ausführliche textuelle Repräsentation des Spielbrettes aus.
+   def to_ls
+    "\n" +
+      (0...BOARD_SIZE).to_a.map do |y|
+        (0...BOARD_SIZE).to_a.map do |x|
+          @fields[x][y].to_ls
         end.join(' ')
       end.join("\n")
   end

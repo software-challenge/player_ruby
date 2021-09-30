@@ -77,4 +77,10 @@ class Field
   def to_s
     empty? ? '__' : piece.to_ss
   end
+
+  # @return [String] Textuelle Darstellung des Feldes mit Deckung.
+  def to_ls
+    to_s + "[" + covered(Color::RED).to_s + "|" + covered(Color::BLUE).to_s + "]"
+  end
+
 end
