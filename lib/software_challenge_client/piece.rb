@@ -2,6 +2,8 @@
 
 # Ein Spielstein mit Ausrichtung, Koordinaten und Farbe
 class Piece
+  include Constants
+  
   # @!attribute [rw] Color
   # @return [Color]
   attr_accessor :color
@@ -53,6 +55,7 @@ class Piece
     end
 
     coords.map{ |x| x + position }.to_a
+    coords.map{ |x| x + position }.select{ |c| c.x >= 0 && c.y >=0 && c.x < BOARD_SIZE && c.y < BOARD_SIZE}.to_a
   end
 
   def ==(other)
