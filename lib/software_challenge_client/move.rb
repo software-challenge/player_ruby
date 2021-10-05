@@ -14,8 +14,8 @@ class Move
   # @return [Coordinates]
   attr_reader :to
 
-  # @!attribute [r] 
-  # @return [Integer] Bewertung des Zuges
+  # @!attribute [r] Bewertung des Zuges
+  # @return [Integer]
   attr_reader :value
 
   # Erstellt ein neuen Zug.
