@@ -14,11 +14,16 @@ class Move
   # @return [Coordinates]
   attr_reader :to
 
+  # @!attribute [r] 
+  # @return [Integer] Bewertung des Zuges
+  attr_reader :value
+
   # Erstellt ein neuen Zug.
   def initialize(from, to)
     @from = from
     @to = to
     @hints = []
+    @value = 1.0
   end
 
   def piece(gamestate)
@@ -34,8 +39,30 @@ class Move
       to == other.to
   end
 
+  def <=>(other)
+    value <=> other.value
+  end
+  
+
+  # set value to 0, Move should be rejected whenever possible
+  def reject
+    @value = 0.0
+  end
+
+  # set value to Infinity, Move should be selected whenever possible
+  def select
+    @value = Float::INFINITY
+  end
+
+  # multiply value by number, number > 1 increase,
+  # number < 0 decrease preference for this Move
+  def multiply_by(number)
+    @value = @value * number
+    self
+  end
+
   # @return [String] Gibt die String-Repräsentation zurück
   def to_s
-    "Move(#{from}->#{to})"
+    "Move(#{from}->#{to}|#{value})"
   end
 end
