@@ -14,12 +14,12 @@ class Piece
   # @return [Coordinates]
   attr_accessor :position
 
-  # @!attribute [rw] tower_height
+  # @!attribute [rw] height
   # @return [Integer] Die Anzahl Spielsteine übereinander inklusive des obersten
   attr_accessor :height
 
   # Erstellt einen neuen Spielstein.
-  def initialize(color, type, position = Coordinates.origin, height = 0)
+  def initialize(color, type, position = Coordinates.origin, height = 1)
     @color = color
     @type = type
     @position = position
