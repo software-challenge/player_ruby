@@ -16,10 +16,10 @@ class Field
   #
   # @param x [Integer] X-Koordinate
   # @param y [Integer] Y-Koordinate
-  # @param color [Color] Farbe des Spielsteins, der das Feld überdeckt, nil falls kein Spielstein es überdeckt
   def initialize(x, y, piece = nil)
     @piece = piece
     @coordinates = Coordinates.new(x, y)
+    @covered = {Color::RED => 0,Color::BLUE => 0}
   end
 
   # Vergleicht zwei Felder. Felder sind gleich, wenn sie gleiche Koordinaten und
@@ -62,8 +62,23 @@ class Field
     piece.nil?
   end
 
+  # @return [Integer] Anzahl der Figuren der Farbe color, die dieses Feld decken
+  def covered(color)
+    return @covered[color]
+  end
+
+  def add_covered(color, value=1)
+    @covered[color]+=value
+  end
+  
   # @return [String] Textuelle Darstellung des Feldes.
   def to_s
     empty? ? '__' : piece.to_ss
   end
+
+  # @return [String] Textuelle Darstellung des Feldes mit Deckung.
+  def to_ls
+    to_s + "[" + covered(Color::RED).to_s + "|" + covered(Color::BLUE).to_s + "]"
+  end
+
 end

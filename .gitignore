@@ -3,11 +3,11 @@
 /Gemfile.lock
 /_yardoc/
 /coverage/
-/doc/
 /pkg/
 /spec/reports/
 /tmp/
 /bin/
+/doc/
 /vendor
 /spec/examples.txt
 /test/

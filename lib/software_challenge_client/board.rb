@@ -21,6 +21,17 @@ class Board
     fields.each { |f| add_field(f) }
   end
 
+  def update_cover
+    [Color::RED,Color::BLUE].each do |color|
+      fields_of_color(color).each do |field|
+        field.piece.target_coords.each do |coord|
+          target_field = field_at(coord)
+          target_field.add_covered(color) unless target_field.nil?
+        end
+      end
+    end
+  end
+
   # @return [Array] leere Felder entsprechend des Spielbrettes angeordnet
   def self.empty_game_field
     (0...BOARD_SIZE).to_a.map do |x|
@@ -87,7 +98,7 @@ class Board
         end
       end
     end
-
+    
     fields
   end
 
@@ -114,6 +125,16 @@ class Board
       (0...BOARD_SIZE).to_a.map do |y|
         (0...BOARD_SIZE).to_a.map do |x|
           @fields[x][y].to_s
+        end.join(' ')
+      end.join("\n")
+  end
+
+   # Gibt eine ausführliche textuelle Repräsentation des Spielbrettes aus.
+   def to_ls
+    "\n" +
+      (0...BOARD_SIZE).to_a.map do |y|
+        (0...BOARD_SIZE).to_a.map do |x|
+          @fields[x][y].to_ls
         end.join(' ')
       end.join("\n")
   end

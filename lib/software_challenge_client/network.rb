@@ -82,7 +82,7 @@ class Network
       @receive_buffer = @receive_buffer.gsub('<protocol>', '')
       @receive_buffer = @receive_buffer.gsub('</protocol>', '')
 
-      logger.debug "Received XML from server: #{@receive_buffer}"
+      # logger.debug "Received XML from server: #{@receive_buffer}"
 
       # Process text
       @protocol.process_string(@receive_buffer)
@@ -113,7 +113,7 @@ class Network
   # @param s [String] the message, to be sent
   def sendString(s)
     return unless @connected
-    logger.debug "Sending: #{s}"
+    # logger.debug "Sending: #{s}"
     @socket.print(s)
   end
 

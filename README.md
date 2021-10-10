@@ -34,7 +34,7 @@ Oder installiere das Gem ohne ein Gemfile mit:
 
 ## Verwendung
 
-Ein Beispielprojekt zur Verwendung der Bibliothek findet man im Verzeichnis `example` ([Beipspielprojekt auf GitHub](https://github.com/CAU-Kiel-Tech-Inf/socha_ruby_client/tree/master/example)).
+Ein Beispielprojekt zur Verwendung der Bibliothek findet man im Verzeichnis `example` ([Beispielprojekt auf GitHub](https://github.com/CAU-Kiel-Tech-Inf/socha_ruby_client/tree/master/example)).
 
 Du kannst den Beispielclient mittels
 

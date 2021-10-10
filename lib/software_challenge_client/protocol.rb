@@ -60,7 +60,7 @@ class Protocol
   def tag_end(name)
     case name
     when 'board'
-      logger.debug @gamestate.board.to_s
+      # logger.debug @gamestate.board.to_s
     when 'startTeam'
       @gamestate.add_player(Player.new(Color::RED, "ONE", 0))
       @gamestate.add_player(Player.new(Color::BLUE, "TWO", 0))
@@ -73,10 +73,10 @@ class Protocol
       @context[:team] = @context[:last_text]
     when 'int'
       if @context[:team] == "ONE"
-        logger.info 'Got player one amber'
+        # logger.info 'Got player one amber'
         @gamestate.player_one.amber = @context[:last_text].to_i
       else
-        logger.info 'Got player two amber'
+        # logger.info 'Got player two amber'
         @gamestate.player_two.amber = @context[:last_text].to_i
       end
     end
@@ -92,11 +92,12 @@ class Protocol
     case name
     when 'room'
       @roomId = attrs['roomId']
-      logger.info 'roomId : ' + @roomId
+      # logger.info 'roomId : ' + @roomId
     when 'data'
-      logger.debug "data(class) : #{attrs['class']}"
+      # logger.debug "data(class) : #{attrs['class']}"
       @context[:data_class] = attrs['class']
       if attrs['class'] == 'moveRequest'
+        gamestate.board.update_cover
         @client.gamestate = gamestate
         move = @client.move_requested
         sendString(move_to_xml(move))
@@ -111,13 +112,13 @@ class Protocol
         @gamestate.condition = Condition.new(nil, '')
       end
     when 'state'
-      logger.debug 'new gamestate'
+      # logger.debug 'new gamestate'
       @gamestate = GameState.new
       @gamestate.turn = attrs['turn'].to_i
       @gamestate.round = @gamestate.turn / 2
       logger.debug "Round: #{@gamestate.round}, Turn: #{@gamestate.turn}"
     when 'board'
-      logger.debug 'new board'
+      # logger.debug 'new board'
       @gamestate.board = Board.new()
     when 'pieces'
       @context[:entry] = :pieces
