@@ -1,3 +1,11 @@
+= 22.1.0
+
+Fix gamestate.round
+
+= 22.0.3
+
+First tagged Version for Osteseeschach
+
 = 21.2.0
 
 Adjustments for Backend version 21.2.0

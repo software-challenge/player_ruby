@@ -16,10 +16,6 @@ class GameState
   # @return [Integer] Aktuelle Zugnummer (von 0 beginnend)
   attr_accessor :turn
 
-  # @!attribute [rw] round
-  # @return [Integer] Aktuelle Rundennummer (von 1 beginnend)
-  attr_accessor :round
-
   # @!attribute [r] player_one
   # @return [Player] Der erste Spieler
   attr_reader :player_one
@@ -82,6 +78,11 @@ class GameState
   # @return [Team] Typ des Spielers, der gerade nicht an der Reihe ist.
   def other_team
     other_player.type
+  end
+
+  # @return [Integer] Aktuelle Rundennummer (von 1 beginnend)
+  def round
+    turn / 2 + 1
   end
 
   # @return [Bool] Ob diese gamestate in der ersten Runde ist

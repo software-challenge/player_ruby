@@ -114,7 +114,6 @@ class Protocol
       logger.debug 'new gamestate'
       @gamestate = GameState.new
       @gamestate.turn = attrs['turn'].to_i
-      @gamestate.round = @gamestate.turn / 2
       logger.debug "Round: #{@gamestate.round}, Turn: #{@gamestate.turn}"
     when 'board'
       logger.debug 'new board'
