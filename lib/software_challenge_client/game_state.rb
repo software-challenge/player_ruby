@@ -146,11 +146,6 @@ class GameState
     Marshal.load(Marshal.dump(self))
   end
 
-  # Wechselt den Spieler, der aktuell an der Reihe ist.
-  def switch_current_player
-    @current_player_color = other_player_color
-  end
-
   # @return [Array<Field>] Alle Felder mit Blöcken des Spielers, der gerade an der Reihe ist.
   def own_fields
     board.fields_of_color(current_player.color)
