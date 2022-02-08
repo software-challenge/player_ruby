@@ -112,6 +112,11 @@ class GameRuleLogic
     to_field.piece = from_field.piece
     from_field.piece = nil
 
+    # Update position value of the moved piece
+    if !to_field.empty? && !to_field.piece.nil?
+      to_field.piece.position = Coordinates.new(to_field.coordinates.x, to_field.coordinates.y)
+    end
+
     gamestate.turn += 1
     gamestate.last_move = move
   end
