@@ -12,13 +12,18 @@ class Field
   # @return [Piece] das Piece auf diesem Feld, falls vorhanden, sonst nil
   attr_accessor :piece
 
+  # @!attribute [rw] fishes
+  # @return [Integer] die Menge an Fischen auf dem Feld
+  attr_accessor :fishes
+
   # Erstellt ein neues leeres Feld.
   #
   # @param x [Integer] X-Koordinate
   # @param y [Integer] Y-Koordinate
   # @param color [Color] Farbe des Spielsteins, der das Feld überdeckt, nil falls kein Spielstein es überdeckt
-  def initialize(x, y, piece = nil)
+  def initialize(x, y, piece = nil, fishes = 0)
     @piece = piece
+    @fishes = fishes
     @coordinates = Coordinates.new(x, y)
   end
 
@@ -45,15 +50,6 @@ class Field
       nil
     else
       piece.color.to_t
-    end
-  end
-
-  # @return [PieceColor] Farbe des Pieces auf dem Feld
-  def color
-    if piece.nil?
-      nil
-    else
-      piece.color
     end
   end
 
