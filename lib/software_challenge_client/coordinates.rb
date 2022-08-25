@@ -4,11 +4,16 @@
 class Coordinates
   include Comparable
   attr_reader :x, :y
+  attr_reader :d_x, :d_y
 
   # Erstellt neue leere Koordinaten.
   def initialize(x, y)
     @x = x
     @y = y
+
+    c = Coordinates.oddr_to_doubled(x, y)
+    @d_x = c.x
+    @d_y = c.y
   end
 
   def ==(other)
@@ -18,6 +23,14 @@ class Coordinates
   # Gibt die Ursprungs-Koordinaten (0, 0) zurück.
   def self.origin
     Coordinates.new(0, 0)
+  end
+
+  def self.oddr_to_doubled(c)
+    Coordinates.new(c.x * 2 + (c.y % 2 == 1 ? 1 : 0), c.y)
+  end
+
+  def self.doubled_to_oddr(c)
+    Coordinates.new(c.x / 2 - (c.y % 2 == 1 ? 1 : 0), c.y)
   end
 
   def <=>(other)
