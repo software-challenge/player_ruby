@@ -23,6 +23,32 @@ class GameRuleLogic
   #
   # @return [Array<Move>] Die möglichen Moves
   def self.possible_moves(gamestate)
+    if gamestate.turn < 8
+      self.possible_setmoves(gamestate)
+    else
+      self.possible_normalmoves(gamestate)
+    end
+  end
+
+  # Gibt alle möglichen Lege-Züge für den Spieler zurück, der in der gamestate dran ist.
+  # @param gamestate [GameState] Der zu untersuchende Spielstand.
+  #
+  # @return [Array<Move>] Die möglichen Moves
+  def self.possible_setmoves(gamestate)
+    moves = []
+
+    (0...BOARD_SIZE).to_a.map do |x|
+      (0...BOARD_SIZE).to_a.map do |y|
+        if gamestate.board.field(x, y).fishes == 1
+          moves.push(Move.new(nil, Coordinates.new(x, y)))
+        end
+      end
+    end
+
+    moves
+  end
+
+  def self.possible_normalmoves(gamestate)
     moves = []
     fields = gamestate.board.fields_of_color(gamestate.current_player.color)
 
