@@ -25,10 +25,14 @@ class Coordinates
     Coordinates.new(0, 0)
   end
 
+  # Konvertiert c in das doubled Koordinatensystem.
+  # @param c [Coordinates] Koordinaten aus dem odd-r System
   def self.oddr_to_doubled(c)
     Coordinates.new(c.x * 2 + (c.y % 2 == 1 ? 1 : 0), c.y)
   end
 
+  # Konvertiert c in das odd-r Koordinatensystem.
+  # @param c [Coordinates] Koordinaten aus dem doubled System
   def self.doubled_to_oddr(c)
     Coordinates.new(c.x / 2 - (c.y % 2 == 1 ? 1 : 0), c.y)
   end
