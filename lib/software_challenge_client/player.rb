@@ -7,22 +7,22 @@ class Player
   # @return [String] der Name des Spielers, hat keine Auswirkungen auf das Spiel
   attr_reader :name
 
-  # @!attribute [r] color
-  # @return [Color] erster (Color::RED) oder zweiter (Color::BLUE) Spieler
-  attr_reader :color
+  # @!attribute [r] team
+  # @return [Team] erster (Team::ONE) oder zweiter (Team::TWO) Spieler
+  attr_reader :team
 
-  # @!attribute [rw] amber
-  # @return [Integer] Anzahl Bernsteine die dieser Spieler gesammelt hat
-  attr_accessor :amber
+  # @!attribute [rw] fishes
+  # @return [Integer] Anzahl Fische die dieser Spieler gesammelt hat
+  attr_accessor :fishes
 
   # Konstruktor
-  # @param type [Color] Rot oder blau
+  # @param type [Team] One oder Two
   # @param name [String] Name
-  # @param amber [Integer] Menge des Bernsteins die der Spieler hat
-  def initialize(color, name, amber = 0)
-    @color = color
+  # @param amber [Integer] Menge der Fische die der Spieler hat
+  def initialize(team, name, fishes = 0)
+    @team = team
     @name = name
-    @amber = amber
+    @fishes = fishes
   end
 
   def ==(other)
