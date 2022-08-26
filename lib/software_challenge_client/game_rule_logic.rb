@@ -88,26 +88,39 @@ class GameRuleLogic
   #
   # @return ob der Zug zulässig ist
   def self.valid_move?(gamestate, move)
-    return false unless gamestate.current_player.color == move.piece(gamestate).color
+    if gamestate.turn < 8
+      # Setmove
 
-    return false unless gamestate.board.in_bounds?(move.to)
+      # Must be setmove
+      return false unless move.from == null
+      
+      # Must have 1 fish to set on
+      return false unless gamestate.board.field_at(move.to).fishes == 1 
 
-    return false if gamestate.board.field_at(move.to).color == move.piece(gamestate).color
+      # Must have no piece on it
+      return false unless gamestate.board.field_at(move.to).piece == nil
+    else
+      # Normal move
 
-    return false unless move.piece(gamestate).target_coords.include? move.to
+      # Must be normal move
+      return false unless !move.from.nil?
 
-    # TODO 2022: Forgot checks?
+      # Team must be correct
+      return false unless gamestate.current_player.team == gamestate.board.field_at(move.from).piece.team
+
+      # Move must stay in bounds
+      return false unless gamestate.board.in_bounds?(move.to)
+
+      # Move must go onto free field
+      return false unless gamestate.board.field_at(move.to).free?
+
+      # Move must go onto valid coords
+      return false unless gamestate.board.field_at(move.from).piece.target_coords.include?(move.to)
+    end
+
+    # TODO 2023: Forgot checks?
 
     true
-  end
-
-  # Überprüft, ob die gegebene [position] mit einem Spielstein belegt ist.
-  # @param board [Board] Das aktuelle Spielbrett
-  # @param position [Coordinates] Die zu überprüfenden Koordinaten
-  #
-  # @return [Boolean] Ob die position belegt wurde
-  def self.obstructed?(board, position)
-    !board.field_at(position).empty?
   end
 
   # --- Perform Move ------------------------------------------------------------
