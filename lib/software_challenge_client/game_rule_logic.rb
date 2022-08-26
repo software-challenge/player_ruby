@@ -133,31 +133,16 @@ class GameRuleLogic
   def self.perform_move(gamestate, move)
     raise 'Invalid move!' unless valid_move?(gamestate, move)
 
-    from_field = gamestate.board.field_at(move.from)
-    to_field = gamestate.board.field_at(move.to)
+    start_field = gamestate.board.field_at(move.from)
+    target_field = gamestate.board.field_at(move.to)
 
-    # Update board pieces if one is stepped on
-    if not to_field.empty?
-      from_field.piece.height = from_field.piece.height + 1
+    gamestate.current_player.fishes += start_field.fishes
+    start_field.fishes = 0
 
-      # Check for high tower
-      if from_field.piece.height >= 3
-        gamestate.current_player.amber = gamestate.current_player.amber + 1
-        to_field.piece = nil
-      end
-    end
-    
-    # Update board fields
-    to_field.piece = from_field.piece
-    from_field.piece = nil
-
-    # Update position value of the moved piece
-    if !to_field.empty? && !to_field.piece.nil?
-      to_field.piece.position = Coordinates.new(to_field.coordinates.x, to_field.coordinates.y)
-    end
+    target_field.piece = start_field.piece
+    start_field.piece = nil?
 
     gamestate.turn += 1
-    gamestate.last_move = move
   end
 
   # --- Other ------------------------------------------------------------
