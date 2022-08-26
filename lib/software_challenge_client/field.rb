@@ -53,9 +53,14 @@ class Field
     end
   end
 
-  # @return [Boolean] true, wenn das Feld nicht durch einen Spielstein überdeckt ist, sonst false
+  # @return [Boolean] true, wenn auf dem Feld kein Spielstein und keine Fische sind, sonst false
   def empty?
-    piece.nil?
+    piece.nil? && fishes == 0
+  end
+
+  # @return [Boolean] true, wenn auf dem Feld kein Spielstein und mindestens ein Fisch ist, sonst false
+  def free?
+    piece.nil? && fishes != 0
   end
 
   # @return [String] Textuelle Darstellung des Feldes.
