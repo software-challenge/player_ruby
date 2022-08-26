@@ -152,12 +152,13 @@ class GameRuleLogic
   #
   # @return [Condition] nil, if the game is not won or a Condition indicating the winning player
   def self.winning_condition(gamestate)
-    if gamestate.player_one.amber >= 2
-      Condition.new(gamestate.player_one, "Spieler 1 hat 2 Bernsteine erreicht")
-    end
-
-    if gamestate.player_two.amber >= 2
-      Condition.new(gamestate.player_two, "Spieler 2 hat 2 Bernsteine erreicht")
+    
+    if GameRuleLogic.possible_moves(gamestate).count == 0
+      if gamestate.player_one.fishes > gamestate.player_two.fishes
+        Condition.new(gamestate.player_one, "Spieler 1 hat mehr Fische erreicht und gewonnen!")
+      else
+        Condition.new(gamestate.player_one, "Spieler 2 hat mehr Fische erreicht und gewonnen!")
+      end
     end
 
     nil
