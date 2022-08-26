@@ -32,11 +32,6 @@ class GameState
   # @return [Board] Das aktuelle Spielbrett
   attr_accessor :board
 
-  # @!attribute [rw] last_move
-  # @return [Move] Der zuletzt gemachte Zug (ist nil vor dem ersten Zug, also
-  #                bei turn == 0)
-  attr_accessor :last_move
-
   # @!attribute [rw] condition
   # @return [Condition] Gewinner und Gewinngrund, falls das Spiel bereits
   #                     entschieden ist, sonst nil.
