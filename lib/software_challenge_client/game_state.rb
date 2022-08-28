@@ -23,9 +23,9 @@ class GameState
   # @return [Player] Der zweite Spieler
   attr_reader :player_two
 
-  # @!attribute [rw] start_team
-  # @return [Team] Der Spieler der zuerst zieht
-  attr_accessor :start_team
+  # @!attribute [rw] start_player
+  # @return [Player] Der Spieler der zuerst zieht
+  attr_accessor :start_player
 
   # @!attribute [rw] board
   # @return [Board] Das aktuelle Spielbrett
@@ -34,6 +34,10 @@ class GameState
   # @!attribute [rw] current_player
   # @return [Player] Der Spieler, der akutell dran ist
   attr_accessor :current_player
+
+  # @!attribute [rw] myself_player
+  # @return [Player] Der Spieler, der von diesem Skript gesteuert wird
+  attr_accessor :myself_player
 
   # @!attribute [rw] condition
   # @return [Condition] Gewinner und Gewinngrund, falls das Spiel bereits
@@ -68,9 +72,30 @@ class GameState
     current_player == player_one ? player_two : player_one
   end
 
+  # @return [Player] Der Spieler, der nicht p ist.
+  def not_player(p)
+    if p == player_one
+      player_two
+    else
+      player_one
+    end
+  end
+
   # @return [Team] Typ des Spielers, der gerade nicht an der Reihe ist.
   def other_team
     other_player.type
+  end
+
+  # Findet den Spieler für ein Team.
+  #
+  # @param team [Team] Das Team
+  # @return [Player] Der zugehörige Spieler
+  def player_from_team(team)
+    if team == Team::ONE
+      @player_one
+    else
+      @player_two
+    end
   end
 
   # @return [Integer] Aktuelle Rundennummer (von 1 beginnend)
@@ -118,10 +143,11 @@ class GameState
     player.nil? ? 0 : player.fishes
   end
 
+  # TODO: Fix
   def ==(other)
     turn == other.turn &&
-      start_color == other.start_color &&
-      current_color == other.current_color &&
+      myself_player == other.myself_player &&
+      current_player == other.current_player &&
       blue == other.blue &&
       yellow == other.yellow &&
       red == other.red &&
@@ -140,6 +166,6 @@ class GameState
 
   # @return [Array<Field>] Alle Felder mit Blöcken des Spielers, der gerade an der Reihe ist.
   def own_fields
-    board.fields_of_color(current_player.color)
+    board.fields_of_team(current_player.team)
   end
 end
