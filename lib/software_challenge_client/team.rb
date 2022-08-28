@@ -11,4 +11,13 @@ require 'typesafe_enum'
 class Team < TypesafeEnum::Base
   new :ONE, 'ONE'
   new :TWO, 'TWO'
+
+  # @return [Team] Das Team, was nicht t ist.
+  def other_team(t)
+    if t == :ONE
+      :TWO
+    else
+      :ONE
+    end
+  end
 end
