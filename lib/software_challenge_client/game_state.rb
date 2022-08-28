@@ -4,7 +4,6 @@ require_relative './util/constants'
 require_relative 'player'
 require_relative 'board'
 require_relative 'condition'
-require_relative 'color'
 
 # Ein Spielzustand. Wird vom Server an die Computerspieler übermittelt und
 # enthält alles, was der Computerspieler wissen muss, um einen Zug zu machen.
@@ -32,6 +31,10 @@ class GameState
   # @return [Board] Das aktuelle Spielbrett
   attr_accessor :board
 
+  # @!attribute [rw] current_player
+  # @return [Player] Der Spieler, der akutell dran ist
+  attr_accessor :current_player
+
   # @!attribute [rw] condition
   # @return [Condition] Gewinner und Gewinngrund, falls das Spiel bereits
   #                     entschieden ist, sonst nil.
@@ -52,22 +55,17 @@ class GameState
   #
   # @param player [Player] Der hinzuzufügende Spieler.
   def add_player(player)
-    case player.color
-    when Color::RED
+    case player.team
+    when Team::ONE
       @player_one = player
-    when Color::BLUE
+    when Team::TWO
       @player_two = player
     end
   end
 
-  # @return [Player] Spieler, der gerade an der Reihe ist.
-  def current_player
-    turn.even? ? player_one : player_two
-  end
-
   # @return [Player] Spieler, der gerade nicht an der Reihe ist.
   def other_player
-    turn.even? ? player_two : player_one
+    current_player == player_one ? player_two : player_one
   end
 
   # @return [Team] Typ des Spielers, der gerade nicht an der Reihe ist.
@@ -81,7 +79,7 @@ class GameState
   end
 
   # @return [Bool] Ob diese gamestate in der ersten Runde ist
-  def is_first_move?
+  def is_first_round?
     round == 1
   end
 
@@ -117,8 +115,7 @@ class GameState
   # @param player [Player] Der Spieler, dessen Punkte berechnet werden sollen.
   # @return [Integer] Die Punkte des Spielers
   def points_for_player(_player)
-    # TODO
-    -1
+    _player.fishes
   end
 
   def ==(other)
