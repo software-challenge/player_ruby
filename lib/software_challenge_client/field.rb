@@ -65,6 +65,6 @@ class Field
 
   # @return [String] Textuelle Darstellung des Feldes.
   def to_s
-    empty? ? '__' : piece.to_ss
+    piece.nil? ? fishes.to_s : piece.to_ss
   end
 end
