@@ -9,6 +9,6 @@ require 'typesafe_enum'
 #
 # Zugriff z.B. mit Team::ONE
 class Team < TypesafeEnum::Base
-  new :ONE, 'One'
-  new :TWO, 'Two'
+  new :ONE, 'ONE'
+  new :TWO, 'TWO'
 end
