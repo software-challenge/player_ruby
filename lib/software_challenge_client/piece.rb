@@ -25,10 +25,11 @@ class Piece
   # @return [Array<Coordinates>] Die Zielkoordinaten 
   def target_coords
     coords = []
+    c = Coordinates.oddr_to_doubled(position)
 
     Direction.each { |d|
-      x = position.d_x
-      y = position.d_y
+      x = c.x
+      y = c.y
       disp = d.to_vec()
 
       # doubled taversal
