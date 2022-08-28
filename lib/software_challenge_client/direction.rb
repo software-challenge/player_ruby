@@ -35,7 +35,7 @@ class Direction < TypesafeEnum::Base
     elsif self.key == :LEFT
       Coordinates.new(-2, 0)
     else
-      Color::BLUE
+      Coordinates.new(0, 0)
     end
   end
 end

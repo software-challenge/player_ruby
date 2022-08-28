@@ -50,7 +50,7 @@ class GameRuleLogic
 
   def self.possible_normalmoves(gamestate)
     moves = []
-    fields = gamestate.board.fields_of_color(gamestate.current_player.color)
+    fields = gamestate.board.fields_of_team(gamestate.current_player.team)
 
     fields.each do |f|
       moves.push(*moves_for_piece(gamestate, f.piece))

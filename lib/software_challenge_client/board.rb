@@ -76,13 +76,13 @@ class Board
     field(coordinates.x, coordinates.y)
   end
 
-  def fields_of_color(color)
+  def fields_of_team(team)
     fields = []
 
     (0...BOARD_SIZE).to_a.map do |x|
       (0...BOARD_SIZE).to_a.map do |y|
         f = field(x,y)
-        if (f.color == color)
+        if (!f.piece.nil? && f.piece.team == team)
           fields << f
         end
       end

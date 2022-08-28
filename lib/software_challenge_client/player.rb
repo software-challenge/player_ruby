@@ -26,6 +26,6 @@ class Player
   end
 
   def ==(other)
-    color == other.color
+    team == other.team
   end
 end
