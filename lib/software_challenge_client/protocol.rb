@@ -82,6 +82,14 @@ class Protocol
       @context[:data_class] = attrs['class']
       if attrs['class'] == 'moveRequest'
         @client.gamestate = gamestate
+        if gamestate.turn == 0
+          gamestate.myself_player = gamestate.start_player
+          logger.debug "I am #{gamestate.myself_player}"
+        elsif gamestate.turn == 1
+          gamestate.myself_player = gamestate.not_player(gamestate.start_player) 
+          logger.debug "I am #{gamestate.myself_player}"
+        end
+        gamestate.current_player = gamestate.myself_player
         move = @client.move_requested
         sendString(move_to_xml(move))
       end
@@ -96,7 +104,7 @@ class Protocol
       end
     when 'state'
       logger.debug 'new gamestate'
-      @gamestate = GameState.new
+      #@gamestate = GameState.new
       @gamestate.turn = attrs['turn'].to_i
       logger.debug "Round: #{@gamestate.round}, Turn: #{@gamestate.turn}"
     when 'board'
@@ -153,9 +161,9 @@ class Protocol
       @gamestate.add_player(Player.new(Team::ONE, "ONE", 0))
       @gamestate.add_player(Player.new(Team::TWO, "TWO", 0))
       if @context[:last_text] == "ONE"
-        @gamestate.start_team = @gamestate.player_one
+        @gamestate.start_player = @gamestate.player_one
       else
-        @gamestate.start_team = @gamestate.player_two
+        @gamestate.start_player = @gamestate.player_two
       end
     when 'int'
       @i += 1
@@ -222,14 +230,18 @@ class Protocol
     # because XML-generation should be decoupled from internal data
     # structures.
 
+    to_d = Coordinates.oddr_to_doubled(move.to)
+
     if move.from.nil?
       builder.data(class: 'move') do |d|
-        d.to(x: move.to.x, y: move.to.y)
+        d.to(x: to_d.x, y: to_d.y)
       end
     else
+      from_d = Coordinates.oddr_to_doubled(move.from)
+
       builder.data(class: 'move') do |d|
-        d.from(x: move.from.x, y: move.from.y)
-        d.to(x: move.to.x, y: move.to.y)
+        d.from(x: from_d.x, y: from_d.y)
+        d.to(x: to_d.x, y: to_d.y)
       end
     end
     
