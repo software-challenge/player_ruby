@@ -13,26 +13,26 @@ require 'typesafe_enum'
 #
 # Zugriff z.B. mit Direction::BOTTOMLEFT
 class Direction < TypesafeEnum::Base
-  new :TOPLEFT,
-  new :TOPRIGHT,
-  new :RIGHT,
-  new :BOTTOMRIGHT,
-  new :BOTTOMLEFT,
-  new :LEFT,
+  new :TOPLEFT, 'tl'
+  new :TOPRIGHT, 'tr'
+  new :RIGHT, 'r'
+  new :BOTTOMRIGHT, 'br'
+  new :BOTTOMLEFT, 'bl'
+  new :LEFT, 'l'
 
   # @return [Coordinates] Gibt den zugehörigen Vector als Koordinate zurück
   def to_vec
     if self.key == :TOPLEFT
       Coordinates.new(-1, -1)
-    if self.key == :TOPRIGHT
+    elsif self.key == :TOPRIGHT
       Coordinates.new(1, -1)
-    if self.key == :RIGHT
+    elsif self.key == :RIGHT
       Coordinates.new(2, 0)
-    if self.key == :BOTTOMRIGHT
+    elsif self.key == :BOTTOMRIGHT
       Coordinates.new(1, 1)
-    if self.key == :BOTTOMLEFT
+    elsif self.key == :BOTTOMLEFT
       Coordinates.new(-1, 1)
-    if self.key == :LEFT
+    elsif self.key == :LEFT
       Coordinates.new(-2, 0)
     else
       Color::BLUE
