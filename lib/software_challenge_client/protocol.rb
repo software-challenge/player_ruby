@@ -54,7 +54,7 @@ class Protocol
   def process_string(text)
     #logger.debug "Parse XML:\n#{text}\n----END XML"
     begin
-      REXML::Document.parse_stream(text, self)
+      REXML::Document.parse_stream(text.encode('UTF-8', :invalid => :replace, :undef => :replace), self)
     rescue REXML::ParseException => e
       # to parse incomplete xml, ignore missing end tag exceptions
       raise e unless e.message =~ /Missing end tag/
