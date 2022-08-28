@@ -114,8 +114,8 @@ class GameState
   #
   # @param player [Player] Der Spieler, dessen Punkte berechnet werden sollen.
   # @return [Integer] Die Punkte des Spielers
-  def points_for_player(_player)
-    _player.fishes
+  def points_for_player(player)
+    player.nil? ? 0 : player.fishes
   end
 
   def ==(other)
