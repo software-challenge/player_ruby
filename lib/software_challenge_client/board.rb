@@ -59,14 +59,14 @@ class Board
 
   # Zugriff auf die Felder des Spielfeldes über ein Koordinaten-Paar.
   #
-  # @param coordinates [Coordinates] X- und Y-Koordinate als Paar, sonst wie
+  # @param coords [Coordinates] X- und Y-Koordinate als Paar, sonst wie
   # bei {Board#field}.
   #
   # @return [Field] Wie bei {Board#field}.
   #
   # @see #field
-  def field_at(coordinates)
-    field(coordinates.x, coordinates.y)
+  def field_at(coords)
+    field(coords.x, coords.y)
   end
 
   # @return [Array] Liste aller Felder
@@ -93,6 +93,29 @@ class Board
     end
 
     fields
+  end
+
+  # @param field [Field] Das eingabe Feld
+  # @return Die Felder um dem gegebenen Feld
+  def neighbors_of(field) 
+    coords = []
+    c = Coordinates.oddr_to_doubled(field.coords)
+
+    Direction.each { |d|
+      disp = d.to_vec()
+
+      x = c.x + disp.x
+      y = c.y + disp.y
+
+      oddr_coords = Coordinates.doubled_to_oddr_int(x, y)
+      if !gamestate.board.in_bounds?(oddr_coords)
+        next
+      end
+
+      coords.push(oddr_coords)
+    }
+
+    coords.map{ |x| self.field_at(x) }.to_a
   end
 
   # --- Other ------------------------------------------------------------
