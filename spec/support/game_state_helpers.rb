@@ -9,7 +9,7 @@ module GameStateHelpers
   class BoardFormatError < StandardError
   end
 
-  def field_from_descriptor(coordinates, descriptor)
+  def field_from_descriptor(coords, descriptor)
     piece = nil
 
     if descriptor != '__' and descriptor != '_'
@@ -23,10 +23,10 @@ module GameStateHelpers
       end
       type = PieceType.find_by_value(descriptor[1])
 
-      piece = Piece.new(color, type, coordinates)
+      piece = Piece.new(color, type, coords)
     end
     
-    Field.new(coordinates.x, coordinates.y, piece)
+    Field.new(coords.x, coords.y, piece)
   end
 
   # NOTE that this currently does not update undeployed pieces!
@@ -35,7 +35,7 @@ module GameStateHelpers
     field_descriptors = string.split(' ')
     board_fields = []
     fields.each do |field|
-      board_fields << field_from_descriptor(field.coordinates, field_descriptors[field.y * BOARD_SIZE + field.x])
+      board_fields << field_from_descriptor(field.coords, field_descriptors[field.y * BOARD_SIZE + field.x])
     end
     gamestate.turn = 4
     gamestate.add_player(Player.new(Color::RED, "ONE", 0))

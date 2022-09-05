@@ -12,24 +12,24 @@ class Piece
 
   # @!attribute [rw] Koordinaten
   # @return [Coordinates]
-  attr_accessor :position
+  attr_accessor :coords
 
   # Erstellt einen neuen Spielstein.
-  def initialize(team, position = Coordinates.origin)
+  def initialize(team, coords = Coordinates.origin)
     @team = team
-    @position = position
+    @coords = coords
   end
 
   def ==(other)
     !other.nil? &&
       team == other.team &&
-      position == other.position &&
+      coords == other.coords &&
       type == other.type
   end
 
   # @return [String] Gibt die String-Repräsentation zurück
   def to_s
-    "#{team.key} at #{position}"
+    "#{team.key} at #{coords}"
   end
 
   # To short string

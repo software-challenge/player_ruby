@@ -75,7 +75,7 @@ class GameRuleLogic
   def self.moves_for_piece(gamestate, piece)
     moves = Set[]
     self.target_coords(gamestate, piece).each do |c| 
-      moves << Move.new(piece.position, c)
+      moves << Move.new(piece.coords, c)
     end
     moves.select { |m| valid_move?(gamestate, m) }.to_a
   end
@@ -85,7 +85,7 @@ class GameRuleLogic
   # @return [Array<Coordinates>] Die Zielkoordinaten 
   def self.target_coords(gamestate, piece)
     coords = []
-    c = Coordinates.oddr_to_doubled(piece.position)
+    c = Coordinates.oddr_to_doubled(piece.coords)
 
     Direction.each { |d|
       x = c.x
