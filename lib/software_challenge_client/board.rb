@@ -91,10 +91,10 @@ class Board
     fields
   end
 
-  # @param it [Coordinates] Die zu untersuchenden Koordinaten
+  # @param coords [Coordinates] Die zu untersuchenden Koordinaten
   # @return [Boolean] Ob die gegebenen Koordinaten auf dem Board liegen oder nicht
-  def in_bounds?(it)
-    it.x >= 0 && it.y >= 0 && it.x < BOARD_SIZE && it.y < BOARD_SIZE
+  def in_bounds?(coords)
+    coords.x >= 0 && coords.y >= 0 && coords.x < BOARD_SIZE && coords.y < BOARD_SIZE
   end
 
   # @return eine unabhaengige Kopie des Spielbretts
