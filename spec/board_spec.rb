@@ -26,9 +26,9 @@ RSpec.describe Board do
     expect(clone).not_to eq(board)
   end
 
-  it 'should have fields with correct coordinates' do
+  it 'should have fields with correct coords' do
     c = Coordinates.new(3, 1)
-    expect(board.field_at(c).coordinates).to eq(c)
-    expect(board.fields[3][1].coordinates).to eq(c)
+    expect(board.field_at(c).coords).to eq(c)
+    expect(board.fields[3][1].coords).to eq(c)
   end
 end
