@@ -171,6 +171,11 @@ class GameRuleLogic
     target_field.piece = start_field.piece
     start_field.piece = nil?
 
+    other_player = gamestate.not_player(gamestate.current_player)
+    if gamestate.can_move?(other_player)
+      gamestate.current_player = other_player
+    end
+
     gamestate.turn += 1
   end
 
