@@ -116,6 +116,21 @@ class GameState
     GameRuleLogic.perform_move(self, move)
   end
 
+  # Überprüft ob der gegebene Spieler ziehen könnte oder blockiert ist
+  #
+  # @param player [Player] Der Spieler.
+  # @return [Boolean] true, falls der Spieler ziehen könnte
+  def can_move?(player)
+    can = false
+
+    for f in board.fields_of_team(player.team) do
+      n = board.neighbors_of(f)
+      can &= n.any? { |x| x.free? }
+    end
+
+    can
+  end
+
   # @return [Boolean] true, falls das Spiel bereits geendet hat, false bei noch
   #                   laufenden Spielen.
   def game_ended?
