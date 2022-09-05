@@ -20,16 +20,30 @@ class Coordinates
     Coordinates.new(0, 0)
   end
 
+  # Konvertiert (x, y) in das doubled Koordinatensystem.
+  # @param x [Integer] X-Koordinate aus dem odd-r System
+  # @param y [Integer] Y-Koordinate aus dem odd-r System
+  def self.oddr_to_doubled(c)
+    self.oddr_to_doubled_int(c.x, c.y)
+  end
+
   # Konvertiert c in das doubled Koordinatensystem.
   # @param c [Coordinates] Koordinaten aus dem odd-r System
-  def self.oddr_to_doubled(c)
-    Coordinates.new(c.x * 2 + c.y % 2, c.y)
+  def self.oddr_to_doubled_int(x, y)
+    Coordinates.new(x * 2 + y % 2, y)
   end
 
   # Konvertiert c in das odd-r Koordinatensystem.
   # @param c [Coordinates] Koordinaten aus dem doubled System
   def self.doubled_to_oddr(c)
-    Coordinates.new(c.x / 2 - c.y % 2, c.y)
+    self.doubled_to_oddr_int(c.x, c.y)
+  end
+
+  # Konvertiert (x, y) in das doubled Koordinatensystem.
+  # @param x [Integer] X-Koordinate aus dem doubled System
+  # @param y [Integer] Y-Koordinate aus dem doubled System
+  def self.doubled_to_oddr_int(x, y)
+    Coordinates.new((x / 2.0).ceil() - y % 2, y)
   end
 
   def <=>(other)
