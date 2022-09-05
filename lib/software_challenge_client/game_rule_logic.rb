@@ -64,7 +64,7 @@ class GameRuleLogic
   #
   # @return [Move] Ein möglicher Move
   def self.possible_move(gamestate)
-    possible_moves(gamestate).sample
+    self.possible_moves(gamestate).sample
   end
 
   # Hilfsmethode um Legezüge für einen [Piece] zu berechnen.
@@ -74,10 +74,39 @@ class GameRuleLogic
   # @return [Array<Move>] Die möglichen Moves
   def self.moves_for_piece(gamestate, piece)
     moves = Set[]
-    piece.target_coords.each do |c| 
+    self.target_coords(gamestate, piece).each do |c| 
       moves << Move.new(piece.position, c)
     end
     moves.select { |m| valid_move?(gamestate, m) }.to_a
+  end
+
+  # Berechnet die Koordinaten zu denen sich dieser Spielstein bewegen könnte.
+  #
+  # @return [Array<Coordinates>] Die Zielkoordinaten 
+  def self.target_coords(gamestate, piece)
+    coords = []
+    c = Coordinates.oddr_to_doubled(piece.position)
+
+    Direction.each { |d|
+      x = c.x
+      y = c.y
+      disp = d.to_vec()
+
+      # doubled taversal
+      for i in 0..8 do
+        x += disp.x
+        y += disp.y
+        
+        oddr_coords = Coordinates.doubled_to_oddr_int(x, y)
+        if !gamestate.board.in_bounds?(oddr_coords) || !gamestate.board.field_at(oddr_coords).free?
+          break
+        end
+
+        coords.push(Coordinates.new(x, y))
+      end
+    }
+
+    coords.map{ |x| Coordinates.doubled_to_oddr(x) }.to_a
   end
 
   # --- Move Validation ------------------------------------------------------------
@@ -115,7 +144,7 @@ class GameRuleLogic
       return false unless gamestate.board.field_at(move.to).free?
 
       # Move must go onto valid coords
-      return false unless gamestate.board.field_at(move.from).piece.target_coords.include?(move.to)
+      return false unless self.target_coords(gamestate, gamestate.board.field_at(move.from).piece).include?(move.to)
     end
 
     # TODO 2023: Forgot checks?

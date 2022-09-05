@@ -20,29 +20,6 @@ class Piece
     @position = position
   end
 
-  # Berechnet die Koordinaten zu denen sich dieser Spielstein bewegen könnte.
-  #
-  # @return [Array<Coordinates>] Die Zielkoordinaten 
-  def target_coords
-    coords = []
-    c = Coordinates.oddr_to_doubled(position)
-
-    Direction.each { |d|
-      x = c.x
-      y = c.y
-      disp = d.to_vec()
-
-      # doubled taversal
-      for i in 0..8 do
-        x += disp.x
-        y += disp.y
-        coords.push(Coordinates.new(x, y))
-      end
-    }
-
-    coords.map{ |x| Coordinates.doubled_to_oddr(x) }.select{ |c| c.x >= 0 && c.y >=0 && c.x < BOARD_SIZE && c.y < BOARD_SIZE}.to_a
-  end
-
   def ==(other)
     !other.nil? &&
       team == other.team &&
