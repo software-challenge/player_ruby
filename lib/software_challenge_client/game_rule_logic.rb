@@ -102,11 +102,11 @@ class GameRuleLogic
           break
         end
 
-        coords.push(Coordinates.new(x, y))
+        coords.push(oddr_coords)
       end
     }
 
-    coords.map{ |x| Coordinates.doubled_to_oddr(x) }.to_a
+    coords
   end
 
   # --- Move Validation ------------------------------------------------------------
