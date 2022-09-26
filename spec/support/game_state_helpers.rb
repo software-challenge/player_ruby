@@ -11,19 +11,20 @@ module GameStateHelpers
 
   def field_from_descriptor(coords, descriptor)
     piece = nil
+    fishes = 0
 
-    if descriptor != '__' and descriptor != '_'
-      unless Color.to_a.map(&:value).include? descriptor[0]
-        raise BoardFormatError.new("unknown color descriptor #{descriptor[0]}")
+    if descriptor != '_'
+      unless descriptor[0] >= '0' && descriptor[0] <= '4' && descriptor[0] != 'O' && descriptor[0] != 'T'
+        raise BoardFormatError.new("unknown descriptor #{descriptor[0]}")
       end
-      color = Color.find_by_value(descriptor[0])
-
-      unless PieceType.to_a.map(&:value).include? descriptor[1]
-        raise BoardFormatError.new("unknown piecetype descriptor #{descriptor[1]}")
+      
+      if descriptor[0] == 'O'
+        piece = Piece.new(coords.x, coords.y, Team::ONE)
+      elsif descriptor[0] != 'T'
+        piece = Piece.new(coords.x, coords.y, Team::TWO)
+      else
+        fishes = descriptor[0].to_i
       end
-      type = PieceType.find_by_value(descriptor[1])
-
-      piece = Piece.new(color, type, coords)
     end
     
     Field.new(coords.x, coords.y, piece)
@@ -38,8 +39,9 @@ module GameStateHelpers
       board_fields << field_from_descriptor(field.coords, field_descriptors[field.y * BOARD_SIZE + field.x])
     end
     gamestate.turn = 4
-    gamestate.add_player(Player.new(Color::RED, "ONE", 0))
-    gamestate.add_player(Player.new(Color::BLUE, "TWO", 0))
+    gamestate.add_player(Player.new(Team::ONE, "ONE", 0))
+    gamestate.add_player(Player.new(Team::TWO, "TWO", 0))
+    gamestate.current_player = gamestate.player_two
     gamestate.board = Board.new(board_fields)
   end
 end

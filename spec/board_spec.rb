@@ -7,8 +7,8 @@ include Constants
 
 RSpec.describe Board do
   subject(:board) {
-    Board.new([Field.new(0,0, Piece.new(Color::RED, PieceType::Herzmuschel, Coordinates.new(0,0))), 
-      Field.new(3,1, Piece.new(Color::RED, PieceType::Moewe, Coordinates.new(3,1)))])
+    Board.new([Field.new(0,0, Piece.new(Team::ONE, Coordinates.new(0,0))), 
+      Field.new(3,1, Piece.new(Team::TWO, Coordinates.new(3,1)))])
   }
 
   it 'should have fields initialized' do
