@@ -121,7 +121,7 @@ class GameRuleLogic
       # Setmove
 
       # Must be setmove
-      return false unless move.from == null
+      return false unless move.from == nil
       
       # Must have 1 fish to set on
       return false unless gamestate.board.field_at(move.to).fishes == 1 
@@ -162,14 +162,20 @@ class GameRuleLogic
   def self.perform_move(gamestate, move)
     raise 'Invalid move!' unless valid_move?(gamestate, move)
 
-    start_field = gamestate.board.field_at(move.from)
     target_field = gamestate.board.field_at(move.to)
 
-    gamestate.current_player.fishes += start_field.fishes
-    start_field.fishes = 0
+    gamestate.current_player.fishes += target_field.fishes
 
-    target_field.piece = start_field.piece
-    start_field.piece = nil?
+    if gamestate.turn < 8 
+      target_field.piece = Piece.new(gamestate.current_player.team, move.to)
+    else
+      start_field = gamestate.board.field_at(move.from)
+
+      start_field.fishes = 0
+
+      target_field.piece = start_field.piece
+      start_field.piece = nil?
+    end
 
     other_player = gamestate.not_player(gamestate.current_player)
     if gamestate.can_move?(other_player)
