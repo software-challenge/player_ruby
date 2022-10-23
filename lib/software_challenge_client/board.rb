@@ -108,7 +108,7 @@ class Board
       y = c.y + disp.y
 
       oddr_coords = Coordinates.doubled_to_oddr_int(x, y)
-      if !gamestate.board.in_bounds?(oddr_coords)
+      if !in_bounds?(oddr_coords)
         next
       end
 
