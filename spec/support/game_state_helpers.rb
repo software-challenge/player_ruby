@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative '../../lib/software_challenge_client/util/constants'
-require_relative '../../lib/software_challenge_client/color'
 
 module GameStateHelpers
   include Constants
@@ -9,24 +8,25 @@ module GameStateHelpers
   class BoardFormatError < StandardError
   end
 
-  def field_from_descriptor(coordinates, descriptor)
+  def field_from_descriptor(coords, descriptor)
     piece = nil
+    fishes = 0
 
-    if descriptor != '__' and descriptor != '_'
-      unless Color.to_a.map(&:value).include? descriptor[0]
-        raise BoardFormatError.new("unknown color descriptor #{descriptor[0]}")
+    if descriptor[0] != '_'
+      if descriptor[0] != '0' && descriptor[0] != '1' && descriptor[0] != '2' && descriptor[0] != '3' && descriptor[0] != '4' && descriptor[0] != 'O' && descriptor[0] != 'T'
+        raise BoardFormatError.new("unknown descriptor #{descriptor[0]}")
       end
-      color = Color.find_by_value(descriptor[0])
-
-      unless PieceType.to_a.map(&:value).include? descriptor[1]
-        raise BoardFormatError.new("unknown piecetype descriptor #{descriptor[1]}")
+      
+      if descriptor[0] == 'O'
+        piece = Piece.new(Team::ONE, coords)
+      elsif descriptor[0] == 'T'
+        piece = Piece.new(Team::TWO, coords)
+      else
+        fishes = descriptor[0].to_i
       end
-      type = PieceType.find_by_value(descriptor[1])
-
-      piece = Piece.new(color, type, coordinates)
     end
     
-    Field.new(coordinates.x, coordinates.y, piece)
+    Field.new(coords.x, coords.y, piece, fishes)
   end
 
   # NOTE that this currently does not update undeployed pieces!
@@ -35,11 +35,12 @@ module GameStateHelpers
     field_descriptors = string.split(' ')
     board_fields = []
     fields.each do |field|
-      board_fields << field_from_descriptor(field.coordinates, field_descriptors[field.y * BOARD_SIZE + field.x])
+      board_fields << field_from_descriptor(field.coords, field_descriptors[field.y * BOARD_SIZE + field.x])
     end
-    gamestate.turn = 4
-    gamestate.add_player(Player.new(Color::RED, "ONE", 0))
-    gamestate.add_player(Player.new(Color::BLUE, "TWO", 0))
+    gamestate.turn = 6
+    gamestate.add_player(Player.new(Team::ONE, "ONE", 0))
+    gamestate.add_player(Player.new(Team::TWO, "TWO", 0))
+    gamestate.current_player = gamestate.player_one
     gamestate.board = Board.new(board_fields)
   end
 end

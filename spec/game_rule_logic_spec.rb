@@ -28,14 +28,14 @@ RSpec.describe GameRuleLogic do
     before do
       board =
         <<~BOARD
-          RC RS RR RC RG RG RR RS 
-          __ __ __ __ __ __ __ __ 
-          __ __ __ __ __ __ __ __ 
-          __ __ __ __ __ __ __ __ 
-          __ __ __ __ __ __ __ __ 
-          __ __ __ __ __ __ __ __ 
-          __ __ __ __ __ __ __ __ 
-          BS BR BG BC BR BG BC BS 
+        1 1 2 4 2 2 3 2 
+        1 1 0 3 2 2 1 0 
+        1 2 1 2 2 0 2 2 
+        1 1 2 1 0 1 2 1 
+        1 2 1 0 1 2 1 1 
+        2 2 0 2 2 1 2 1 
+        0 1 2 2 3 0 1 1 
+        2 3 2 2 4 2 1 1 
       BOARD
       state_from_string!(board, gamestate)
     end
@@ -45,14 +45,14 @@ RSpec.describe GameRuleLogic do
     before do
       board =
         <<~BOARD
-        __ RS RR RC __ RG RR RS 
-        __ RC __ __ RG __ __ __ 
-        __ __ __ __ __ __ __ __ 
-        __ __ __ __ __ __ __ __ 
-        __ __ __ __ __ __ __ __ 
-        __ __ BR __ __ __ __ __ 
-        __ __ __ __ __ __ __ __ 
-        BS __ BG BC BR BG BC BS 
+        1 T 2 4 2 2 3 2 
+        1 1 0 3 2 2 1 0 
+        1 2 1 2 2 0 2 2 
+        O O 2 1 0 T 2 1 
+        1 2 1 0 1 2 1 1 
+        2 2 0 2 2 1 2 1 
+        0 T 2 2 3 0 1 O 
+        2 3 2 2 4 2 1 1  
       BOARD
       state_from_string!(board, gamestate)
     end

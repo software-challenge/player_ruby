@@ -29,6 +29,8 @@ class Client < ClientInterface
     logger.debug "Berechne zuege fuer Board #{gamestate.board}"
     logger.debug 'Felder'
     
-    GameRuleLogic.possible_moves(gamestate).sample
+    possible_moves = GameRuleLogic.possible_moves(gamestate)
+    logger.debug possible_moves
+    possible_moves.sample
   end
 end

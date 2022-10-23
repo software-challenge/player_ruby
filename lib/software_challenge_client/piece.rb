@@ -1,78 +1,40 @@
 # frozen_string_literal: true
 
+require_relative 'direction'
+
 # Ein Spielstein mit Ausrichtung, Koordinaten und Farbe
 class Piece
   include Constants
   
-  # @!attribute [rw] Color
-  # @return [Color]
-  attr_accessor :color
-
-  # @!attribute [r] Typ des Spielsteins
-  # @return [PieceType]
-  attr_reader :type
+  # @!attribute [rw] Team
+  # @return [Team]
+  attr_accessor :team
 
   # @!attribute [rw] Koordinaten
   # @return [Coordinates]
-  attr_accessor :position
-
-  # @!attribute [rw] tower_height
-  # @return [Integer] Die Anzahl Spielsteine übereinander inklusive des obersten
-  attr_accessor :height
+  attr_accessor :coords
 
   # Erstellt einen neuen Spielstein.
-  def initialize(color, type, position = Coordinates.origin, height = 0)
-    @color = color
-    @type = type
-    @position = position
-    @height = height
-  end
-
-  # Berechnet die Koordinaten zu denen sich dieser Spielstein bewegen könnte.
-  #
-  # @return [Array<Coordinates>] Die Zielkoordinaten 
-  def target_coords
-    xdir = 0
-    if color == Color::RED
-      xdir = 1
-    else
-      xdir = -1
-    end
-
-    case type
-    when PieceType::Herzmuschel
-      coords = [Coordinates.new(xdir,-1), Coordinates.new(xdir,1)]
-    when PieceType::Moewe
-      coords = [Coordinates.new(1,0), Coordinates.new(-1,0), Coordinates.new(0,1), 
-        Coordinates.new(0,-1)]
-    when PieceType::Seestern
-      coords = [Coordinates.new(xdir,0), Coordinates.new(1,1), Coordinates.new(-1,1), 
-        Coordinates.new(1,-1), Coordinates.new(-1,-1)]
-    when PieceType::Robbe
-      coords = [Coordinates.new(-1,2), Coordinates.new(1,2), Coordinates.new(-2,1), 
-        Coordinates.new(2,1), Coordinates.new(-1,-2), Coordinates.new(1,-2), 
-        Coordinates.new(-2,-1), Coordinates.new(2,-1)]
-    end
-
-    coords.map{ |x| x + position }.to_a
-    coords.map{ |x| x + position }.select{ |c| c.x >= 0 && c.y >=0 && c.x < BOARD_SIZE && c.y < BOARD_SIZE}.to_a
+  def initialize(team, coords = Coordinates.origin)
+    @team = team
+    @coords = coords
   end
 
   def ==(other)
     !other.nil? &&
-      color == other.color &&
-      position == other.position &&
-      type == other.type
+      team == other.team &&
+      coords == other.coords
   end
 
   # @return [String] Gibt die String-Repräsentation zurück
   def to_s
-    "#{color.key} #{type.key} at #{position}"
+    "#{team.key} at #{coords}"
   end
 
+  # To short string
   # @return [String] Gibt eine Kurzfassung der String-Repräsentation zurück
   def to_ss
-    "#{color.key.to_s[0]}#{type.key.to_s[0]}"
+    "#{team.key.to_s[0]}"
   end
 
   def inspect

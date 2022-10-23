@@ -116,30 +116,20 @@ RSpec.describe Protocol do
     end
 
     it 'sets the players' do
-      expect(subject.gamestate.player_one).to eq(Player.new(Color::RED, "ONE", 1))
-      expect(subject.gamestate.player_two).to eq(Player.new(Color::BLUE, "TWO", 0))
-    end
-
-    it 'sets the last move' do
-      expect(subject.gamestate.last_move.from.y).to eq(2)
-      expect(subject.gamestate.last_move.to.x).to eq(6)
+      expect(subject.gamestate.player_one).to eq(Player.new(Team::ONE, "ONE", 1))
+      expect(subject.gamestate.player_two).to eq(Player.new(Team::TWO, "TWO", 0))
     end
 
     it 'converts a setmove to xml' do
-      move = Move.new(Coordinates.new(7,0), Coordinates.new(6,0))
+      move = Move.new(Coordinates.new(7,1), Coordinates.new(6,0))
       # NOTE that this is brittle because XML formatting (whitespace, attribute
       # order) is arbitrary.
       expect(subject.move_to_xml(move)).to eq <<~XML
       <data class="move">
-        <from x="7" y="0"/>
-        <to x="6" y="0"/>
+        <from x="15" y="1"/>
+        <to x="12" y="0"/>
       </data>
       XML
-    end
-
-    it 'updates the last move' do
-      move = Move.new(Coordinates.new(7, 2), Coordinates.new(6, 2))
-      expect(subject.gamestate.last_move).to eq(move)
     end
   end
 
@@ -182,78 +172,92 @@ RSpec.describe Protocol do
     it 'creates the new board in the gamestate' do
       subject.gamestate.board.clear
       server_message <<-XML
-        <board>
-          <pieces>
-            <entry>
-              <coordinates x="0" y="0"/>
-              <piece type="Herzmuschel" team="ONE" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="7" y="7"/>
-              <piece type="Herzmuschel" team="TWO" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="0" y="1"/>
-              <piece type="Robbe" team="ONE" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="0" y="2"/>
-              <piece type="Robbe" team="ONE" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="0" y="3"/>
-              <piece type="Herzmuschel" team="ONE" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="0" y="4"/>
-              <piece type="Seestern" team="ONE" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="0" y="5"/>
-              <piece type="Moewe" team="ONE" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="0" y="6"/>
-              <piece type="Seestern" team="ONE" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="0" y="7"/>
-              <piece type="Moewe" team="ONE" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="7" y="0"/>
-              <piece type="Moewe" team="TWO" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="7" y="1"/>
-              <piece type="Seestern" team="TWO" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="7" y="2"/>
-              <piece type="Moewe" team="TWO" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="7" y="3"/>
-              <piece type="Seestern" team="TWO" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="7" y="4"/>
-              <piece type="Herzmuschel" team="TWO" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="7" y="5"/>
-              <piece type="Robbe" team="TWO" count="1"/>
-            </entry>
-            <entry>
-              <coordinates x="7" y="6"/>
-              <piece type="Robbe" team="TWO" count="1"/>
-            </entry>
-          </pieces>
-        </board>
+          <board>
+            <list>
+              <field>0</field>
+              <field>TWO</field>
+              <field>2</field>
+              <field>3</field>
+              <field>0</field>
+              <field>3</field>
+              <field>3</field>
+              <field>ONE</field>
+            </list>
+            <list>
+              <field>3</field>
+              <field>1</field>
+              <field>1</field>
+              <field>3</field>
+              <field>2</field>
+              <field>2</field>
+              <field>2</field>
+              <field>2</field>
+            </list>
+            <list>
+              <field>2</field>
+              <field>2</field>
+              <field>2</field>
+              <field>ONE</field>
+              <field>2</field>
+              <field>2</field>
+              <field>1</field>
+              <field>1</field>
+            </list>
+            <list>
+              <field>1</field>
+              <field>1</field>
+              <field>2</field>
+              <field>TWO</field>
+              <field>1</field>
+              <field>1</field>
+              <field>1</field>
+              <field>0</field>
+            </list>
+            <list>
+              <field>0</field>
+              <field>TWO</field>
+              <field>1</field>
+              <field>1</field>
+              <field>1</field>
+              <field>2</field>
+              <field>ONE</field>
+              <field>0</field>
+            </list>
+            <list>
+              <field>1</field>
+              <field>1</field>
+              <field>2</field>
+              <field>2</field>
+              <field>2</field>
+              <field>2</field>
+              <field>2</field>
+              <field>2</field>
+            </list>
+            <list>
+              <field>2</field>
+              <field>2</field>
+              <field>2</field>
+              <field>2</field>
+              <field>3</field>
+              <field>1</field>
+              <field>1</field>
+              <field>3</field>
+            </list>
+            <list>
+              <field>0</field>
+              <field>3</field>
+              <field>TWO</field>
+              <field>ONE</field>
+              <field>3</field>
+              <field>2</field>
+              <field>1</field>
+              <field>0</field>
+            </list>
+          </board>
       XML
       board = subject.gamestate.board
-      expect(board.field(0, 3)).to eq(Field.new(0, 3, Piece.new(Color::RED, PieceType::Herzmuschel, Coordinates.new(0, 3))))
-      expect(board.field(7, 6)).to eq(Field.new(7, 6, Piece.new(Color::BLUE, PieceType::Robbe, Coordinates.new(7, 6))))
+      expect(board.field(7, 0)).to eq(Field.new(7, 0, Piece.new(Team::ONE, Coordinates.new(7, 0))))
+      expect(board.field(7, 6)).to eq(Field.new(7, 6, nil, 3))
     end
   end
 end

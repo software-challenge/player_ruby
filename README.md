@@ -22,7 +22,7 @@ ist weiterhin in englisch.
 
 Um die Software-Challenge Bibliothek in deinem Computerspieler zu verwenden, füge folgende Zeile in das Gemfile deines Projektes ein:
 
-    gem 'software_challenge_client'
+    $ gem 'software_challenge_client'
 
 Installiere das Gem dann mit dem Befehl:
 
@@ -38,7 +38,7 @@ Ein Beispielprojekt zur Verwendung der Bibliothek findet man im Verzeichnis `exa
 
 Du kannst den Beispielclient mittels
 
-    ruby main.rb
+    $ ruby main.rb
 
 in einer Konsole ausführen (dazu musst du dich im Verzeichnis `example` befinden).
 
@@ -77,13 +77,38 @@ Computerspieler zu haben (`client.rb` im Beispielprojekt):
       end
     end
 
+### Abgabe des Clients im SC Wettkampfsystem
+
+Da Ruby eine interpretierte Sprache ist, muss der Ruby-Quellcode direkt
+in ein ZIP-Archiv gepackt und auf das [Wettkampfsystem](https://docs.software-challenge.de/glossary/contest) hochgeladen
+werden. Auf dem [Wettkampfsystem](https://docs.software-challenge.de/glossary/contest) ist ein Ruby-Interpreter sowie das
+aktuellste `software_challenge_client` Gem installiert. Alle weiteren
+Bibliotheken müssen im ZIP-Archiv vorhanden sein. Nach dem Hochladen des ZIP-Archivs muss die auszuführende Hauptdatei im [Wettkampfsystem](https://docs.software-challenge.de/glossary/contest)
+ausgewählt werden. Diese wird dann zum Start des Computerspielers
+gestartet. Damit dies richtig funktioniert, ist es entscheidend, dass
+die Hauptdatei mit einer sogenannten "Shebang"-Zeile beginnt:
+
+    #!/usr/bin/env ruby
+
+Weiterhin ist es ratsam, den Magic-Comment zum Encoding direkt unter die
+Shebang-Zeile zu schreiben:
+
+    # encoding: UTF-8
+
+Ein vollständiges Beispiel für einen abgabefertigen Ruby-Computerspieler
+gibt es im [example Verzeichnis des Computerspieler-Gems bei
+Github](https://github.com/software-challenge/client-ruby/tree/main/example).
+Packt man die beiden Dateien `client.rb` und `main.rb` in ein
+ZIP-Archiv, hat man einen abgabefertigen Computerspieler. Beim Hochladen
+wählt man `main.rb` als Hauptdatei.
+
 ## Generating the Documentation
 
 Code documentation can be generated using YARD in the project root (source code
 needs to be checked out and `bundle` has to be executed,
 see [Installation](#installation)):
 
-    yard
+    $ yard
 
 After generation, the docs can be found in the `doc` directory. Start at
 `index.html`.
@@ -94,11 +119,11 @@ on
 
 When updating the docs, you may use
 
-    yard server --reload
+    $ yard server --reload
 
 or inside a docker container
 
-    yard server --reload --bind 0.0.0.0
+    $ yard server --reload --bind 0.0.0.0
 
 to get a live preview of them at [http://localhost:8808](http://localhost:8808).
 
