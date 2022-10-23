@@ -2,8 +2,6 @@
 
 # Read http://betterspecs.org/ for suggestions writing good specs.
 
-include GameStateHelpers
-
 RSpec.describe Field do
   subject(:field) { Field.new(0, 0, Piece.new(Color::RED, PieceType::Herzmuschel)) }
 

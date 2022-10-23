@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative '../../lib/software_challenge_client/util/constants'
-require_relative '../../lib/software_challenge_client/color'
 
 module GameStateHelpers
   include Constants
