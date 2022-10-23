@@ -12,21 +12,21 @@ module GameStateHelpers
     piece = nil
     fishes = 0
 
-    if descriptor != '_'
-      unless descriptor[0] >= '0' && descriptor[0] <= '4' && descriptor[0] != 'O' && descriptor[0] != 'T'
+    if descriptor[0] != '_'
+      if descriptor[0] != '0' && descriptor[0] != '1' && descriptor[0] != '2' && descriptor[0] != '3' && descriptor[0] != '4' && descriptor[0] != 'O' && descriptor[0] != 'T'
         raise BoardFormatError.new("unknown descriptor #{descriptor[0]}")
       end
       
       if descriptor[0] == 'O'
-        piece = Piece.new(coords.x, coords.y, Team::ONE)
-      elsif descriptor[0] != 'T'
-        piece = Piece.new(coords.x, coords.y, Team::TWO)
+        piece = Piece.new(Team::ONE, coords)
+      elsif descriptor[0] == 'T'
+        piece = Piece.new(Team::TWO, coords)
       else
         fishes = descriptor[0].to_i
       end
     end
     
-    Field.new(coords.x, coords.y, piece)
+    Field.new(coords.x, coords.y, piece, fishes)
   end
 
   # NOTE that this currently does not update undeployed pieces!
@@ -37,10 +37,10 @@ module GameStateHelpers
     fields.each do |field|
       board_fields << field_from_descriptor(field.coords, field_descriptors[field.y * BOARD_SIZE + field.x])
     end
-    gamestate.turn = 4
+    gamestate.turn = 6
     gamestate.add_player(Player.new(Team::ONE, "ONE", 0))
     gamestate.add_player(Player.new(Team::TWO, "TWO", 0))
-    gamestate.current_player = gamestate.player_two
+    gamestate.current_player = gamestate.player_one
     gamestate.board = Board.new(board_fields)
   end
 end
