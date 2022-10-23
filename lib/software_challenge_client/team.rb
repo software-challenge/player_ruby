@@ -2,8 +2,6 @@
 
 require 'typesafe_enum'
 
-require_relative 'color'
-
 # Erster oder zweiter Spieler:
 #
 #   ONE
@@ -11,15 +9,15 @@ require_relative 'color'
 #
 # Zugriff z.B. mit Team::ONE
 class Team < TypesafeEnum::Base
-  new :ONE, 'Red'
-  new :TWO, 'Blue'
+  new :ONE, 'ONE'
+  new :TWO, 'TWO'
 
-  # @return [Color] Gibt die zugehörige Farbe zurück
-  def to_c
-    if self.key == :ONE
-      Color::RED
+  # @return [Team] Das Team, was nicht t ist.
+  def other_team(t)
+    if t == :ONE
+      :TWO
     else
-      Color::BLUE
+      :ONE
     end
   end
 end

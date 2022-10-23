@@ -10,35 +10,36 @@ RSpec.describe GameStateHelpers do
   it 'creates a gamestate from a string board representation' do
     board =
       <<~BOARD
-      RC RS RR RC RG RG RR RS 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      BS BR BG BC BR BG BC BS 
+      O 1 2 4 2 2 3 2 
+      1 1 0 3 2 2 1 0 
+      1 2 1 2 2 0 2 2 
+      1 1 2 1 0 1 2 1 
+      1 2 1 0 1 2 1 1 
+      2 2 0 2 2 1 2 1 
+      0 1 2 2 3 0 1 1 
+      2 3 2 2 4 2 1 1 
       BOARD
     state_from_string!(board, gamestate)
+
     expect(gamestate.board.field(0, 0)).to be_a(Field)
-    expect(gamestate.board.field(0, 0).color).to eq(Color::RED)
-    expect(gamestate.board.field(1, 0)).to be_a(Field)
-    expect(gamestate.board.field(1, 1).color).to be_nil
+    expect(gamestate.board.field(0, 0).team).to eq(Team::ONE)
+    expect(gamestate.board.field(2, 0)).to be_a(Field)
+    expect(gamestate.board.field(2, 0).team).to be_nil
     expect(gamestate.board.field(0, 7)).to be_a(Field)
-    expect(gamestate.board.field(0, 7).color).to eq(Color::BLUE)
+    expect(gamestate.board.field(0, 7).team).to be_nil
   end
 
   it 'raises an error on illegal format' do
     board =
       <<~BOARD
-      RC RS RR RC RG RG RR RS 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ EY __ __ __ __ 
-      __ __ __ __ UWU __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      __ __ __ __ __ __ __ __ 
-      BS BR BG BC BR BG BC BS 
+      O T 2 4 2 2 3 2 
+      1 T 0 3 2 2 1 0 
+      1 2 1 2 2 0 2 O 
+      O O 2 1 0 0 2 1 
+      1 2 1 A 1 2 0 1 
+      2 2 0 2 2 1 2 1 
+      0 T 2 2 3 0 1 0 
+      2 3 2 T 4 2 1 1 
       BOARD
     expect do
       state_from_string!(board, gamestate)

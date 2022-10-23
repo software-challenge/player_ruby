@@ -11,33 +11,33 @@ RSpec.describe GameState do
   before do
     board =
       <<~BOARD
-      RC __ __ __ __ __ __ BS 
-      RS __ __ __ __ __ __ BR 
-      RR __ __ __ __ __ __ BG 
-      RC __ __ __ __ __ __ BC 
-      RG __ __ __ __ __ __ BR 
-      RG __ __ __ __ __ __ BG 
-      RR __ __ __ __ __ __ BC 
-      RS __ __ __ __ __ __ BS 
+      1 T 2 4 2 2 3 2 
+      1 T 0 3 2 2 O 0 
+      1 2 1 2 2 0 2 O 
+      O O 2 1 0 0 2 1 
+      1 2 1 0 1 2 0 1 
+      2 2 0 2 2 1 2 1 
+      0 T 2 2 3 0 1 0 
+      2 3 2 T 4 2 1 1 
       BOARD
     state_from_string!(board, gamestate)
   end
 
   it 'holds the board' do
-    expect(subject.field(0, 0)).to eq(Field.new(0, 0, Piece.new(Color::RED, PieceType::Herzmuschel, Coordinates.new(0,0))))
+    expect(subject.field(0, 3)).to eq(Field.new(0, 3, Piece.new(Team::ONE, Coordinates.new(0, 3))))
   end
 
   it 'is clonable' do
     clone = gamestate.clone
     clone.turn += 1
-    clone.board.add_field(Field.new(0, 0, Piece.new(Color::BLUE, PieceType::Herzmuschel, Coordinates.new(0,0))))
+    clone.board.add_field(Field.new(0, 0, Piece.new(Team::TWO, Coordinates.new(0,0))))
     # if clone is independent, changes will not affect the original gamestate
     expect(gamestate.turn).to_not eq(clone.turn)
     expect(gamestate.board.field(0, 0)).to_not eq(clone.board.field(0, 0))
   end
 
   it 'returns all own fields' do
-    expect(gamestate.own_fields.size).to eq(8)
+    expect(gamestate.own_fields.size).to eq(4)
   end
 
   it 'performs moves' do
@@ -47,8 +47,8 @@ RSpec.describe GameState do
     # end.not_to raise_error
     expect do
       move = Move.new(
-        Coordinates.new(0, 4),
-        Coordinates.new(1, 4)
+        nil,
+        Coordinates.new(0, 0)
       )
       gamestate.perform!(move)
     end.not_to raise_error
