@@ -23,8 +23,7 @@ class Piece
   def ==(other)
     !other.nil? &&
       team == other.team &&
-      coords == other.coords &&
-      type == other.type
+      coords == other.coords
   end
 
   # @return [String] Gibt die String-Repräsentation zurück
