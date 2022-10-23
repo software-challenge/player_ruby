@@ -1,5 +1,9 @@
 # Software-Challenge Client
 
+[![Gem version (Socha)](https://img.shields.io/gem/v/software_challenge_client)](https://rubygems.org/gems/software_challenge_client)
+[![Discord](https://img.shields.io/discord/233577109363097601?color=blue&label=Discord)](https://discord.gg/ARZamDptG5)
+[![Documentation](https://img.shields.io/badge/Software--Challenge%20-Documentation-%234299e1)](https://docs.software-challenge.de/)
+
 This gem includes everything to build a client for the coding
 competition [Software-Challenge](http://www.software-challenge.de).
 
