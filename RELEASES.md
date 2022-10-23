@@ -1,3 +1,7 @@
+= 23.0.2
+
+First Version for "Hey, Danke für den Fisch"
+
 = 22.1.0
 
 Fix gamestate.round
